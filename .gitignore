@@ -1,0 +1,21 @@
+# Build output
+/build/
+/dist/
+/tools/
+vendor/
+
+# Step 1 throwaway test assets (large / generated)
+/engine-test/real-plugins/
+/engine-test/wp/
+/engine-test/tools/
+/engine-test/*.json
+!/engine-test/composer.json
+/engine-test/*.jsonl
+/engine-test/trace.txt
+/engine-test/bench-*.txt
+
+.DS_Store
+
+# Deliberately unreadable fixture (chmod 000); recreated by the test setup
+/engine-test/fixtures/plugins/fx-unreadable/inc/secret.php
+/engine-test/coexist.php.bak

@@ -1,0 +1,43 @@
+/* Airworthy: admin screen. Loaded on the plugin's own page only. */
+.airworthy-wrap .airworthy-lede {
+	max-width: 46rem;
+	font-size: 14px;
+}
+
+.airworthy-card {
+	max-width: 46rem;
+	margin-top: 16px;
+	padding: 16px 20px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.airworthy-facts {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 6px 16px;
+	margin: 0 0 16px;
+}
+
+.airworthy-facts dt {
+	color: #50575e;
+}
+
+.airworthy-facts dd {
+	margin: 0;
+}
+
+.airworthy-start {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	padding-top: 16px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.airworthy-start .description {
+	flex-basis: 100%;
+	margin: 0;
+}

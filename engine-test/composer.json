@@ -1,0 +1,12 @@
+{
+    "name": "sua/engine-test",
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "require-dev": {
+        "phpcompatibility/phpcompatibility-wp": "*",
+        "squizlabs/php_codesniffer": "*"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "name": "sua/engine-test-v10",
+    "minimum-stability": "alpha",
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "prefer-stable": true,
+    "require-dev": {
+        "phpcompatibility/phpcompatibility-wp": "3.0.0-alpha2"
+    }
+}
