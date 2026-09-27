@@ -146,7 +146,14 @@ Email security@airworthywp.com. Please don't post it in the public support forum
 == Changelog ==
 
 = 1.0.0 =
-* First release: PHP 8.0–8.5 compatibility scan of every plugin and theme, WordPress.org maintenance signals, background scanning, CSV export and WP-CLI commands.
+* First release.
+* Checks every plugin and theme against PHP 8.0 to 8.5, with a clear verdict for each: Blocker, Unknown, Suppressed by author, Guarded legacy code, Warnings or Ready.
+* Tells real problems from old code that never runs on the new PHP version, including code that falls back to a replacement PHP extension.
+* Marks problems that already apply on the PHP version your site runs now, so they aren't counted as new with this upgrade.
+* Optional WordPress.org check (you choose): plugins removed from WordPress.org, not updated in two years, or needing a newer PHP version.
+* Runs in the background with live progress, so a large site never times out.
+* Settings: skip inactive plugins, never scan chosen plugins or themes, and choose how hard scans work your server.
+* CSV export and WP-CLI commands.
 
 == Upgrade Notice ==
 
