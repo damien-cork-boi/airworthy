@@ -43,7 +43,13 @@ echo "==> Copying into $TARGET"
 find "$TARGET" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
 for path in "${INCLUDE[@]}"; do
 	mkdir -p "$TARGET/$(dirname "$path")"
-	rsync -a --exclude vendor --exclude node_modules --exclude .DS_Store --exclude secret.php "$ROOT/$path" "$TARGET/$(dirname "$path")/"
+	# Built libraries (plugin/vendor, a top-level vendor) aren't source. The test fixtures'
+	# own vendor/ folders are: the scanner must scan bundled library code too.
+	case "$path" in
+		engine-test/*) skip=() ;;
+		*) skip=( --exclude vendor ) ;;
+	esac
+	rsync -a "${skip[@]+"${skip[@]}"}" --exclude node_modules --exclude .DS_Store --exclude secret.php "$ROOT/$path" "$TARGET/$(dirname "$path")/"
 done
 cp "$ROOT/public/README.md" "$TARGET/README.md"
 cp "$ROOT/public/LICENSE" "$TARGET/LICENSE"
