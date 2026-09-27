@@ -61,6 +61,14 @@ const rows = [
 
 	.name {
 		font-weight: 600;
+		min-width: 0;
+	}
+
+	/* Never stretch to the row's height (iOS Safari drew a tall pill beside a wrapped name). */
+	.badge {
+		align-self: start;
+		justify-self: end;
+		text-align: center;
 	}
 
 	.note {
@@ -84,6 +92,7 @@ const rows = [
 
 		.badge {
 			justify-self: start;
+			white-space: normal;
 		}
 	}
 </style>

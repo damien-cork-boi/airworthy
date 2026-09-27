@@ -370,6 +370,7 @@ figcaption {
 
 .badge {
 	display: inline-block;
+	align-self: start; /* In grids and flex rows: never stretch to the row's height. */
 	padding: 2px 10px;
 	border-radius: 999px;
 	font-size: 0.85rem;
