@@ -93,7 +93,7 @@ Both real bugs should be reported to the authors, with file and line, before the
    - aliased imports (`use …\CouponStatus as CouponStatusEnum`);
    - two different classes with the same short name in different namespaces (e.g. two `ApiException`s). The cross-file index keys classes by short name, so it gives up.
    - One xxh3 finding is guarded by `in_array( 'xxh3', hash_algos() )`, a capability check the classifier doesn't know yet.
-   Next step, if wanted: resolve full namespaced class names (namespace + `use` aliases), treat `X::class` passed to a container as a use, and add `hash_algos()` as a capability check.
+   **Parked as a post-launch item** (decided 27 Sep 2026): see "Post-launch" below.
 4. **Coverage gaps from Step 1** (static): the 8.1 `ArrayAccess` return types, 8.2 `HTML-ENTITIES` and `"self::"` callables, and the 8.5 `case;`, null offset and `PDO::MYSQL_ATTR_*` cases. Planned as our own sniffs (see ENGINE.md).
 
 ## WordPress.org signals (Step 5, `plugin/src/Wporg/`)
@@ -110,3 +110,12 @@ Both real bugs should be reported to the authors, with file and line, before the
 Identification: WordPress core's update check (`w.org/plugins/<slug>`) first, then the folder name. The names must match either way, because core itself matches by folder name (a custom plugin in `calendar/` gets WordPress.org's "Calendar"). Name matching compares words: every word of the shorter name appears in the longer one, or at least 2 leading words are shared ("Ultimate Addons for Elementor (UAE)" = "Ultimate Addons for Elementor – Widgets, …"). Result: 30/30 top plugins matched; "calendar", "WP Super Cache" vs "WP Super Edit", "Elementor Pro" vs "Elementor" and similar look-alikes correctly rejected.
 
 Privacy, verified by logging every request: only the slug is sent, the User-Agent is `Airworthy/<version>` (never WordPress's default, which carries the site URL), and 0 of 50 requests contained the site address. Cached 24 hours; a second scan made 0 requests. Offline: the scan completes, reports "offline", and gives up after 2 failed lookups in a row; failures aren't cached.
+
+## Post-launch
+
+1. **Full namespaced class-name resolution in the cross-file check** (fixes WooCommerce's false Blocker at target PHP 8.0, and similar PSR-4 plugins):
+   - key classes by fully qualified name (namespace + class), not short name, so same-named classes in different namespaces stay apart;
+   - resolve `use … as …` aliases and relative names per file;
+   - count `X::class` passed to a dependency container (`->get( X::class )`) as a use of X;
+   - add `in_array( 'algo', hash_algos() )` as a capability check.
+   Needs its own fixture and look-alike fixture, like every guard rule. It only affects target 8.0; results from 8.1 up are already correct.

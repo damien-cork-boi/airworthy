@@ -119,6 +119,28 @@ final class Controller {
 		);
 		register_rest_route(
 			$ns,
+			$scan . '/components/(?P<component>\d+)/rescan',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'rescan' ),
+				'permission_callback' => $can,
+				'args'                => array(
+					'id'        => $id,
+					'component' => $id,
+				),
+			)
+		);
+		register_rest_route(
+			$ns,
+			'/estimate',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'estimate' ),
+				'permission_callback' => $can,
+			)
+		);
+		register_rest_route(
+			$ns,
 			$scan . '/cancel',
 			array(
 				'methods'             => 'POST',
@@ -159,7 +181,7 @@ final class Controller {
 	 *
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public static function current() {
+	public static function current( $request = null ) {
 		global $wpdb;
 		$t  = Installer::tables();
 		$id = Queue::active_scan_id();
@@ -170,7 +192,12 @@ final class Controller {
 		if ( ! $id ) {
 			return new \WP_Error( 'airworthy_no_scan', __( 'No scan has been run yet.', 'airworthy' ), array( 'status' => 404 ) );
 		}
-		return self::get_scan( array( 'id' => $id ) );
+		$response = self::get_scan( array( 'id' => $id ) );
+		// The results screen passes seen=1 once it shows a finished scan: no "finished" notice needed.
+		if ( $request instanceof \WP_REST_Request && $request['seen'] && ! is_wp_error( $response ) && 'complete' === $response->data['status'] ) {
+			\Airworthy\Admin\Notice::mark_seen();
+		}
+		return $response;
 	}
 
 	/**
@@ -187,7 +214,7 @@ final class Controller {
 		}
 		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
-		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, type, slug, name, version, is_active, status, verdict, errors, guarded, suppressed, warnings, files_total, files_done, files_failed, files_skipped, files_ignored, wporg FROM {$t['components']} WHERE scan_id = %d ORDER BY id", $scan->id ) );
+		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, type, slug, name, version, is_active, status, phase, verdict, errors, guarded, suppressed, warnings, files_total, files_done, files_failed, files_skipped, files_ignored, wporg FROM {$t['components']} WHERE scan_id = %d ORDER BY id", $scan->id ) );
 
 		$order      = array_flip( Verdict::ALL );
 		$components = array();
@@ -200,6 +227,7 @@ final class Controller {
 				'version'    => $r->version,
 				'active'     => (bool) $r->is_active,
 				'status'     => $r->status,
+				'phase'      => $r->phase,
 				'verdict'    => $r->verdict,
 				'counts'     => array(
 					'errors'     => (int) $r->errors,
@@ -285,6 +313,49 @@ final class Controller {
 	}
 
 	/**
+	 * POST /scans/{id}/components/{component}/rescan: checks one plugin or theme again.
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function rescan( \WP_REST_Request $request ) {
+		$result = Queue::rescan_component( (int) $request['id'], (int) $request['component'] );
+		if ( is_wp_error( $result ) ) {
+			$result->add_data( array( 'status' => 'airworthy_not_found' === $result->get_error_code() ? 404 : 409 ) );
+			return $result;
+		}
+		return new \WP_REST_Response( self::scan_summary( self::scan_row( (int) $request['id'] ) ), 200 );
+	}
+
+	/**
+	 * GET /estimate: how many files a new scan would check, and roughly how long it takes.
+	 * Uses the last scan's count when there is one (cheap); otherwise counts the files.
+	 * Minutes: 7 ms per file on a fast server, 40 ms on cheap shared hosting (Step 1/3 tests).
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function estimate() {
+		global $wpdb;
+		$t     = Installer::tables();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		$files = (int) $wpdb->get_var( "SELECT files_total FROM {$t['scans']} WHERE files_total > 0 ORDER BY id DESC LIMIT 1" );
+		if ( ! $files ) {
+			foreach ( \Airworthy\Scan\Components::discover() as $c ) {
+				$listing = \Airworthy\Scan\FileLister::list_files( \Airworthy\Scan\Components::root( $c['type'], $c['rel_path'], $c['slug'] ) );
+				$files  += count( $listing['files'] );
+			}
+		}
+		return new \WP_REST_Response(
+			array(
+				'files'        => $files,
+				'minutes_low'  => max( 1, (int) ceil( $files * 0.007 / 60 ) ),
+				'minutes_high' => max( 1, (int) ceil( $files * 0.040 / 60 ) ),
+			),
+			200
+		);
+	}
+
+	/**
 	 * POST /scans/{id}/cancel.
 	 *
 	 * @param \WP_REST_Request $request Request.
@@ -354,6 +425,7 @@ final class Controller {
 			),
 			'counts'      => $counts,
 			'wporg'       => $s->wporg_status ? $s->wporg_status : null, // pending | done | partial | offline.
+			'export_url'  => \Airworthy\Admin\Export::url( (int) $s->id ),
 			'created_at'  => self::iso( $s->created_at ),
 			'started_at'  => self::iso( $s->started_at ),
 			'finished_at' => self::iso( $s->finished_at ),

@@ -111,6 +111,155 @@ final class Queue {
 	}
 
 	/**
+	 * Checks one plugin or theme again within a finished scan (on request).
+	 *
+	 * @param int $scan_id      Scan ID.
+	 * @param int $component_id Component ID.
+	 * @return true|\WP_Error
+	 */
+	public static function rescan_component( $scan_id, $component_id ) {
+		return self::rescan_components( $scan_id, array( $component_id ) );
+	}
+
+	/**
+	 * Checks some plugins or themes again within a finished scan (after an update, or on
+	 * request), keeping everyone else's results. Their file lists, pre-pass, findings and
+	 * WordPress.org signals are rebuilt; the scan re-opens until they're done.
+	 *
+	 * @param int   $scan_id       Scan ID.
+	 * @param int[] $component_ids Component IDs.
+	 * @return true|\WP_Error
+	 */
+	public static function rescan_components( $scan_id, array $component_ids ) {
+		global $wpdb;
+		$t = Installer::tables();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT id, status FROM {$t['scans']} WHERE id = %d", $scan_id ) );
+		if ( ! $scan ) {
+			return new \WP_Error( 'airworthy_not_found', __( 'Not found.', 'airworthy' ) );
+		}
+		if ( 'complete' !== $scan->status || self::active_scan_id() ) {
+			return new \WP_Error( 'airworthy_scan_running', __( 'Wait for the current scan to finish, then try again.', 'airworthy' ) );
+		}
+
+		$installed = array();
+		foreach ( Components::discover() as $row ) {
+			$installed[ $row['type'] . '|' . $row['slug'] ] = $row;
+		}
+		$any_plugin = false;
+		$reset      = 0;
+		foreach ( array_unique( array_map( 'intval', $component_ids ) ) as $component_id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+			$c = $wpdb->get_row( $wpdb->prepare( "SELECT id, type, slug FROM {$t['components']} WHERE id = %d AND scan_id = %d", $component_id, $scan_id ) );
+			if ( ! $c ) {
+				return new \WP_Error( 'airworthy_not_found', __( 'Not found.', 'airworthy' ) );
+			}
+			if ( ! isset( $installed[ $c->type . '|' . $c->slug ] ) ) {
+				return new \WP_Error( 'airworthy_gone', __( 'That plugin or theme is no longer installed.', 'airworthy' ) );
+			}
+			$fresh   = $installed[ $c->type . '|' . $c->slug ]; // Current name and version (it may just have been updated).
+			$listing = FileLister::list_files( Components::root( $c->type, $fresh['rel_path'], $c->slug ) );
+			$wpdb->delete( $t['issues'], array( 'component_id' => (int) $c->id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$t['components'],
+				array(
+					'name'          => $fresh['name'],
+					'version'       => $fresh['version'],
+					'rel_path'      => $fresh['rel_path'],
+					'is_active'     => $fresh['is_active'] ? 1 : 0,
+					'status'        => 'queued',
+					'phase'         => 'main',
+					'files'         => wp_json_encode( $listing['files'] ),
+					'deferred'      => '[]',
+					'files_total'   => count( $listing['files'] ),
+					'files_done'    => 0,
+					'files_ignored' => $listing['ignored'],
+					'files_failed'  => 0,
+					'files_skipped' => 0,
+					'file_cursor'   => 0,
+					'inflight_file' => null,
+					'attempts'      => 0,
+					'verdict'       => null,
+					'errors'        => 0,
+					'warnings'      => 0,
+					'guarded'       => 0,
+					'suppressed'    => 0,
+					'prepass'       => null,
+					'wporg'         => null,
+					'started_at'    => null,
+					'finished_at'   => null,
+				),
+				array( 'id' => (int) $c->id )
+			);
+			$any_plugin = $any_plugin || 'plugin' === $c->type;
+			$reset++;
+		}
+		if ( ! $reset ) {
+			return true;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT SUM(files_total) FROM {$t['components']} WHERE scan_id = %d", $scan_id ) );
+		$data  = array(
+			'status'      => 'running',
+			'finished_at' => null,
+			'files_total' => $total,
+			'attempts'    => 0,
+		);
+		if ( $any_plugin ) {
+			$data['wporg_status'] = 'pending';
+			\Airworthy\Wporg\Fetcher::enqueue( (int) $scan_id );
+		}
+		$wpdb->update( $t['scans'], $data, array( 'id' => (int) $scan_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		self::sync_scan_progress( (int) $scan_id );
+		self::enqueue_now( (int) $scan_id );
+		return true;
+	}
+
+	/**
+	 * After WordPress updates plugins or themes, re-checks them in the latest finished scan so
+	 * its results match what's installed.
+	 *
+	 * @param \WP_Upgrader $upgrader Upgrader.
+	 * @param array        $extra    Hook data: type, action, plugins / themes.
+	 */
+	public static function after_upgrade( $upgrader, $extra ) {
+		global $wpdb;
+		if ( empty( $extra['action'] ) || 'update' !== $extra['action'] || empty( $extra['type'] ) ) {
+			return;
+		}
+		$t = Installer::tables();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		$scan = $wpdb->get_row( "SELECT id, status FROM {$t['scans']} ORDER BY id DESC LIMIT 1" );
+		if ( ! $scan || 'complete' !== $scan->status ) {
+			return;
+		}
+		$slugs = array();
+		if ( 'plugin' === $extra['type'] ) {
+			$files = isset( $extra['plugins'] ) ? (array) $extra['plugins'] : ( isset( $extra['plugin'] ) ? array( $extra['plugin'] ) : array() );
+			foreach ( $files as $file ) {
+				$slugs[] = false === strpos( $file, '/' ) ? basename( $file, '.php' ) : dirname( $file );
+			}
+		} elseif ( 'theme' === $extra['type'] ) {
+			$slugs = isset( $extra['themes'] ) ? (array) $extra['themes'] : ( isset( $extra['theme'] ) ? array( $extra['theme'] ) : array() );
+		}
+		if ( ! $slugs ) {
+			return;
+		}
+		$ids = array();
+		foreach ( $slugs as $slug ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+			$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$t['components']} WHERE scan_id = %d AND type = %s AND slug = %s", $scan->id, $extra['type'], $slug ) );
+			if ( $id ) {
+				$ids[] = $id;
+			}
+		}
+		if ( $ids ) {
+			self::rescan_components( (int) $scan->id, $ids ); // All updated items in one re-opened scan.
+		}
+	}
+
+	/**
 	 * Cancels a scan and its queued jobs. Results so far are kept.
 	 *
 	 * @param int $scan_id Scan ID.
@@ -632,6 +781,7 @@ final class Queue {
 			array( 'id' => $scan_id )
 		);
 		Results::refresh_scan( $scan_id );
+		update_site_option( \Airworthy\Admin\Notice::OPTION, (int) $scan_id ); // "Scan finished" notice until the results are seen.
 	}
 
 	/**

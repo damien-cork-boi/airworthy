@@ -13,8 +13,12 @@ use Airworthy\Targets;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Tools > Airworthy (single site) or Network Admin > Settings > Airworthy
- * (multisite, where the network admin has no Tools menu).
+ * Tools > Airworthy (single site) or Network Admin > Settings > Airworthy (multisite, where
+ * the network admin has no Tools menu).
+ *
+ * The start card is rendered here (the target picker needs PHP's view of the server); the
+ * progress and results views are built by assets/admin.js from the REST API
+ * (/airworthy/v1). Everything the script shows from a scan is inserted as text, never HTML.
  */
 final class Page {
 
@@ -26,6 +30,15 @@ final class Page {
 	 * @var string
 	 */
 	private $hook = '';
+
+	/**
+	 * URL of the screen.
+	 *
+	 * @return string
+	 */
+	public static function url() {
+		return is_multisite() ? network_admin_url( 'settings.php?page=' . self::SLUG ) : admin_url( 'tools.php?page=' . self::SLUG );
+	}
 
 	/**
 	 * Registers menu and asset hooks.
@@ -58,7 +71,33 @@ final class Page {
 		if ( '' === $this->hook || $hook_suffix !== $this->hook ) {
 			return;
 		}
-		wp_enqueue_style( 'airworthy-admin', AIRWORTHY_URL . 'assets/admin.css', array(), AIRWORTHY_VERSION );
+		wp_enqueue_style( 'airworthy-admin', AIRWORTHY_URL . 'assets/admin.css', array(), self::asset_version( 'assets/admin.css' ) );
+		wp_enqueue_script( 'airworthy-admin', AIRWORTHY_URL . 'assets/admin.js', array( 'wp-api-fetch', 'wp-i18n' ), self::asset_version( 'assets/admin.js' ), true );
+		wp_set_script_translations( 'airworthy-admin', 'airworthy' );
+		wp_add_inline_script(
+			'airworthy-admin',
+			'window.airworthyConfig = ' . wp_json_encode(
+				array(
+					'rest'         => '/airworthy/v1',
+					'cronDisabled' => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON,
+				)
+			) . ';',
+			'before'
+		);
+	}
+
+	/**
+	 * Asset version: the plugin version, plus the file's modified time in development builds
+	 * (so browsers never keep a stale copy while the plugin is being worked on).
+	 *
+	 * @param string $relative Asset path relative to the plugin folder.
+	 * @return string
+	 */
+	private static function asset_version( $relative ) {
+		if ( false === strpos( AIRWORTHY_VERSION, '-dev' ) ) {
+			return AIRWORTHY_VERSION;
+		}
+		return AIRWORTHY_VERSION . '.' . (int) @filemtime( AIRWORTHY_DIR . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Missing file: version 0.
 	}
 
 	/**
@@ -112,12 +151,14 @@ final class Page {
 	}
 
 	/**
-	 * Renders the screen. Step 2 shows the Start view only; progress and results follow later.
+	 * Renders the screen: the start card, plus containers the script fills with the progress
+	 * and results views.
 	 */
 	public function render() {
 		if ( ! Capabilities::current_user_can_scan() ) {
 			wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'airworthy' ), 403 );
 		}
+		Notice::mark_seen(); // The results are on screen now.
 
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -129,8 +170,8 @@ final class Page {
 		 *
 		 * @param string $version Default PHP_VERSION.
 		 */
-		$current      = (string) apply_filters( 'airworthy_server_php_version', PHP_VERSION );
-		$default      = Targets::default_for( $current );
+		$current = (string) apply_filters( 'airworthy_server_php_version', PHP_VERSION );
+		$default = Targets::default_for( $current );
 		?>
 		<div class="wrap airworthy-wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
@@ -138,7 +179,9 @@ final class Page {
 				<?php esc_html_e( 'Check which plugins and themes will break on a newer PHP version, and which look abandoned, before you upgrade. This tool only reads files; it never changes your site or your server.', 'airworthy' ); ?>
 			</p>
 
-			<div class="airworthy-card">
+			<noscript><div class="notice notice-error"><p><?php esc_html_e( 'Airworthy needs JavaScript to run scans and show results.', 'airworthy' ); ?></p></div></noscript>
+
+			<div class="airworthy-card" id="airworthy-start" hidden>
 				<dl class="airworthy-facts">
 					<dt><?php esc_html_e( 'Server PHP version', 'airworthy' ); ?></dt>
 					<dd>
@@ -160,23 +203,28 @@ final class Page {
 						);
 						?>
 					</dd>
+					<dt><?php esc_html_e( 'Time needed', 'airworthy' ); ?></dt>
+					<dd id="airworthy-estimate" class="airworthy-muted"><?php esc_html_e( 'Working it out…', 'airworthy' ); ?></dd>
 				</dl>
 
-				<form class="airworthy-start" method="post" action="">
-					<?php wp_nonce_field( 'airworthy_start_scan', 'airworthy_nonce' ); ?>
+				<form class="airworthy-start" id="airworthy-start-form">
 					<label for="airworthy-target"><?php esc_html_e( 'Check against PHP', 'airworthy' ); ?></label>
-					<select id="airworthy-target" name="target" aria-describedby="airworthy-target-why">
+					<select id="airworthy-target" name="target" aria-describedby="airworthy-target-why airworthy-ended-note">
 						<?php foreach ( Targets::ALL as $target ) : ?>
-							<option value="<?php echo esc_attr( $target ); ?>" <?php selected( $target, $default ); ?>><?php echo esc_html( self::target_label( $target, $default ) ); ?></option>
+							<option value="<?php echo esc_attr( $target ); ?>" data-supported="<?php echo Targets::is_supported( $target ) ? '1' : '0'; ?>" <?php selected( $target, $default ); ?>><?php echo esc_html( self::target_label( $target, $default ) ); ?></option>
 						<?php endforeach; ?>
 					</select>
-					<button type="submit" class="button button-primary" disabled aria-describedby="airworthy-start-note">
-						<?php esc_html_e( 'Start scan', 'airworthy' ); ?>
-					</button>
+					<button type="submit" class="button button-primary" id="airworthy-start-button"><?php esc_html_e( 'Start scan', 'airworthy' ); ?></button>
+					<button type="button" class="button-link" id="airworthy-start-cancel" hidden><?php esc_html_e( 'Back to results', 'airworthy' ); ?></button>
 					<p id="airworthy-target-why" class="description"><?php echo esc_html( self::default_explanation( $current, $default ) ); ?></p>
-					<p id="airworthy-start-note" class="description"><?php esc_html_e( 'Scanning is not available in this development build yet.', 'airworthy' ); ?></p>
+					<p id="airworthy-ended-note" class="airworthy-note airworthy-note-warning" hidden
+						data-template="<?php /* translators: 1: chosen PHP version, 2: recommended PHP version. */ echo esc_attr( sprintf( __( 'PHP %1$s no longer gets security fixes, and results for unsupported versions are less precise. We recommend PHP %2$s instead.', 'airworthy' ), '%1$s', $default ) ); ?>"></p>
+					<p id="airworthy-start-error" class="airworthy-note airworthy-note-error" role="alert" hidden></p>
 				</form>
 			</div>
+
+			<div id="airworthy-progress" hidden></div>
+			<div id="airworthy-results" hidden></div>
 		</div>
 		<?php
 	}

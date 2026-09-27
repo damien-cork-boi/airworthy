@@ -37,7 +37,7 @@ final class Installer {
 	const OPTION_DB_VERSION = 'airworthy_db_version';
 
 	/** Every option the plugin owns, so uninstall can remove them all. */
-	const OPTIONS = array( self::OPTION_DB_VERSION );
+	const OPTIONS = array( self::OPTION_DB_VERSION, 'airworthy_unseen_scan' );
 
 	/** Transient prefix for cached WordPress.org plugin data (Step 5). */
 	const TRANSIENT_PREFIX = 'airworthy_wporg_';
