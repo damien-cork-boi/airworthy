@@ -96,6 +96,35 @@
 	};
 	var ORDER = [ 'blocker', 'unknown', 'suppressed', 'guarded', 'warnings', 'ready' ];
 
+	/**
+	 * Whether the scan compares from an older PHP version than its target (the usual case;
+	 * the "between X and Y" wording only makes sense then).
+	 */
+	function isUpgrade( scan ) {
+		return ! ! scan.from_php && 'undefined' !== typeof scan.target_php && parseFloat( scan.from_php ) < parseFloat( scan.target_php );
+	}
+
+	/**
+	 * A key to the verdict badges: each badge with its one-line meaning (the same wording as
+	 * the results table).
+	 */
+	function verdictLegend( scan ) {
+		return el(
+			'dl',
+			{ class: 'airworthy-legend' },
+			ORDER.map(
+				function ( key ) {
+					return el(
+						'div',
+						null,
+						el( 'dt', null, el( 'span', { class: 'airworthy-badge airworthy-verdict-' + key }, VERDICTS[ key ].label ) ),
+						el( 'dd', null, 'blocker' === key ? sprintf( VERDICTS[ key ].line, scan.target_php ) : VERDICTS[ key ].line )
+					);
+				}
+			)
+		);
+	}
+
 	var SEVERITY  = {
 		scan: __( 'Not checked', 'airworthy' ),
 		error: __( 'Error', 'airworthy' ),
@@ -425,7 +454,14 @@
 			list: el( 'ul', { class: 'airworthy-progress-list' } ),
 		};
 		parts.barWrap  = el( 'div', { class: 'airworthy-bar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': __( 'Scan progress', 'airworthy' ) }, parts.bar );
-		parts.listCard = el( 'div', { class: 'airworthy-card', hidden: true }, el( 'h3', null, __( 'Plugins and themes', 'airworthy' ) ), parts.list );
+		parts.listCard = el(
+			'div',
+			{ class: 'airworthy-card', hidden: true },
+			el( 'h3', null, __( 'Plugins and themes', 'airworthy' ) ),
+			el( 'p', { class: 'airworthy-muted' }, __( 'Each plugin and theme gets a verdict as soon as its files are checked. What the verdicts mean:', 'airworthy' ) ),
+			verdictLegend( scan ),
+			parts.list
+		);
 		fill(
 			views.progress,
 			el(
@@ -490,7 +526,7 @@
 					/* translators: %s: PHP version. */
 					sprintf( __( 'Whether old code only runs on old PHP versions, behind a version check. If it can never run on PHP %s, it is marked as guarded legacy code, not as a problem.', 'airworthy' ), scan.target_php )
 				),
-				scan.from_php ? item(
+				isUpgrade( scan ) ? item(
 					__( 'What is new with this upgrade.', 'airworthy' ),
 					/* translators: 1: PHP version the site runs, 2: target PHP version. */
 					sprintf( __( 'Only changes after PHP %1$s, the version your site runs now, can be Blockers: code hit by older changes already fails or never runs today, and PHP %2$s doesn\'t change that. Those are still listed, marked as already on your PHP.', 'airworthy' ), scan.from_php, scan.target_php )
@@ -520,7 +556,7 @@
 		/* translators: %s: PHP version. */
 		parts.heading.textContent = sprintf( __( 'Checking your site for PHP %s', 'airworthy' ), scan.target_php );
 		/* translators: %s: PHP version. */
-		parts.what.textContent = scan.from_php ?
+		parts.what.textContent = isUpgrade( scan ) ?
 			/* translators: 1: PHP version the site runs, 2: target PHP version. */
 			sprintf( __( 'Airworthy is reading every PHP file in your plugins and theme, without running any of it, and checking each line against what changes between PHP %1$s and PHP %2$s.', 'airworthy' ), scan.from_php, scan.target_php ) :
 			/* translators: %s: PHP version. */
@@ -1027,6 +1063,12 @@
 					)
 				),
 				summary,
+				el(
+					'details',
+					{ class: 'airworthy-legend-toggle' },
+					el( 'summary', null, __( 'What do the verdicts mean?', 'airworthy' ) ),
+					verdictLegend( scan )
+				),
 				status,
 				el( 'p', { class: 'airworthy-honest' }, __( 'Airworthy reads your plugins’ code without running it. A check like this can’t catch everything: some problems only show up when code runs, and a future version will add runtime checking to confirm these results.', 'airworthy' ) )
 			),
