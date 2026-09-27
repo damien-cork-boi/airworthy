@@ -48,6 +48,8 @@ $check( 'Verdict: nothing found is Ready', Verdict::READY === Verdict::from_coun
 // --- WordPress.org name matching and signals.
 $check( 'Names: same plugin, extra words', Signals::names_match( 'Akismet', 'Akismet Anti-spam: Spam Protection' ) );
 $check( 'Names: different plugin, same folder', ! Signals::names_match( 'FX Acme Events', 'Calendar' ) );
+$check( 'Names: a brand with WP added (GiveWP)', Signals::names_match( 'Give - Donation Plugin', 'GiveWP &#8211; Donation Plugin and Fundraising Platform' ) );
+$check( 'Names: WP at the start (WPForms)', Signals::names_match( 'WPForms Lite', 'WPForms &#8211; Easy Form Builder for WordPress' ) );
 $record = array(
 	'listed'       => true,
 	'closed'       => false,
