@@ -57,6 +57,12 @@ add_filter(
 	10,
 	3
 );
+if ( ! empty( $airworthy_knobs['php'] ) ) {
+	// Pretend the server runs another PHP version (admin screen preview).
+	add_filter( 'airworthy_server_php_version', static function () use ( $airworthy_knobs ) {
+		return $airworthy_knobs['php'];
+	} );
+}
 if ( ! empty( $airworthy_knobs['recovery'] ) ) {
 	add_filter( 'airworthy_recovery_delay', static function () use ( $airworthy_knobs ) {
 		return (int) $airworthy_knobs['recovery'];

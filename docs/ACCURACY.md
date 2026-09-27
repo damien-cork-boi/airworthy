@@ -29,6 +29,7 @@ In this order:
      - *Declaration-only files.* The file only declares classes/interfaces/traits (plus the ABSPATH exit check), so loading it runs nothing, and every use of its classes (`new C`, `C::`) elsewhere in the component is itself in dead code. Example: All-in-One WP Migration's MySQL driver is only created after `if ( PHP_MAJOR_VERSION >= 7 ) { return new …Mysqli; }`.
      - *Conditionally included files.* Every `include`/`require` of the file is in dead code. This only applies when every include in the component resolves to a file: `__DIR__`, `__FILE__`, `dirname()`, `plugin_dir_path()`, and constants built from those.
      - Conservative by design: a class that is extended, implemented, named in a string, never used in the component, or possibly created dynamically (`new $class` plus a string that could build its name) never counts. Chains are followed at most 3 files deep.
+   - **Helper methods** that only return a condition count as that condition: `if ( ! self::is_supported() ) { return; }`, `if ( Env::is_legacy_php() )`, `if ( is_php5() )`. Required: no parameters; the body is exactly `return <condition>;`; the call resolves exactly (`self::`, `ClassName::`, or a plain function). `static::` and `$this->` count only when the method is private/final or the class is final, since a subclass could override it; `parent::` never counts. Helpers calling helpers are followed 3 deep.
 3. **Suppressed:** an author annotation covers the rule on that line. A PHPCompatibility 9-era annotation on the removed-*extension* rule also covers the version 10 removed-*function* twin on the same line.
 4. **Plain:** everything else.
 
@@ -38,7 +39,7 @@ Also:
 - "No PHP code found" (short open tags) is a notice.
 - Generated data files (charset tables, Composer and Jetpack classmaps, `.l10n.php`) and test suites inside bundled libraries are never scanned.
 
-## Fixtures (`engine-test/fixtures/plugins`): 84/84 correct for 8.0–8.5
+## Fixtures (`engine-test/fixtures/plugins`): 102/102 correct for 8.0–8.5
 
 | Fixture | Expected | Result |
 |---|---|---|
@@ -48,6 +49,9 @@ Also:
 | fx-fake-guard (5 fake guards) | **Blocker** | ✓ |
 | fx-cross-file (legacy class created only after an early return on PHP 7+; compat file included only on PHP 5) | Guarded | ✓ |
 | fx-cross-fake (class also used in live code; dynamic `new $class`; class used through a subclass; file also included unconditionally) | **Blocker** | ✓ |
+| fx-helper-guard (`self::` helper, private `$this->` helper with early return, function helper, helper calling a helper, and the WooCommerce shape `if ( ! Env::supports_new_api() ) return;` before PHP 8.1 code) | Guarded | ✓ |
+| fx-helper-fake (helper with a parameter; side effect before the return; OR with a runtime option; overridable public method via `$this->`; same-named method on another class that returns true) | **Blocker** | ✓ |
+| fx-needs-php82 (WordPress.org "Requires PHP 8.2", mocked) | Blocker for 8.0–8.1, Ready for 8.2+ | ✓ |
 | fx-suppressed (ignore, bare ignore, disable/enable) | Suppressed | ✓ |
 | fx-implode (Essential Addons pattern) | Blocker | ✓ |
 | fx-data (broken code only in data files) | Ready | ✓ |
@@ -84,7 +88,12 @@ Both real bugs should be reported to the authors, with file and line, before the
 
 1. **Guards in another file**: handled by the cross-file check for declaration-only files and conditional includes (see above). Not covered: inheritance chains, dynamic class names, and includes the check can't resolve. Those are deliberately left as plain.
 2. **Runtime-flag guards** such as UpdraftPlus's `if ( $this->use_mysqli ) … else mysql_*()`: can't be proven statically. They're only Suppressed where the author annotated them. Stage 2's runtime logging settles these.
-3. **Guards behind a helper function, at target 8.0 only**: WooCommerce ships PHP 8.1 syntax (enums, readonly properties) in its new `src/Api` code, and only switches it on when `Main::is_enabled()` returns `PHP_VERSION_ID >= 80100 && …`. Following a guard through a method call, and through autoloaded classes imported with `use`, isn't supported, so WooCommerce is a false Blocker at target **8.0**. It's correct at 8.1 and above, which is where almost every upgrade goes. Fix option: treat simple predicate methods (`return <version check> && …;`) as conditions at their call sites.
+3. **WooCommerce at target 8.0 only** (false Blocker; correct from 8.1). WooCommerce requires PHP 7.4 but ships PHP 8.1 syntax (enums, readonly properties, first-class callables) in its new API code, which it only switches on when `Main::is_enabled()` (`return PHP_VERSION_ID >= 80100 && …`) is true. The helper rule now understands `is_enabled()` and the early return in `handle_rest_api_init_for_core()`. The 42 findings still aren't reachable from there, because the code behind that early return is loaded through:
+   - the dependency container (`wc_get_container()->get( GraphQLController::class )`): `X::class` references aren't counted as uses;
+   - aliased imports (`use …\CouponStatus as CouponStatusEnum`);
+   - two different classes with the same short name in different namespaces (e.g. two `ApiException`s). The cross-file index keys classes by short name, so it gives up.
+   - One xxh3 finding is guarded by `in_array( 'xxh3', hash_algos() )`, a capability check the classifier doesn't know yet.
+   Next step, if wanted: resolve full namespaced class names (namespace + `use` aliases), treat `X::class` passed to a container as a use, and add `hash_algos()` as a capability check.
 4. **Coverage gaps from Step 1** (static): the 8.1 `ArrayAccess` return types, 8.2 `HTML-ENTITIES` and `"self::"` callables, and the 8.5 `case;`, null offset and `PDO::MYSQL_ATTR_*` cases. Planned as our own sniffs (see ENGINE.md).
 
 ## WordPress.org signals (Step 5, `plugin/src/Wporg/`)

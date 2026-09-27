@@ -141,6 +141,23 @@ final class Classifier {
 	private $graph;
 
 	/**
+	 * How many helper-method calls deep this classifier was reached (see predicate_value()).
+	 *
+	 * @var int
+	 */
+	private $depth = 0;
+
+	/**
+	 * Class-like bodies in this file: [lowercase name, '{' index, '}' index, is_final].
+	 *
+	 * @var array
+	 */
+	private $classes = array();
+
+	/** Helper methods returning a condition are followed at most this deep. */
+	const MAX_HELPER_DEPTH = 3;
+
+	/**
 	 * Prepares a classifier for one file.
 	 *
 	 * @param string   $source        File contents.
@@ -149,9 +166,11 @@ final class Classifier {
 	 * @param array    $own      Names the component declares (FileLister::prepass(): functions,
 	 *                           constants, classes; a plain list is taken as functions).
 	 * @param LoadGraph|null $graph Cross-file analysis for the component (optional).
+	 * @param int      $depth    Helper-method depth this classifier is used at (internal).
 	 */
-	public function __construct( $source, $relative, $target, array $own = array(), $graph = null ) {
+	public function __construct( $source, $relative, $target, array $own = array(), $graph = null, $depth = 0 ) {
 		$this->graph          = $graph;
+		$this->depth          = (int) $depth;
 		$this->source         = $source;
 		$this->relative       = $relative;
 		if ( $own && ! isset( $own['functions'] ) && ! isset( $own['constants'] ) && ! isset( $own['classes'] ) ) {
@@ -365,6 +384,7 @@ final class Classifier {
 		for ( $i = $from; $i <= $to; $i++ ) {
 			$text .= $this->tokens[ $i ][1];
 		}
+		$raw  = $text; // Keeps namespace separators, for helper calls.
 		$text = str_replace( '\\', '', $text ); // \function_exists, \PHP_VERSION_ID.
 		$text = str_replace( '"', "'", $text );
 
@@ -376,6 +396,12 @@ final class Classifier {
 				return ! $removed;
 			}
 			return null;
+		}
+
+		// A helper that only returns a condition: self::is_supported(), Main::is_enabled(), …
+		$helper = $this->helper_call_value( ltrim( $raw, '\\' ), $from, $subjects, $removed );
+		if ( null !== $helper ) {
+			return $helper;
 		}
 
 		// PHP_VERSION_ID <op> N, N <op> PHP_VERSION_ID.
@@ -399,6 +425,148 @@ final class Classifier {
 			return $this->version_compare_result( $m[1], $this->target_version, $m[2], $m[3] );
 		}
 		return null;
+	}
+
+	/**
+	 * Value of a call to a helper that only returns a condition, or null.
+	 *
+	 * Counts only exact, un-overridable calls to parameterless helpers:
+	 * - self::m() (resolved in the class the call is written in);
+	 * - ClassName::m() (static call to a class declared in the component);
+	 * - m() (a function declared in the component);
+	 * - static::m() / $this->m() only when the method is private or final, or the class is
+	 *   final (otherwise a subclass could override it); parent::m() never counts.
+	 *
+	 * @param string $text     Condition text without whitespace.
+	 * @param int    $at       Token index of the call (to find the enclosing class).
+	 * @param array  $subjects Finding subjects.
+	 * @param bool   $removed  Removed on the target.
+	 * @return bool|null
+	 */
+	private function helper_call_value( $text, $at, array $subjects, $removed ) {
+		if ( $this->depth >= self::MAX_HELPER_DEPTH ) {
+			return null;
+		}
+		if ( preg_match( '/^(self|static|[A-Za-z_][A-Za-z0-9_\\\\]*)::([A-Za-z_][A-Za-z0-9_]*)\(\)$/', $text, $m ) ) {
+			$scope  = strtolower( $m[1] );
+			$method = $m[2];
+			if ( 'self' === $scope || 'static' === $scope ) {
+				$class = $this->class_at( $at );
+				if ( ! $class ) {
+					return null;
+				}
+				return $this->predicate_value( $method, $class[0], $subjects, $removed, 'static' === $scope );
+			}
+			if ( 'parent' === $scope || ! $this->graph ) {
+				return null;
+			}
+			$name = strtolower( ltrim( substr( $m[1], (int) strrpos( '\\' . $m[1], '\\' ) ), '\\' ) );
+			$file = $this->graph->file_declaring( 'class', $name );
+			return null === $file ? null : $this->graph->helper_value( $file, $method, $name, $subjects, $removed, $this->depth + 1 );
+		}
+		if ( preg_match( '/^\$this->([A-Za-z_][A-Za-z0-9_]*)\(\)$/', $text, $m ) ) {
+			$class = $this->class_at( $at );
+			return $class ? $this->predicate_value( $m[1], $class[0], $subjects, $removed, true ) : null;
+		}
+		if ( preg_match( '/^([A-Za-z_][A-Za-z0-9_]*)\(\)$/', $text, $m ) && ! isset( self::CAPABILITY_CHECKS[ strtolower( $m[1] ) ] ) && $this->graph ) {
+			$file = $this->graph->file_declaring( 'function', strtolower( $m[1] ) );
+			return null === $file ? null : $this->graph->helper_value( $file, $m[1], null, $subjects, $removed, $this->depth + 1 );
+		}
+		return null;
+	}
+
+	/**
+	 * Evaluates a parameterless helper declared in this file whose body is exactly
+	 * `return <condition>;`, on the target. Null when there's no such helper.
+	 *
+	 * @param string      $name           Function or method name.
+	 * @param string|null $class          Lowercase class the method must belong to, or null for a function.
+	 * @param array       $subjects       Finding subjects.
+	 * @param bool        $removed        Removed on the target.
+	 * @param bool        $must_be_sealed Whether the method must be private/final (or its class final).
+	 * @return bool|null
+	 */
+	public function predicate_value( $name, $class, array $subjects, $removed, $must_be_sealed = false ) {
+		$this->parse();
+		$n = count( $this->tokens );
+		for ( $i = 0; $i < $n; $i++ ) {
+			if ( T_FUNCTION !== $this->tokens[ $i ][0] || ! isset( $this->tokens[ $i + 1 ] ) || strtolower( $this->tokens[ $i + 1 ][1] ) !== strtolower( $name ) ) {
+				continue;
+			}
+			$owner = $this->class_at( $i );
+			if ( ( null === $class && null !== $owner ) || ( null !== $class && ( ! $owner || $owner[0] !== $class ) ) ) {
+				continue;
+			}
+			// No parameters: "( )".
+			$open = $i + 2;
+			if ( ! isset( $this->tokens[ $open + 1 ] ) || '(' !== $this->tokens[ $open ][1] || ')' !== $this->tokens[ $open + 1 ][1] ) {
+				return null;
+			}
+			if ( $must_be_sealed && ! ( $owner && $owner[3] ) && ! $this->has_modifier( $i, array( T_PRIVATE, T_FINAL ) ) ) {
+				return null;
+			}
+			// Skip a return type to the body's '{'.
+			for ( $j = $open + 2; isset( $this->tokens[ $j ] ) && '{' !== $this->tokens[ $j ][1]; $j++ ) {
+				if ( ';' === $this->tokens[ $j ][1] ) {
+					return null; // Abstract / interface method.
+				}
+			}
+			if ( ! isset( $this->match[ $j ] ) ) {
+				return null;
+			}
+			$close = $this->match[ $j ];
+			// Body is exactly: return <expr> ;
+			if ( T_RETURN !== $this->tokens[ $j + 1 ][0] || ';' !== $this->tokens[ $close - 1 ][1] ) {
+				return null;
+			}
+			for ( $k = $j + 2; $k < $close - 1; $k++ ) {
+				if ( ';' === $this->tokens[ $k ][1] || '{' === $this->tokens[ $k ][1] ) {
+					return null; // More than one statement.
+				}
+			}
+			$this->depth++;
+			$value = $this->evaluate( $j + 2, $close - 2, $subjects, $removed );
+			$this->depth--;
+			return $value;
+		}
+		return null;
+	}
+
+	/**
+	 * The class-like body containing a token: [lowercase name, '{', '}', is_final], or null.
+	 *
+	 * @param int $i Token index.
+	 * @return array|null
+	 */
+	private function class_at( $i ) {
+		$this->parse();
+		$best = null;
+		foreach ( $this->classes as $class ) {
+			if ( $i > $class[1] && $i < $class[2] && ( ! $best || $class[1] > $best[1] ) ) {
+				$best = $class;
+			}
+		}
+		return $best;
+	}
+
+	/**
+	 * Whether the function declared at $i has one of the given modifiers (private, final, …).
+	 *
+	 * @param int   $i     Index of T_FUNCTION.
+	 * @param array $types Modifier token types.
+	 * @return bool
+	 */
+	private function has_modifier( $i, array $types ) {
+		for ( $j = $i - 1; $j >= 0; $j-- ) {
+			$type = $this->tokens[ $j ][0];
+			if ( in_array( $type, $types, true ) ) {
+				return true;
+			}
+			if ( ! in_array( $type, array( T_PUBLIC, T_PROTECTED, T_PRIVATE, T_STATIC, T_FINAL, T_ABSTRACT ), true ) ) {
+				return false;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -546,6 +714,26 @@ final class Classifier {
 				$open                 = array_pop( $stack );
 				$this->match[ $open ] = $i;
 				$this->match[ $i ]    = $open;
+			}
+		}
+
+		// Class-like bodies (for self:: / $this-> helper calls).
+		$count = count( $this->tokens );
+		for ( $i = 0; $i < $count; $i++ ) {
+			$type = $this->tokens[ $i ][0];
+			// phpcs:ignore PHPCompatibility.Constants.NewConstants.t_enumFound -- Guarded by defined().
+			if ( in_array( $type, array( T_CLASS, T_TRAIT, T_INTERFACE ), true ) || ( defined( 'T_ENUM' ) && T_ENUM === $type ) ) {
+				$prev = $i > 0 ? $this->tokens[ $i - 1 ][0] : null;
+				if ( in_array( $prev, array( T_DOUBLE_COLON, T_NEW ), true ) || ! isset( $this->tokens[ $i + 1 ] ) || T_STRING !== $this->tokens[ $i + 1 ][0] ) {
+					continue;
+				}
+				for ( $j = $i + 2; $j < $count && '{' !== $this->tokens[ $j ][1]; $j++ ) {
+					continue;
+				}
+				if ( $j < $count && isset( $this->match[ $j ] ) ) {
+					$is_final        = ( T_FINAL === $prev ) || ( $i > 1 && T_FINAL === $this->tokens[ $i - 2 ][0] );
+					$this->classes[] = array( strtolower( $this->tokens[ $i + 1 ][1] ), $j, $this->match[ $j ], $is_final );
+				}
 			}
 		}
 

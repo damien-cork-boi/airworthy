@@ -41,3 +41,11 @@
 	flex-basis: 100%;
 	margin: 0;
 }
+
+.airworthy-muted {
+	color: #646970;
+}
+
+.airworthy-start select {
+	max-width: 100%;
+}

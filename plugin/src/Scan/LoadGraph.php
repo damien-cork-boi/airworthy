@@ -160,6 +160,35 @@ final class LoadGraph {
 	}
 
 	/**
+	 * File that declares a class or function in this component (unique names only).
+	 *
+	 * @param string $kind "class" or "function".
+	 * @param string $name Lowercase unqualified name.
+	 * @return string|null Relative path.
+	 */
+	public function file_declaring( $kind, $name ) {
+		$this->build();
+		return isset( $this->index['declares'][ $kind ][ $name ] ) ? $this->index['declares'][ $kind ][ $name ] : null;
+	}
+
+	/**
+	 * Value, on the target, of a parameterless helper `return <condition>;` in a component file.
+	 *
+	 * @param string      $relative File declaring it.
+	 * @param string      $name     Function or method name.
+	 * @param string|null $class    Lowercase class name, or null for a function.
+	 * @param array       $subjects Finding subjects.
+	 * @param bool        $removed  Removed on the target.
+	 * @param int         $depth    Helper depth.
+	 * @return bool|null
+	 */
+	public function helper_value( $relative, $name, $class, array $subjects, $removed, $depth ) {
+		$code = (string) @file_get_contents( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
+		$cls  = new Classifier( $code, $relative, $this->target, $this->own_functions, $this, $depth );
+		return $cls->predicate_value( $name, $class, $subjects, $removed );
+	}
+
+	/**
 	 * Rule 1: every use of every class declared in the file is in dead code.
 	 *
 	 * @param string   $relative Declaring file.
@@ -232,7 +261,7 @@ final class LoadGraph {
 	private function line_is_dead( $relative, $line, array $subjects, $removed, $depth ) {
 		if ( ! isset( $this->classifiers[ $relative ] ) ) {
 			$code                          = (string) @file_get_contents( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
-			$this->classifiers[ $relative ] = new Classifier( $code, $relative, $this->target, $this->own_functions );
+			$this->classifiers[ $relative ] = new Classifier( $code, $relative, $this->target, $this->own_functions, $this );
 		}
 		if ( $this->classifiers[ $relative ]->dead_at( $line, $subjects, $removed ) ) {
 			return true;
@@ -248,6 +277,7 @@ final class LoadGraph {
 			return;
 		}
 		$this->index = array(
+			'declares'            => array( 'class' => array(), 'function' => array() ), // name => relative.
 			'files'               => array(), // relative => [decl_only, classes[]].
 			'uses'                => array(), // class => [[relative, line], …] (new C / C::).
 			'blocked'             => array(), // class => true.
@@ -278,6 +308,10 @@ final class LoadGraph {
 				$sig[] = $t;
 			}
 			$this->index_file( $relative, $sig, $strings, $dynamic, $defines, $raw_incs, $declared );
+		}
+
+		foreach ( $declared as $name => $file ) {
+			$this->index['declares']['class'][ $name ] = $file;
 		}
 
 		// Resolve includes now that constants are known.
@@ -375,6 +409,11 @@ final class LoadGraph {
 				}
 				$depth--;
 				continue;
+			}
+
+			// Functions outside classes (for helper calls such as `if ( is_modern_php() )`).
+			if ( T_FUNCTION === $type && ! $class_ends && is_array( $next ) && T_STRING === $next[0] ) {
+				$this->index['declares']['function'][ strtolower( $next[1] ) ] = $relative;
 			}
 
 			// Anything at top level other than declarations makes the file run code when loaded.
