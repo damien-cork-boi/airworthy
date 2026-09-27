@@ -15,11 +15,11 @@ export const SITE = {
 	repoUrl: 'https://github.com/DigitalKind/airworthy',
 
 	/**
-	 * Listing screenshots kept off the site for now. 2–4 name plugins with bugs that haven't
-	 * been reported to their authors yet (see docs/RELEASE.md). Empty this once they're fixed,
-	 * or once the screenshots are recaptured without them.
+	 * Listing screenshots to keep off the site (by number). Empty since the 27 Sep 2026
+	 * recapture on a neutral demo site; use it if a screenshot ever shows something that
+	 * mustn't be public yet (see docs/RELEASE.md).
 	 */
-	heldScreenshots: [ 2, 3, 4 ],
+	heldScreenshots: [] as number[],
 
 	email: {
 		hello: 'hello@airworthywp.com',

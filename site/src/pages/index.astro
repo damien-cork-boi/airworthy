@@ -4,6 +4,7 @@ import InstallButton from '../components/InstallButton.astro';
 import ExampleResults from '../components/ExampleResults.astro';
 import { SITE, COMPANY } from '../config';
 import { readme, sub, boldList } from '../lib/readme';
+import fs from 'node:fs';
 
 const r = readme();
 const features = boldList( sub( 'description', 'What you get' )?.markdown || '' );
@@ -14,6 +15,17 @@ const faq = r.sections[ 'frequently-asked-questions' ].subsections.filter( ( q )
 );
 const verdictClass = ( title: string ) => 'v-' + title.toLowerCase().split( ' ' )[ 0 ];
 const shotOne = r.screenshots.find( ( s ) => s.n === 1 );
+// The rest of the listing screenshots, as a tour (held ones stay off the site).
+const tour = r.screenshots.filter( ( s ) => s.n > 1 && ! SITE.heldScreenshots.includes( s.n ) ).map( ( s ) => ( { ...s, ...pngSize( s.n ) } ) );
+function pngSize( n: number ) {
+	// Width and height from the PNG header, so the page doesn't jump as images load.
+	try {
+		const head = fs.readFileSync( new URL( `../../public/screenshots/screenshot-${ n }.png`, import.meta.url ) ).subarray( 16, 24 );
+		return { width: head.readUInt32BE( 0 ), height: head.readUInt32BE( 4 ) };
+	} catch {
+		return { width: undefined, height: undefined };
+	}
+}
 
 const schema = {
 	'@context': 'https://schema.org',
@@ -92,18 +104,40 @@ const schema = {
 					<ol class="steps">
 						<li><strong>Choose the PHP version</strong> you want to move to. Airworthy suggests the oldest one that still gets security fixes.</li>
 						<li><strong>Start the scan.</strong> It runs in the background in short batches, so it never times out, and you can leave the page.</li>
-						<li><strong>Read the results.</strong> Update what can be updated, send the rest to the plugin's author or your developer, and upgrade with confidence.</li>
+						<li><strong>Read the results,</strong> grouped by what to do next. Update what has an update waiting (Airworthy checks it again by itself), send the rest to the plugin's author or your developer, and upgrade with confidence.</li>
 					</ol>
 				</div>
 				<figure>
-					<img class="shot" src="/screenshots/screenshot-1.png" width="1280" height="620" alt="The Airworthy screen in WordPress: the server's PHP version, what will be scanned, the estimated time and a PHP version picker." loading="lazy" />
+					<img class="shot" src="/screenshots/screenshot-1.png" width={ pngSize( 1 ).width } height={ pngSize( 1 ).height } alt="The Airworthy screen in WordPress: the server's PHP version, what will be scanned, the estimated time and a PHP version picker." loading="lazy" />
 					<figcaption>{ shotOne.caption }</figcaption>
 				</figure>
 			</div>
 		</section>
 	) }
 
-	<section class="section">
+	{ tour.length > 0 && (
+		<section class="section">
+			<div class="wrap">
+				<div class="section-head">
+					<p class="eyebrow">A closer look</p>
+					<h2>From "will it break?" to "here's what to do".</h2>
+					<p class="lede">Everything happens inside your WordPress dashboard. Nothing is installed on your server, and nothing on your site changes.</p>
+				</div>
+				<div class="tour">
+					{ tour.map( ( s ) => (
+						<figure class={ `tour-shot tour-shot-${ s.n }` }>
+							<a href={ `/screenshots/screenshot-${ s.n }.png` } target="_blank" rel="noopener">
+								<img class="shot" src={ `/screenshots/screenshot-${ s.n }.png` } width={ s.width } height={ s.height } alt={ s.caption } loading="lazy" />
+							</a>
+							<figcaption>{ s.caption }</figcaption>
+						</figure>
+					) ) }
+				</div>
+			</div>
+		</section>
+	) }
+
+	<section class="section section-soft">
 		<div class="wrap split">
 			<div>
 				<p class="eyebrow">Privacy</p>
@@ -126,7 +160,7 @@ wp airworthy export --file=report.csv` }</code></pre>
 		</div>
 	</section>
 
-	<section class="section section-soft">
+	<section class="section">
 		<div class="wrap narrow">
 			<div class="section-head">
 				<p class="eyebrow">Questions</p>
@@ -139,6 +173,35 @@ wp airworthy export --file=report.csv` }</code></pre>
 				</details>
 			) ) }
 			<p><a href="/docs/#frequently-asked-questions">All questions</a></p>
+		</div>
+	</section>
+
+	<section class="section section-soft">
+		<div class="wrap">
+			<div class="section-head">
+				<p class="eyebrow">Coming next</p>
+				<h2>Airworthy Pro: upgrade PHP step by step.</h2>
+				<p class="lede">The free plugin tells you what will break. Pro will tell you exactly how to upgrade safely, then keep watch for you. The free plugin stays complete, and free.</p>
+			</div>
+			<div class="grid features">
+				<div class="card">
+					<h3>Your upgrade plan</h3>
+					<p>An ordered checklist built from your results: update these, replace those, back up, then switch. It ticks itself off as you go.</p>
+				</div>
+				<div class="card">
+					<h3>Every PHP version at once</h3>
+					<p>One scan, PHP 8.0 to 8.5 side by side, and the highest version your site is ready for today.</p>
+				</div>
+				<div class="card">
+					<h3>Monitoring and alerts</h3>
+					<p>Checks again after every update and every week, and emails you when something changes or your PHP version nears its end.</p>
+				</div>
+				<div class="card">
+					<h3>Reports for clients</h3>
+					<p>A branded PDF of the results for agencies and freelancers, and every site's verdicts in one place.</p>
+				</div>
+			</div>
+			<p class="pro-cta"><a class="button button-secondary" href={ `mailto:${ SITE.email.hello }?subject=${ encodeURIComponent( 'Tell me when Airworthy Pro launches' ) }` }>Tell me when Pro launches</a></p>
 		</div>
 	</section>
 
@@ -216,6 +279,37 @@ wp airworthy export --file=report.csv` }</code></pre>
 
 	.steps {
 		padding-left: 1.2em;
+	}
+
+	.pro-cta {
+		margin: 28px 0 0;
+	}
+
+	.tour {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 40px 32px;
+		align-items: start;
+	}
+
+	.tour-shot {
+		margin: 0;
+	}
+
+	.tour-shot img {
+		width: 100%;
+		height: auto;
+	}
+
+	.tour-shot figcaption {
+		margin-top: 12px;
+		color: var(--muted);
+	}
+
+	@media (max-width: 800px) {
+		.tour {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	.steps li {

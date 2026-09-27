@@ -211,6 +211,8 @@ $support = Targets::support_status( '8.3.12', $day( '2026-09-27' ) );
 $check( 'Support: PHP 8.3 on 2026-09-27 has 15 months left', 'ok' === $support['level'] && 15 === $support['months'], wp_json_encode( $support ) );
 $support = Targets::support_status( '8.2.1', $day( '2026-09-27' ) );
 $check( 'Support: PHP 8.2 on 2026-09-27 ends soon', 'soon' === $support['level'] && 3 === $support['months'], wp_json_encode( $support ) );
+$support = Targets::support_status( '7.4.33', $day( '2026-09-27' ) );
+$check( 'Support: PHP 7.4 has ended', 'ended' === $support['level'], wp_json_encode( $support ) );
 $support = Targets::support_status( '8.0.30', $day( '2026-09-27' ) );
 $check( 'Support: PHP 8.0 has ended', 'ended' === $support['level'], wp_json_encode( $support ) );
 

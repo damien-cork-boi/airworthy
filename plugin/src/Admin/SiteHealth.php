@@ -55,7 +55,7 @@ final class SiteHealth {
 	 * @return array Site Health result.
 	 */
 	public static function run( $php = null ) {
-		$php     = null === $php ? PHP_VERSION : $php;
+		$php     = null === $php ? \Airworthy\Env::php_version() : $php;
 		$current = Targets::minor( $php );
 		$scan    = self::latest_scan();
 		if ( $scan && version_compare( $scan->target_php, $current, '<=' ) ) {

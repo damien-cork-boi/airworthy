@@ -23,6 +23,11 @@ final class Targets {
 	 * add new PHP versions here and to ALL.
 	 */
 	const SECURITY_UNTIL = array(
+		'7.0' => '2019-01-10', // 7.x: only for the countdown on sites still running them.
+		'7.1' => '2019-12-01',
+		'7.2' => '2020-11-30',
+		'7.3' => '2021-12-06',
+		'7.4' => '2022-11-28',
 		'8.0' => '2023-11-26',
 		'8.1' => '2025-12-31',
 		'8.2' => '2026-12-31',

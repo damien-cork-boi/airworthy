@@ -1,30 +1,53 @@
 ---
 /**
- * An illustrative results panel for the home page, drawn in HTML with made-up plugin names.
- * Labelled as an example, so it can't be read as claims about real plugins.
+ * An illustrative results panel for the home page, drawn in HTML with made-up plugin names,
+ * in the plugin's grouped layout. Labelled as an example, so it can't be read as claims
+ * about real plugins.
  */
-const rows = [
-	{ name: 'Acme Contact Forms', verdict: 'Ready', v: 'ready', note: 'No problems found for this PHP version.' },
-	{ name: 'Sample Slider Pro', verdict: 'Blocker', v: 'blocker', note: 'Some of its code will not work on PHP 8.4.' },
-	{ name: 'Example SEO Toolkit', verdict: 'Guarded legacy code', v: 'guarded', note: 'Old code that never runs on this PHP version.' },
-	{ name: 'Demo Gallery', verdict: 'Warnings', v: 'warnings', note: 'Works now. Needs updating before a future version.' },
-	{ name: 'Old Widget Pack', verdict: 'Removed from WordPress.org', v: 'blocker', note: 'Closed: no more updates or security fixes.' },
+const groups = [
+	{
+		key: 'fix',
+		title: 'Fix before you upgrade',
+		rows: [
+			{ name: 'Sample Slider Pro', verdict: 'Blocker', v: 'blocker', note: 'Some of its code will not work on PHP 8.4.', update: '3.2.0' },
+			{ name: 'Old Widget Pack', verdict: 'Removed from WordPress.org', v: 'blocker', note: 'Closed: no more updates or security fixes.' },
+		],
+	},
+	{
+		key: 'watch',
+		title: 'Keep an eye on',
+		rows: [
+			{ name: 'Demo Gallery', verdict: 'Warnings', v: 'warnings', note: 'Works on PHP 8.4. Needs updating before a later version.' },
+		],
+	},
 ];
+const good = [ 'Acme Contact Forms', 'Example SEO Toolkit', 'Sample Shop' ];
 ---
 <figure class="example" aria-label="Example of Airworthy's results">
 	<div class="example-head">
 		<strong>Results for PHP 8.4</strong>
 		<span class="muted">Example</span>
 	</div>
-	<ul>
-		{ rows.map( ( r ) => (
-			<li>
-				<span class="name">{ r.name }</span>
-				<span class={ `badge v-${ r.v }` }>{ r.verdict }</span>
-				<span class="note muted">{ r.note }</span>
-			</li>
-		) ) }
-	</ul>
+	<p class="support">Security fixes for PHP 7.4 ended. Time to upgrade.</p>
+	{ groups.map( ( g ) => (
+		<section class={ `group group-${ g.key }` }>
+			<h3><span class="count">{ g.rows.length }</span> { g.title }</h3>
+			<ul>
+				{ g.rows.map( ( r ) => (
+					<li>
+						<span class="name">{ r.name }</span>
+						<span class={ `badge v-${ r.v }` }>{ r.verdict }</span>
+						<span class="note muted">{ r.note }</span>
+						{ r.update && <span class="update">Update available: { r.update } · <u>Update now</u></span> }
+					</li>
+				) ) }
+			</ul>
+		</section>
+	) ) }
+	<section class="group group-good">
+		<h3><span class="count">{ good.length }</span> All good</h3>
+		<p class="good-names muted">{ good.join( ', ' ) }</p>
+	</section>
 	<figcaption>An example with made-up plugin names. Real results come from your own site.</figcaption>
 </figure>
 
@@ -35,14 +58,58 @@ const rows = [
 		border-radius: 14px;
 		box-shadow: var(--shadow);
 		padding: 20px 22px 16px;
+		margin: 0;
 	}
 
 	.example-head {
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
-		padding-bottom: 12px;
-		border-bottom: 1px solid var(--line);
+	}
+
+	.support {
+		display: inline-block;
+		margin: 10px 0 4px;
+		padding: 2px 10px;
+		border-radius: 10px;
+		font-size: 0.8rem;
+		color: var(--v-blocker-ink);
+		background: var(--v-blocker-bg);
+		border: 1px solid var(--v-blocker-line);
+	}
+
+	.group {
+		border-top: 1px solid var(--line);
+		padding-top: 12px;
+		margin-top: 12px;
+	}
+
+	h3 {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin: 0 0 4px;
+		font-size: 0.95rem;
+	}
+
+	.count {
+		min-width: 20px;
+		padding: 0 7px;
+		border-radius: 10px;
+		font-size: 0.75rem;
+		line-height: 20px;
+		text-align: center;
+		color: #fff;
+		background: #8c8f94;
+	}
+
+	.group-fix .count { background: #d63638; }
+	.group-watch .count { background: #b58300; }
+	.group-good .count { background: #00a32a; }
+
+	.good-names {
+		margin: 2px 0 0 28px;
+		font-size: 0.85rem;
 	}
 
 	ul {
@@ -55,8 +122,11 @@ const rows = [
 		display: grid;
 		grid-template-columns: 1fr auto;
 		gap: 4px 12px;
-		padding: 12px 0;
-		border-bottom: 1px solid var(--line);
+		padding: 10px 0;
+	}
+
+	li + li {
+		border-top: 1px dashed var(--line);
 	}
 
 	.name {
@@ -71,12 +141,24 @@ const rows = [
 		text-align: center;
 	}
 
-	.note {
+	.note,
+	.update {
 		grid-column: 1 / -1;
 		font-size: 0.9rem;
 	}
 
+	.update {
+		justify-self: start;
+		padding: 1px 8px;
+		border-radius: 10px;
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: var(--brand-strong);
+		background: var(--brand-soft);
+	}
+
 	figcaption {
+		margin-top: 14px;
 		font-size: 0.85rem;
 	}
 

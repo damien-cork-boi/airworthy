@@ -141,10 +141,12 @@ Email security@airworthywp.com. Please don't post it in the public support forum
 
 == Screenshots ==
 
-1. Pick the PHP version to check against. Airworthy recommends the oldest version that still gets security fixes, and shows each version's support dates.
-2. Scans run in the background in small batches, so they never time out. You can leave the page.
-3. Results: a verdict for every plugin and theme, with a plain explanation, WordPress.org maintenance details, and plugins removed from WordPress.org called out.
-4. Details show each finding with its file, line and message. Old code that can't run on the chosen PHP version is marked as guarded, not as a problem.
+1. Pick the PHP version to check against. Airworthy suggests the oldest version that still gets security fixes, and shows how long your server's current version has left.
+2. Scans run in the background in small batches, so they never time out. You see what's being checked, how long is left, and each plugin's verdict as it comes in.
+3. One clear answer for the whole site, a count for each verdict, and which plugins have an update waiting.
+4. Results grouped by what to do next. Details show each finding with its file, line and what changed in PHP, and updates are one click away.
+5. Settings: skip inactive plugins, never check chosen plugins or themes, and pick a scan speed that suits your hosting. Changes save as you make them.
+6. A PHP upgrade check in Tools > Site Health, next to WordPress's own checks.
 
 == Changelog ==
 
