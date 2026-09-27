@@ -17,10 +17,18 @@ BUILD="$ROOT/build"
 STAGE="$BUILD/stage"
 OUT="$BUILD/$SLUG"
 SCOPER="$ROOT/tools/php-scoper.phar"
+# PHP-Scoper is pinned like the libraries: same input, same build.
+SCOPER_VERSION="0.18.19"
+SCOPER_SHA256="170fb84bd3390defb30f99f7dc39c9a89d10c29973accc26f31c00abc5b25933"
 
 if [ ! -f "$SCOPER" ]; then
 	mkdir -p "$ROOT/tools"
-	curl -sSL -o "$SCOPER" https://github.com/humbug/php-scoper/releases/latest/download/php-scoper.phar
+	curl -fsSL -o "$SCOPER" "https://github.com/humbug/php-scoper/releases/download/$SCOPER_VERSION/php-scoper.phar"
+fi
+if command -v sha256sum >/dev/null; then HASH=$(sha256sum "$SCOPER" | cut -d' ' -f1); else HASH=$(shasum -a 256 "$SCOPER" | cut -d' ' -f1); fi
+if [ "$HASH" != "$SCOPER_SHA256" ]; then
+	echo "ERROR: tools/php-scoper.phar is not PHP-Scoper $SCOPER_VERSION (checksum mismatch). Delete it to re-download." >&2
+	exit 1
 fi
 
 rm -rf "$BUILD"

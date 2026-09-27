@@ -5,17 +5,17 @@
     "license": "GPL-2.0-or-later",
     "require-dev": {
         "wp-coding-standards/wpcs": "^3.1",
-        "phpcompatibility/phpcompatibility-wp": "^2.1",
-        "yoast/phpunit-polyfills": "^1.1 || ^2.0 || ^3.0",
-        "phpunit/phpunit": "^7.5 || ^8.5 || ^9.6"
+        "phpcompatibility/phpcompatibility-wp": "^2.1"
     },
     "config": {
-        "allow-plugins": { "dealerdirect/phpcodesniffer-composer-installer": true },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
         "sort-packages": true
     },
     "scripts": {
         "lint": "phpcs",
         "fix": "phpcbf",
-        "test": "phpunit"
+        "build": "bin/build.sh"
     }
 }
