@@ -449,7 +449,7 @@
 	 * so keyboard focus (on the heading or the Stop button) is never lost.
 	 */
 	function buildProgress( scan ) {
-		var parts      = {
+		var parts        = {
 			heading: el( 'h2', null ),
 			what: el( 'p', { class: 'airworthy-progress-what' } ),
 			percent: el( 'div', { class: 'airworthy-big-percent', 'aria-hidden': 'true' } ),
@@ -463,11 +463,11 @@
 			note: el( 'p', { class: 'description' } ),
 			list: el( 'ul', { class: 'airworthy-progress-list' } ),
 		};
-		var stat       = function ( label, value, extra ) {
+		var stat         = function ( label, value, extra ) {
 			return el( 'div', { class: 'airworthy-stat' }, el( 'span', { class: 'airworthy-stat-label' }, label ), value, extra || null );
 		};
-		parts.barWrap  = el( 'div', { class: 'airworthy-bar airworthy-bar-live', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': __( 'Scan progress', 'airworthy' ) }, parts.bar );
-		parts.hero     = el(
+		parts.barWrap    = el( 'div', { class: 'airworthy-bar airworthy-bar-live', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': __( 'Scan progress', 'airworthy' ) }, parts.bar );
+		parts.hero       = el(
 			'div',
 			{ class: 'airworthy-progress-hero' },
 			el( 'div', { class: 'airworthy-progress-number' }, parts.percent, parts.files ),
