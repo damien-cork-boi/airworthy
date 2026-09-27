@@ -350,7 +350,11 @@ final class Page {
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="airworthy-card airworthy-settings">
 			<input type="hidden" name="action" value="<?php echo esc_attr( \Airworthy\Settings::ACTION ); ?>" />
 			<?php wp_nonce_field( \Airworthy\Settings::ACTION ); ?>
-			<h2><?php esc_html_e( 'Settings', 'airworthy' ); ?></h2>
+			<div class="airworthy-settings-head">
+				<h2><?php esc_html_e( 'Settings', 'airworthy' ); ?></h2>
+				<p class="airworthy-save-status" role="status" aria-live="polite"></p>
+			</div>
+			<p class="description airworthy-autosave-note" hidden><?php esc_html_e( 'Changes save as you make them, and apply from your next scan.', 'airworthy' ); ?></p>
 			<?php if ( $updated ) : ?>
 				<p class="airworthy-note" role="status"><?php esc_html_e( 'Settings saved. They apply from your next scan.', 'airworthy' ); ?></p>
 			<?php endif; ?>
@@ -394,7 +398,7 @@ final class Page {
 				</div>
 			</fieldset>
 
-			<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'airworthy' ); ?></button></p>
+			<p class="airworthy-save-row"><button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'airworthy' ); ?></button></p>
 		</form>
 		<?php
 	}

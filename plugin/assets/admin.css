@@ -1042,3 +1042,31 @@
 		margin-left: 44px;
 	}
 }
+
+/* Settings: saved as you go. */
+
+.airworthy-settings-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.airworthy-save-status {
+	margin: 0;
+	font-weight: 600;
+	color: #50575e;
+}
+
+.airworthy-save-status.airworthy-save-ok {
+	color: #007017;
+}
+
+.airworthy-save-status.airworthy-save-error {
+	color: #b32d2e;
+}
+
+.airworthy-settings .airworthy-autosave-note {
+	margin: 0 0 16px;
+}

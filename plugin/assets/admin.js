@@ -27,7 +27,83 @@
 		results: document.getElementById( 'airworthy-results' ),
 	};
 	if ( ! views.start ) {
-		return; // The Settings tab: a plain form, nothing for this script to do.
+		autosaveSettings( document.querySelector( '.airworthy-settings' ) );
+		return; // The Settings tab: nothing else for this script to do.
+	}
+
+	/**
+	 * The Settings tab saves each change as it's made (the form still works without script,
+	 * through its Save button): posts the form to admin-post.php in the background.
+	 */
+	function autosaveSettings( form ) {
+		if ( ! form || ! window.fetch || ! window.FormData ) {
+			return;
+		}
+		var status  = form.querySelector( '.airworthy-save-status' );
+		var note    = form.querySelector( '.airworthy-autosave-note' );
+		var row     = form.querySelector( '.airworthy-save-row' );
+		var timer   = null;
+		var saving  = null;
+		var again   = false;
+		var say     = function ( text, kind ) {
+			status.textContent = text;
+			status.className   = 'airworthy-save-status' + ( kind ? ' airworthy-save-' + kind : '' );
+		};
+		var save    = function () {
+			if ( saving ) {
+				again = true; // Save once more when this one is done, with the latest choices.
+				return;
+			}
+			say( __( 'Saving…', 'airworthy' ) );
+			// getAttribute: form.action would be the hidden input named "action".
+			saving = window.fetch( form.getAttribute( 'action' ), { method: 'POST', body: new window.FormData( form ), credentials: 'same-origin' } ).then(
+				function ( response ) {
+					// Saved means admin-post.php redirected back to the Settings tab.
+					if ( ! response.ok || -1 === response.url.indexOf( 'updated=1' ) ) {
+						throw new Error( String( response.status ) );
+					}
+					say( __( '✓ Saved', 'airworthy' ), 'ok' );
+				}
+			).catch(
+				function () {
+					say( __( 'Not saved. Check your connection and click Save settings.', 'airworthy' ), 'error' );
+					row.hidden = false;
+				}
+			).then(
+				function () {
+					saving = null;
+					if ( again ) {
+						again = false;
+						save();
+					}
+				}
+			);
+		};
+		note.hidden = false;
+		row.hidden  = true;
+		// Leaving within the moment a change takes to save: ask first.
+		window.addEventListener(
+			'beforeunload',
+			function ( event ) {
+				if ( timer || saving ) {
+					event.preventDefault();
+					event.returnValue = '';
+				}
+			}
+		);
+		form.addEventListener(
+			'change',
+			function () {
+				clearTimeout( timer );
+				timer = setTimeout(
+					function () {
+						timer = null;
+						save();
+					},
+					300
+				);
+			}
+		);
 	}
 	var state = {
 		scan: null,
