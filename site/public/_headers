@@ -1,4 +1,4 @@
-# Cloudflare Pages response headers. The site has no JavaScript, forms or third-party
+# Response headers, applied by Cloudflare to the static files. The site has no JavaScript, forms or third-party
 # resources, so the Content Security Policy can be strict.
 /*
   Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests

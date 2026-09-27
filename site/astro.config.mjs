@@ -2,7 +2,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// Static site for airworthywp.com, hosted on Cloudflare Pages.
+// Static site for airworthywp.com, served by Cloudflare (Workers static assets, see wrangler.jsonc).
 export default defineConfig( {
 	site: 'https://airworthywp.com',
 	trailingSlash: 'always',

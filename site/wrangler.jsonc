@@ -1,0 +1,14 @@
+// Cloudflare Workers deployment for airworthywp.com: a static site (no Worker code).
+// `npm run build` writes dist/; `npx wrangler deploy` uploads it.
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "airworthywp",
+	"compatibility_date": "2026-09-27",
+	"assets": {
+		"directory": "./dist",
+		// Serve dist/404.html with a 404 status for unknown URLs.
+		"not_found_handling": "404-page",
+		// /docs -> /docs/ (the site uses trailing slashes).
+		"html_handling": "force-trailing-slash"
+	}
+}

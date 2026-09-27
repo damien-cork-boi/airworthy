@@ -1,6 +1,6 @@
 # airworthywp.com
 
-The product website for Airworthy: a static [Astro](https://astro.build) site, hosted on Cloudflare Pages.
+The product website for Airworthy: a static [Astro](https://astro.build) site, hosted on Cloudflare (Workers static assets).
 
 Most content comes from the plugin itself, so the site can't drift from the release:
 
@@ -27,13 +27,15 @@ npm run dev      # http://localhost:4321
 npm run build    # static site in dist/
 ```
 
-## Cloudflare Pages settings
+## Cloudflare settings (Workers, static assets)
 
-- Framework preset: Astro
-- Root directory: `site`
+Deployed as a Cloudflare Worker that only serves static files (`wrangler.jsonc`: `assets.directory` is `./dist`). Workers & Pages > the `airworthywp` Worker > Settings > Build:
+
+- Git repository: `damien-cork-boi/airworthy`, production branch `main`
+- Path (root directory): `site`
 - Build command: `npm run build`
-- Build output directory: `dist`
-- Environment variable: `NODE_VERSION` = `22`
-- Build watch paths (Settings > Builds): `site/*`, `plugin/readme.txt`, `SECURITY.md`, `assets/screenshots/*`
+- Deploy command: `npx wrangler deploy`
+- Build watch paths: `site/*`, `plugin/readme.txt`, `SECURITY.md`, `assets/*`
+- Custom domains (Settings > Domains & Routes): `airworthywp.com`, `www.airworthywp.com` (www redirected to the root with a Redirect Rule on the zone)
 
 `public/_headers` sets the security headers (strict Content Security Policy: the site has no JavaScript, forms or third-party resources). `/.well-known/security.txt` is generated at build time with a fresh expiry date, so deploy at least once a year.
