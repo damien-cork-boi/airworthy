@@ -251,11 +251,13 @@
 		var target = document.getElementById( 'airworthy-estimate' );
 		apiFetch( { path: REST + '/estimate' } ).then(
 			function ( e ) {
+				/* translators: %s: number of files. */
+				var files          = sprintf( _n( '%s file', '%s files', e.files, 'airworthy' ), e.files.toLocaleString() );
 				target.textContent = e.minutes_low === e.minutes_high ?
-				/* translators: 1: minutes, 2: number of files. */
-				sprintf( _n( 'About %1$d minute for %2$s files.', 'About %1$d minutes for %2$s files.', e.minutes_high, 'airworthy' ), e.minutes_high, e.files.toLocaleString() ) :
-				/* translators: 1: fewest minutes, 2: most minutes, 3: number of files. */
-				sprintf( __( 'About %1$d–%2$d minutes for %3$s files, depending on your server. It runs in the background: you can leave this page.', 'airworthy' ), e.minutes_low, e.minutes_high, e.files.toLocaleString() );
+				/* translators: 1: minutes, 2: number of files, e.g. "120 files". */
+				sprintf( _n( 'About %1$d minute to check %2$s.', 'About %1$d minutes to check %2$s.', e.minutes_high, 'airworthy' ), e.minutes_high, files ) :
+				/* translators: 1: fewest minutes, 2: most minutes, 3: number of files, e.g. "120 files". */
+				sprintf( __( 'About %1$d–%2$d minutes to check %3$s, depending on your server. It runs in the background: you can leave this page.', 'airworthy' ), e.minutes_low, e.minutes_high, files );
 			}
 		).catch(
 			function () {
@@ -291,7 +293,8 @@
 			event.preventDefault();
 			startButton.disabled = true;
 			startError.hidden    = true;
-			apiFetch( { path: REST + '/scans', method: 'POST', data: { target: select.value } } ).then(
+			var wporg            = form.querySelector( 'input[name="wporg"]:checked' );
+			apiFetch( { path: REST + '/scans', method: 'POST', data: { target: select.value, wporg: ! ! wporg && 'yes' === wporg.value } } ).then(
 				function ( scan ) {
 					state.scan = scan;
 					/* translators: %s: PHP version. */
@@ -731,7 +734,7 @@
 				v ? el( 'div', { class : 'airworthy-small' }, 'blocker' === c.verdict ? sprintf( v.line, scan.target_php ) : v.line ) : null
 			),
 			el( 'td', { 'data-label': __( 'Findings', 'airworthy' ) }, el( 'span', { class: 'airworthy-small' }, findingsSummary( c ) ) ),
-			el( 'td', { 'data-label': __( 'WordPress.org', 'airworthy' ) }, wporgCell( c, isRunning( scan ) || wporgPending( scan ) ) ),
+			el( 'td', { 'data-label': __( 'WordPress.org', 'airworthy' ) }, wporgCell( c, 'off' !== scan.wporg && ( isRunning( scan ) || wporgPending( scan ) ) ) ),
 			el( 'td', { class: 'airworthy-actions' }, toggle, el( 'span', { class: 'airworthy-sep' }, ' · ' ), rescan )
 		);
 		return [ row, details ];
@@ -842,7 +845,9 @@
 			status = el( 'p', { class: 'airworthy-note airworthy-note-error' }, scan.error || __( 'The scan could not be completed.', 'airworthy' ) );
 		}
 		var wporgNote = null;
-		if ( 'offline' === scan.wporg || 'partial' === scan.wporg ) {
+		if ( 'off' === scan.wporg ) {
+			wporgNote = el( 'p', { class: 'airworthy-note' }, __( 'WordPress.org checks were off for this scan, so closed or abandoned plugins aren\'t flagged. You can turn them on when you start the next scan.', 'airworthy' ) );
+		} else if ( 'offline' === scan.wporg || 'partial' === scan.wporg ) {
 			wporgNote = el( 'p', { class: 'airworthy-note' }, __( 'WordPress.org could not be reached for some plugins, so their update and maintenance details are missing. Run the scan again later to fill them in.', 'airworthy' ) );
 		}
 

@@ -12,6 +12,7 @@ use Airworthy\Installer;
 use Airworthy\Scan\Queue;
 use Airworthy\Scan\Verdict;
 use Airworthy\Targets;
+use Airworthy\Wporg\Consent;
 use Airworthy\Wporg\Fetcher;
 
 defined( 'ABSPATH' ) || exit;
@@ -29,6 +30,9 @@ defined( 'ABSPATH' ) || exit;
 final class Controller {
 
 	const NAMESPACE_V1 = 'airworthy/v1';
+
+	/** Site transient caching how many files a full scan covers (for the time estimate). */
+	const FILE_COUNT = 'airworthy_file_count';
 
 	/**
 	 * Registers routes (on rest_api_init).
@@ -57,6 +61,10 @@ final class Controller {
 						'type'        => 'string',
 						'enum'        => Targets::ALL,
 						'description' => __( 'Exact PHP version to check against.', 'airworthy' ),
+					),
+					'wporg'  => array(
+						'type'        => 'boolean',
+						'description' => __( 'Whether to look plugins up on WordPress.org (sends their folder names). Saved as the site\'s choice. Default: the saved choice, off if none.', 'airworthy' ),
 					),
 				),
 			)
@@ -179,7 +187,12 @@ final class Controller {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function start( \WP_REST_Request $request ) {
-		$id = Queue::start( (string) $request['target'], get_current_user_id() );
+		$wporg = null;
+		if ( null !== $request['wporg'] ) {
+			$wporg = (bool) $request['wporg'];
+			Consent::set( $wporg ); // The administrator's explicit answer, remembered for next time.
+		}
+		$id = Queue::start( (string) $request['target'], get_current_user_id(), $wporg );
 		if ( is_wp_error( $id ) ) {
 			$id->add_data( array( 'status' => 'airworthy_scan_running' === $id->get_error_code() ? 409 : 400 ) );
 			return $id;
@@ -371,22 +384,23 @@ final class Controller {
 
 	/**
 	 * GET /estimate: how many files a new scan would check, and roughly how long it takes.
-	 * Uses the last scan's count when there is one (cheap); otherwise counts the files.
+	 * Counts the files a full scan would cover (the last scan may have covered only some
+	 * plugins: a rescan, or WP-CLI's --only), cached for an hour.
 	 * Minutes: 7 ms per file on a fast server, 40 ms on cheap shared hosting (Step 1/3 tests).
 	 *
 	 * @return \WP_REST_Response
 	 */
 	public static function estimate() {
-		global $wpdb;
-		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
-		$files = (int) $wpdb->get_var( "SELECT files_total FROM {$t['scans']} WHERE files_total > 0 ORDER BY id DESC LIMIT 1" );
-		if ( ! $files ) {
+		$files = get_site_transient( self::FILE_COUNT );
+		if ( false === $files ) {
+			$files = 0;
 			foreach ( \Airworthy\Scan\Components::discover() as $c ) {
 				$listing = \Airworthy\Scan\FileLister::list_files( \Airworthy\Scan\Components::root( $c['type'], $c['rel_path'], $c['slug'] ) );
 				$files  += count( $listing['files'] );
 			}
+			set_site_transient( self::FILE_COUNT, $files, HOUR_IN_SECONDS );
 		}
+		$files = (int) $files;
 		return new \WP_REST_Response(
 			array(
 				'files'        => $files,
@@ -469,7 +483,7 @@ final class Controller {
 				'components'  => (int) $s->components_total,
 			),
 			'counts'      => $counts,
-			'wporg'       => $s->wporg_status ? $s->wporg_status : null, // pending | done | partial | offline.
+			'wporg'       => $s->wporg_status ? $s->wporg_status : null, // pending | done | partial | offline | off (no consent).
 			'export_url'  => \Airworthy\Admin\Export::url( (int) $s->id ),
 			'created_at'  => self::iso( $s->created_at ),
 			'started_at'  => self::iso( $s->started_at ),

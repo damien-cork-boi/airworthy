@@ -163,6 +163,12 @@ $paths = wp_json_encode( $data );
 $check( 'REST: findings list relative paths only', 200 === $status && false === strpos( $paths, WP_CONTENT_DIR ) && false === strpos( $paths, ABSPATH ), substr( $paths, 0, 200 ) );
 list( $status ) = $call( 'POST', '/scans', array( 'target' => '9.9' ) );
 $check( 'REST: invalid target is rejected', 400 === $status, (string) $status );
+list( $status, $data ) = $call( 'POST', '/scans', array( 'target' => '8.4', 'wporg' => false ) );
+$check( 'REST: a scan can be started with WordPress.org checks off', 201 === $status && 'off' === $data['wporg'], (string) $status . ' ' . wp_json_encode( $data['wporg'] ?? null ) );
+$check( 'REST: the answer is remembered', 'no' === get_site_option( 'airworthy_wporg_consent' ) );
+if ( 201 === $status ) {
+	\Airworthy\Scan\Queue::cancel( (int) $data['id'] );
+}
 list( $status ) = $call( 'GET', '/scans/999999' );
 $check( 'REST: unknown scan is 404', 404 === $status, (string) $status );
 

@@ -19,8 +19,8 @@ Airworthy reads the code of every installed plugin and of your theme (on multisi
 = What you get =
 
 * **A verdict for every plugin and theme.** Blocker, Unknown, Suppressed, Guarded, Warnings or Ready, each with one plain sentence explaining what it means for you.
-* **Fewer false alarms.** Many plugins carry old code that only runs on old PHP versions, behind a version check. Airworthy recognises those checks and marks that code as guarded instead of broken. In our test of the 30 most popular plugins, this cut the plugins flagged as broken from 4 to the 2 with real bugs.
-* **Maintenance signals from WordPress.org.** Plugins that were closed (removed from the directory), not updated in two years, not tested with recent WordPress versions, or that need a newer PHP version than you picked are called out.
+* **Fewer false alarms.** Many plugins carry old code that only runs on old PHP versions, behind a version check. Airworthy recognises those checks and marks that code as guarded instead of broken. In our test of the 30 most popular plugins, this cut the plugins flagged as broken from 4 to 2, and in both the flagged code really would fail on PHP 8.
+* **Maintenance signals from WordPress.org (if you allow it).** Plugins that were closed (removed from the directory), not updated in two years, not tested with recent WordPress versions, or that need a newer PHP version than you picked are called out.
 * **The details when you want them.** Every finding shows the file, the line and what changed in PHP. Filter by verdict, rescan one plugin after an update, or download everything as a CSV file for your developer or host.
 * **Sensible default.** Airworthy recommends the oldest PHP version that still gets security fixes: the smallest upgrade that keeps your site protected. It shows every version's support dates.
 * **Safe on any host.** Scans run in the background in short batches, so they never time out, and they watch memory use. You can leave the page while a scan runs. Nothing is changed on your site.
@@ -30,7 +30,7 @@ Airworthy reads the code of every installed plugin and of your theme (on multisi
 
 Everything on the admin screen also works from the terminal:
 
-* `wp airworthy scan --target=8.4` checks every plugin and theme and prints the results.
+* `wp airworthy scan --target=8.4` checks every plugin and theme and prints the results. Add `--wporg` to include the WordPress.org checks.
 * `wp airworthy scan --only=my-plugin --fail-on=blocker` exits with code 1 if anything would break, for CI.
 * `wp airworthy results --verdict=blocker,unknown` shows what needs attention.
 * `wp airworthy issues <slug>` lists one plugin's findings with file and line.
@@ -40,7 +40,9 @@ Everything on the admin screen also works from the terminal:
 
 This plugin reads your plugin and theme files on your own server; it never runs them and never sends them anywhere.
 
-To show whether a plugin is still maintained, it looks up each plugin's slug (its folder name) in the public WordPress.org plugin directory (api.wordpress.org). Nothing else is sent: not your site's address (the requests use their own "Airworthy" user agent instead of WordPress's default, which includes your site URL), not your plugin list, not your PHP version. Answers are cached for 24 hours.
+Airworthy only contacts an outside server if you allow it. Before your first scan it asks whether to also check WordPress.org, and remembers your answer; you can change it at every scan (in WP-CLI: `--wporg` or `--no-wporg`). If you say no, nothing leaves your server.
+
+If you say yes, it looks up each plugin's slug (its folder name) in the public WordPress.org plugin directory (api.wordpress.org), one plugin per request, to show whether it is still maintained. Nothing else is sent: not your site's address (the requests use their own "Airworthy" user agent instead of WordPress's default, which includes your site URL), not your PHP version. As with any web request, WordPress.org sees your server's IP address. Answers are cached for 24 hours.
 
 Airworthy sets no cookies, adds nothing to your site's front end, and has no tracking, account or sign-up.
 
@@ -101,7 +103,7 @@ It can't see what only happens when code runs. For example: code that builds fun
 
 = What is sent to WordPress.org? =
 
-Only each plugin's slug (its folder name), to look up its public directory entry. Not your site address, not your plugin list, not your PHP version. See Privacy above. Themes aren't looked up.
+Nothing, unless you allow it when you start a scan. If you do, only each plugin's slug (its folder name), to look up its public directory entry: not your site address, not your PHP version. See Privacy above. Themes aren't looked up.
 
 = A plugin shows as Blocker. What should I do? =
 

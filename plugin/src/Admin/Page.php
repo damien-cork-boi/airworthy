@@ -218,6 +218,13 @@ final class Page {
 				<p class="airworthy-small airworthy-muted"><?php esc_html_e( 'Airworthy only reads files. It never changes your site, your plugins or your server.', 'airworthy' ); ?></p>
 
 				<form class="airworthy-start" id="airworthy-start-form">
+					<?php $airworthy_consent = \Airworthy\Wporg\Consent::get(); ?>
+					<fieldset class="airworthy-consent">
+						<legend><?php esc_html_e( 'Also check WordPress.org?', 'airworthy' ); ?></legend>
+						<p class="description"><?php esc_html_e( 'This finds plugins that were removed from WordPress.org, look abandoned, or need a newer PHP version. Airworthy sends each plugin\'s folder name to WordPress.org, and nothing else: not your site\'s address, not your PHP version.', 'airworthy' ); ?></p>
+						<label><input type="radio" name="wporg" value="yes" required <?php checked( $airworthy_consent, 'yes' ); ?> /> <?php esc_html_e( 'Yes, check WordPress.org', 'airworthy' ); ?></label>
+						<label><input type="radio" name="wporg" value="no" required <?php checked( $airworthy_consent, 'no' ); ?> /> <?php esc_html_e( 'No, only scan the files', 'airworthy' ); ?></label>
+					</fieldset>
 					<label for="airworthy-target"><?php esc_html_e( 'Check against PHP', 'airworthy' ); ?></label>
 					<select id="airworthy-target" name="target" aria-describedby="airworthy-target-why airworthy-ended-note">
 						<?php foreach ( Targets::ALL as $target ) : ?>

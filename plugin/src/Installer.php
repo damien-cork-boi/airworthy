@@ -37,7 +37,7 @@ final class Installer {
 	const OPTION_DB_VERSION = 'airworthy_db_version';
 
 	/** Every option the plugin owns, so uninstall can remove them all. */
-	const OPTIONS = array( self::OPTION_DB_VERSION, 'airworthy_unseen_scan' );
+	const OPTIONS = array( self::OPTION_DB_VERSION, 'airworthy_unseen_scan', 'airworthy_wporg_consent' );
 
 	/** Transient prefix for cached WordPress.org plugin data (Step 5). */
 	const TRANSIENT_PREFIX = 'airworthy_wporg_';
@@ -185,6 +185,7 @@ final class Installer {
 		global $wpdb;
 
 		self::unschedule_jobs();
+		delete_site_transient( 'airworthy_file_count' ); // Rest\Controller::FILE_COUNT.
 
 		foreach ( self::tables() as $table ) {
 			$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are our own constants.

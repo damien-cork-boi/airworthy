@@ -81,6 +81,31 @@
 	background: #fcf0f1;
 }
 
+/* WordPress.org consent question (asked before the first scan, remembered after). */
+
+.airworthy-consent {
+	flex-basis: 100%;
+	margin: 0 0 8px;
+	padding: 12px 16px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+.airworthy-consent legend {
+	padding: 0 4px;
+	font-weight: 600;
+}
+
+.airworthy-consent .description {
+	margin: 0 0 8px;
+}
+
+.airworthy-consent label {
+	display: block;
+	margin: 4px 0;
+}
+
 /* Progress view. */
 
 .airworthy-bar {

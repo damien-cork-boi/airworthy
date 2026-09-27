@@ -61,7 +61,7 @@ echo "==> Verdicts for every target"
 FAILED=0
 for target in 8.0 8.1 8.2 8.3 8.4 8.5; do
 	OUT=$(mktemp)
-	if ! wp airworthy scan --target="$target" --only="$SLUGS" --format=summary > "$OUT.log" 2>&1 \
+	if ! wp airworthy scan --target="$target" --only="$SLUGS" --wporg --format=summary > "$OUT.log" 2>&1 \
 		|| ! wp airworthy results --format=json --fields=slug,verdict,wporg > "$OUT" 2>> "$OUT.log"; then
 		echo "FAIL scan for PHP $target:"; cat "$OUT.log"; FAILED=1; continue
 	fi
@@ -76,6 +76,24 @@ if [ "$COMPONENTS" = "fx-implode,fx-ready" ]; then echo "PASS background scan co
 
 echo "==> Checks"
 AIRWORTHY_TESTS_ROOT="$ROOT" wp eval-file "$ROOT/tests/checks.php" || FAILED=1
+
+echo "==> WordPress.org lookups only with consent"
+# Clear cached answers too, so every lookup is a real (mocked) request and gets logged.
+CLEAR='global $wpdb; delete_option( "airworthy_tests_http_log" ); $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE \"%transient%airworthy_wporg_%\"" ); if ( is_multisite() ) { $wpdb->query( "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE \"%transient%airworthy_wporg_%\"" ); } wp_cache_flush();'
+wp eval "$CLEAR"
+wp eval 'delete_site_option( "airworthy_wporg_consent" );'
+wp airworthy scan --target=8.4 --only=fx-ready --format=summary > /dev/null 2>&1
+LOOKUPS=$(wp eval 'echo count( (array) get_option( "airworthy_tests_http_log", array() ) );')
+STATUS=$(wp eval 'global $wpdb; $t = Airworthy\Installer::tables(); echo $wpdb->get_var( "SELECT wporg_status FROM {$t["scans"]} ORDER BY id DESC LIMIT 1" );')
+if [ "$LOOKUPS" = "0" ] && [ "$STATUS" = "off" ]; then echo "PASS no consent: no WordPress.org lookups, scan marked off"; else echo "FAIL no consent: $LOOKUPS lookups, status '$STATUS'"; FAILED=1; fi
+wp eval 'update_site_option( "airworthy_wporg_consent", "yes" );'
+wp eval "$CLEAR"
+wp airworthy scan --target=8.4 --only=fx-ready --format=summary > /dev/null 2>&1
+LOOKUPS=$(wp eval 'echo count( (array) get_option( "airworthy_tests_http_log", array() ) );')
+if [ "$LOOKUPS" -gt 0 ]; then echo "PASS saved consent: WordPress.org looked up"; else echo "FAIL saved consent: no lookups"; FAILED=1; fi
+wp airworthy scan --target=8.4 --only=fx-ready --no-wporg --format=summary > /dev/null 2>&1
+STATUS=$(wp eval 'global $wpdb; $t = Airworthy\Installer::tables(); echo $wpdb->get_var( "SELECT wporg_status FROM {$t["scans"]} ORDER BY id DESC LIMIT 1" );')
+if [ "$STATUS" = "off" ]; then echo "PASS --no-wporg overrides the saved choice"; else echo "FAIL --no-wporg: status '$STATUS'"; FAILED=1; fi
 
 if [ "$UNINSTALL" = "--uninstall" ]; then
 	echo "==> Uninstall leaves nothing behind"

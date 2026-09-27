@@ -75,6 +75,9 @@ final class Command {
 	 *   - warnings
 	 * ---
 	 *
+	 * [--[no-]wporg]
+	 * : Also look plugins up on WordPress.org (closed, abandoned, Requires PHP), which sends their folder names to api.wordpress.org. Default: the choice saved on the admin screen; off if nobody has chosen yet.
+	 *
 	 * [--background]
 	 * : Queue the scan for the site's background jobs (like the admin screen) and return at once.
 	 *
@@ -94,6 +97,7 @@ final class Command {
 	 *
 	 *     $ wp airworthy scan --target=8.4
 	 *     $ wp airworthy scan --only=woocommerce,my-plugin --fail-on=blocker --format=summary
+	 *     $ wp airworthy scan --target=8.3 --wporg
 	 *
 	 * @param array $args       Positional arguments.
 	 * @param array $assoc_args Options.
@@ -122,7 +126,13 @@ final class Command {
 			);
 		}
 
-		$scan_id = Queue::start( $target, 0 );
+		$wporg = Utils\get_flag_value( $assoc_args, 'wporg', null );
+		$wporg = null === $wporg ? \Airworthy\Wporg\Consent::allowed() : (bool) $wporg;
+		if ( ! $wporg ) {
+			WP_CLI::log( 'WordPress.org checks are off for this scan (add --wporg to include them).' );
+		}
+
+		$scan_id = Queue::start( $target, 0, $wporg );
 		if ( is_wp_error( $scan_id ) ) {
 			WP_CLI::error( $scan_id->get_error_message() );
 		}

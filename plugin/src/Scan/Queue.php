@@ -68,11 +68,13 @@ final class Queue {
 	/**
 	 * Starts a scan against one target PHP version.
 	 *
-	 * @param string $target  Exact PHP version, e.g. "8.4".
-	 * @param int    $user_id Who started it.
+	 * @param string    $target  Exact PHP version, e.g. "8.4".
+	 * @param int       $user_id Who started it.
+	 * @param bool|null $wporg   Whether to look plugins up on WordPress.org; null = the site's
+	 *                           saved choice (see Wporg\Consent), which is off until answered.
 	 * @return int|\WP_Error Scan ID.
 	 */
-	public static function start( $target, $user_id = 0 ) {
+	public static function start( $target, $user_id = 0, $wporg = null ) {
 		global $wpdb;
 
 		if ( ! Targets::is_valid( $target ) ) {
@@ -92,13 +94,14 @@ final class Queue {
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$t['scans'],
 			array(
-				'target_php' => $target,
-				'host_php'   => \Airworthy\Env::php_version(),
-				'status'     => 'queued',
-				'created_by' => (int) $user_id,
-				'created_at' => self::now(),
+				'target_php'   => $target,
+				'host_php'     => \Airworthy\Env::php_version(),
+				'status'       => 'queued',
+				'wporg_status' => ( null === $wporg ? \Airworthy\Wporg\Consent::allowed() : $wporg ) ? '' : 'off',
+				'created_by'   => (int) $user_id,
+				'created_at'   => self::now(),
 			),
-			array( '%s', '%s', '%s', '%d', '%s' )
+			array( '%s', '%s', '%s', '%s', '%d', '%s' )
 		);
 		$scan_id = (int) $wpdb->insert_id;
 		if ( ! $scan_id ) {
@@ -134,7 +137,7 @@ final class Queue {
 		global $wpdb;
 		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
-		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT id, status FROM {$t['scans']} WHERE id = %d", $scan_id ) );
+		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT id, status, wporg_status FROM {$t['scans']} WHERE id = %d", $scan_id ) );
 		if ( ! $scan ) {
 			return new \WP_Error( 'airworthy_not_found', __( 'Not found.', 'airworthy' ) );
 		}
@@ -209,7 +212,7 @@ final class Queue {
 			'files_total' => $total,
 			'attempts'    => 0,
 		);
-		if ( $any_plugin ) {
+		if ( $any_plugin && 'off' !== $scan->wporg_status ) { // Lookups only in scans that had consent.
 			$data['wporg_status'] = 'pending';
 			\Airworthy\Wporg\Fetcher::enqueue( (int) $scan_id );
 		}
@@ -414,20 +417,18 @@ final class Queue {
 			++$count;
 		}
 
-		// WordPress.org signals are fetched alongside the file scan.
-		\Airworthy\Wporg\Fetcher::enqueue( (int) $scan->id );
-
-		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Own table.
-			$t['scans'],
-			array(
-				'wporg_status'     => 'pending',
-				'status'           => 'running',
-				'started_at'       => self::now(),
-				'components_total' => $count,
-				'files_total'      => $total,
-			),
-			array( 'id' => (int) $scan->id )
+		$data = array(
+			'status'           => 'running',
+			'started_at'       => self::now(),
+			'components_total' => $count,
+			'files_total'      => $total,
 		);
+		// WordPress.org signals are fetched alongside the file scan, when the site agreed to it.
+		if ( 'off' !== $scan->wporg_status ) {
+			$data['wporg_status'] = 'pending';
+			\Airworthy\Wporg\Fetcher::enqueue( (int) $scan->id );
+		}
+		$wpdb->update( $t['scans'], $data, array( 'id' => (int) $scan->id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Own table.
 		$scan->status = 'running';
 	}
 

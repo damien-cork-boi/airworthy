@@ -53,7 +53,7 @@ Also:
 | fx-helper-fake (helper with a parameter; side effect before the return; OR with a runtime option; overridable public method via `$this->`; same-named method on another class that returns true) | **Blocker** | ✓ |
 | fx-needs-php82 (WordPress.org "Requires PHP 8.2", mocked) | Blocker for 8.0–8.1, Ready for 8.2+ | ✓ |
 | fx-suppressed (ignore, bare ignore, disable/enable) | Suppressed | ✓ |
-| fx-implode (Essential Addons pattern) | Blocker | ✓ |
+| fx-implode (reversed implode() arguments) | Blocker | ✓ |
 | fx-data (broken code only in data files) | Ready | ✓ |
 | fx-own-prefix (own sqlite_/mysql_ functions) | Ready | ✓ |
 | fx-unreadable | Unknown | ✓ |

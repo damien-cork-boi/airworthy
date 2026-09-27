@@ -55,8 +55,9 @@ final class Fetcher {
 		set_site_transient( $lock, 1, 2 * self::BUDGET + 30 );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
-		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT id, target_php, status FROM {$t['scans']} WHERE id = %d", $scan_id ) );
-		if ( ! $scan || in_array( $scan->status, array( 'cancelled', 'failed' ), true ) ) {
+		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT id, target_php, status, wporg_status FROM {$t['scans']} WHERE id = %d", $scan_id ) );
+		// 'off' = no consent for this scan (Wporg\Consent): never contact WordPress.org, whoever calls.
+		if ( ! $scan || 'off' === $scan->wporg_status || in_array( $scan->status, array( 'cancelled', 'failed' ), true ) ) {
 			delete_site_transient( $lock );
 			return;
 		}
