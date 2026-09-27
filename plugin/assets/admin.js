@@ -367,7 +367,8 @@
 
 	function startProgress() {
 		clearTimeout( state.wporgTimer );
-		state.lastDone = -1;
+		state.rateStart = null;
+		state.lastDone  = -1;
 		// Announce 25% milestones from here on (a rescan may start at 99%).
 		state.lastAnnounced = Math.floor( ( ( state.scan && state.scan.progress && state.scan.progress.percent ) || 0 ) / 25 );
 		state.lastChange    = Date.now();
@@ -448,12 +449,33 @@
 		var parts      = {
 			heading: el( 'h2', null ),
 			what: el( 'p', { class: 'airworthy-progress-what' } ),
+			percent: el( 'div', { class: 'airworthy-big-percent', 'aria-hidden': 'true' } ),
+			files: el( 'div', { class: 'airworthy-big-sub' } ),
+			plugins: el( 'strong', null ),
+			timeLeft: el( 'strong', null ),
+			now: el( 'strong', null ),
+			nowBar: el( 'span', null ),
 			bar: el( 'span', null ),
-			text: el( 'p', { class: 'airworthy-progress-text' } ),
+			tally: el( 'div', { class: 'airworthy-tally' } ),
 			note: el( 'p', { class: 'description' } ),
 			list: el( 'ul', { class: 'airworthy-progress-list' } ),
 		};
-		parts.barWrap  = el( 'div', { class: 'airworthy-bar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': __( 'Scan progress', 'airworthy' ) }, parts.bar );
+		var stat       = function ( label, value, extra ) {
+			return el( 'div', { class: 'airworthy-stat' }, el( 'span', { class: 'airworthy-stat-label' }, label ), value, extra || null );
+		};
+		parts.barWrap  = el( 'div', { class: 'airworthy-bar airworthy-bar-live', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': __( 'Scan progress', 'airworthy' ) }, parts.bar );
+		parts.hero     = el(
+			'div',
+			{ class: 'airworthy-progress-hero' },
+			el( 'div', { class: 'airworthy-progress-number' }, parts.percent, parts.files ),
+			el(
+				'div',
+				{ class: 'airworthy-stats' },
+				stat( __( 'Plugins and themes done', 'airworthy' ), parts.plugins ),
+				stat( __( 'Time left', 'airworthy' ), parts.timeLeft ),
+				stat( __( 'Checking now', 'airworthy' ), parts.now, el( 'div', { class: 'airworthy-minibar' }, parts.nowBar ) )
+			)
+		);
 		parts.listCard = el(
 			'div',
 			{ class: 'airworthy-card', hidden: true },
@@ -469,8 +491,9 @@
 				{ class: 'airworthy-card' },
 				parts.heading,
 				parts.what,
+				parts.hero,
 				parts.barWrap,
-				parts.text,
+				parts.tally,
 				parts.note,
 				el(
 					'p',
@@ -541,6 +564,28 @@
 		);
 	}
 
+	/**
+	 * Time left, from the speed seen since this page started watching the scan.
+	 */
+	function timeLeft( p ) {
+		var now = Date.now();
+		if ( ! state.rateStart || p.files_done < state.rateStart.done ) {
+			state.rateStart = { t: now, done: p.files_done };
+		}
+		var seconds = ( now - state.rateStart.t ) / 1000;
+		var checked = p.files_done - state.rateStart.done;
+		if ( seconds < 15 || checked <= 0 ) {
+			return __( 'Working it out…', 'airworthy' );
+		}
+		var left = ( p.files_total - p.files_done ) / ( checked / seconds );
+		if ( left < 60 ) {
+			return __( 'Less than a minute', 'airworthy' );
+		}
+		var minutes = Math.ceil( left / 60 );
+		/* translators: %d: minutes. */
+		return sprintf( _n( 'About %d minute', 'About %d minutes', minutes, 'airworthy' ), minutes );
+	}
+
 	function renderProgress( scan ) {
 		var parts      = state.progressParts && state.progressParts.scanId === scan.id ? state.progressParts : buildProgress( scan );
 		var p          = scan.progress || { files_done: 0, files_total: 0, percent: 0 };
@@ -563,14 +608,42 @@
 			sprintf( __( 'Airworthy is reading every PHP file in your plugins and theme, without running any of it, and checking each line against what changed up to PHP %s.', 'airworthy' ), scan.target_php );
 		parts.bar.style.width = Math.max( 2, p.percent ) + '%';
 		parts.barWrap.setAttribute( 'aria-valuenow', String( p.percent ) );
+		parts.percent.textContent = 'queued' === scan.status ? '…' : p.percent + '%';
+		parts.files.textContent   = 'queued' === scan.status ?
+			__( 'Getting ready…', 'airworthy' ) :
+			/* translators: 1: files checked, 2: total files. */
+			sprintf( __( '%1$s of %2$s files checked', 'airworthy' ), p.files_done.toLocaleString(), p.files_total.toLocaleString() );
+
+		var done = components.filter(
+			function ( c ) {
+				return 'done' === c.status;
+			}
+		);
+		/* translators: 1: plugins and themes done, 2: total. */
+		parts.plugins.textContent  = sprintf( __( '%1$d of %2$d', 'airworthy' ), done.length, components.length );
+		parts.timeLeft.textContent = timeLeft( p );
+		parts.now.textContent      = checking ? checking.name : ( components.length && done.length < components.length ? __( 'Large files, one at a time', 'airworthy' ) : '—' );
+		parts.nowBar.style.width   = checking && checking.files.total ? Math.round( 100 * checking.files.checked / checking.files.total ) + '%' : '0';
+
+		// Verdicts so far, as badges.
+		var tally = {};
+		done.forEach(
+			function ( c ) {
+				tally[ c.verdict ] = ( tally[ c.verdict ] || 0 ) + 1;
+			}
+		);
 		fill(
-			parts.text,
-			'queued' === scan.status ?
-				__( 'Getting ready…', 'airworthy' ) :
-				/* translators: 1: percent, 2: files checked, 3: total files. */
-				sprintf( __( '%1$d%% · %2$s of %3$s files checked', 'airworthy' ), p.percent, p.files_done.toLocaleString(), p.files_total.toLocaleString() ),
-			/* translators: 1: plugin or theme name, 2: its files checked, 3: its total files. */
-			checking ? el( 'span', { class : 'airworthy-muted' }, ' · ' + sprintf( __( 'now: %1$s (%2$s of %3$s files)', 'airworthy' ), checking.name, checking.files.checked.toLocaleString(), checking.files.total.toLocaleString() ) ) : null
+			parts.tally,
+			done.length ? el( 'span', { class : 'airworthy-muted' }, __( 'So far:', 'airworthy' ) ) : null,
+			ORDER.filter(
+				function ( key ) {
+					return tally[ key ];
+				}
+			).map(
+				function ( key ) {
+					return el( 'span', { class: 'airworthy-badge airworthy-verdict-' + key }, tally[ key ] + ' ' + VERDICTS[ key ].label );
+				}
+			)
 		);
 		parts.note.textContent = slow ?
 			__( 'Your site runs background tasks only when it has visitors, so keep this page open to speed things up.', 'airworthy' ) :
@@ -970,7 +1043,7 @@
 				function ( key ) {
 					return el(
 						'li',
-						{ class: 'airworthy-summary-' + key },
+						{ class: 'airworthy-summary-' + key + ( counts[ key ] ? ' airworthy-has-items' : '' ) },
 						el( 'span', { class: 'airworthy-summary-count' }, String( counts[ key ] || 0 ) ),
 						el( 'span', { class: 'airworthy-summary-label' }, VERDICTS[ key ].label )
 					);

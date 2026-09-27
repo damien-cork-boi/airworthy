@@ -464,3 +464,369 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+/* ==========================================================================
+   Design layer: one set of colours, corners, shadows and spacing for the whole
+   screen. It styles the parts above; it stays within WordPress's admin look.
+   ========================================================================== */
+
+.airworthy-wrap {
+	--aw-blue: #1f5fd0;
+	--aw-blue-dark: #1747a6;
+	--aw-ink: #1d2327;
+	--aw-muted: #646970;
+	--aw-line: #e2e4e7;
+	--aw-soft: #f6f7f9;
+	--aw-radius: 12px;
+	--aw-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 12px rgba(16, 24, 40, 0.06);
+	max-width: 1180px;
+}
+
+/* Branded header. */
+
+.airworthy-brand {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin: 20px 0 8px;
+}
+
+.airworthy-logo {
+	width: 48px;
+	height: 48px;
+	flex: none;
+	filter: drop-shadow(0 2px 6px rgba(23, 71, 166, 0.25));
+}
+
+.airworthy-brand h1 {
+	margin: 0;
+	padding: 0;
+	font-size: 24px;
+	font-weight: 600;
+	line-height: 1.25;
+	color: var(--aw-ink);
+}
+
+.airworthy-brand .airworthy-lede {
+	margin: 2px 0 0;
+	color: var(--aw-muted);
+}
+
+/* Cards, notes and buttons. */
+
+.airworthy-wrap .airworthy-card {
+	max-width: none;
+	margin-top: 20px;
+	padding: 24px 28px;
+	border: 1px solid var(--aw-line);
+	border-radius: var(--aw-radius);
+	box-shadow: var(--aw-shadow);
+}
+
+.airworthy-wrap .airworthy-card h2 {
+	font-size: 20px;
+	font-weight: 600;
+	color: var(--aw-ink);
+}
+
+.airworthy-wrap .airworthy-card h3 {
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.airworthy-wrap .airworthy-note {
+	border-radius: 8px;
+	margin: 16px 0 0;
+}
+
+.airworthy-wrap .button {
+	border-radius: 8px;
+	min-height: 36px;
+	padding: 0 16px;
+	line-height: 34px;
+	font-weight: 500;
+}
+
+.airworthy-wrap .button-primary {
+	background: var(--aw-blue);
+	border-color: var(--aw-blue);
+	font-weight: 600;
+	box-shadow: 0 1px 2px rgba(23, 71, 166, 0.3);
+}
+
+.airworthy-wrap .button-primary:hover,
+.airworthy-wrap .button-primary:focus {
+	background: var(--aw-blue-dark);
+	border-color: var(--aw-blue-dark);
+}
+
+.airworthy-wrap .button-link {
+	border-radius: 4px;
+}
+
+/* Start view. */
+
+.airworthy-wrap .airworthy-facts {
+	gap: 10px 24px;
+	padding: 16px 20px;
+	margin-bottom: 20px;
+	background: var(--aw-soft);
+	border-radius: 10px;
+}
+
+.airworthy-wrap .airworthy-facts dt {
+	color: var(--aw-muted);
+}
+
+.airworthy-wrap .airworthy-facts dd {
+	font-weight: 500;
+}
+
+.airworthy-wrap .airworthy-consent {
+	background: #fff;
+	border: 1px solid var(--aw-line);
+	border-radius: 10px;
+	padding: 14px 18px;
+}
+
+.airworthy-wrap .airworthy-start {
+	border-top: 0;
+	padding-top: 8px;
+	gap: 10px 12px;
+}
+
+.airworthy-wrap .airworthy-start select {
+	min-height: 36px;
+	border-radius: 8px;
+}
+
+/* Progress view. */
+
+.airworthy-progress-hero {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 20px 32px;
+	margin: 20px 0 16px;
+}
+
+.airworthy-progress-number {
+	min-width: 12rem;
+}
+
+.airworthy-big-percent {
+	font-size: 64px;
+	font-weight: 700;
+	line-height: 1;
+	letter-spacing: -0.03em;
+	color: var(--aw-blue);
+	font-variant-numeric: tabular-nums;
+}
+
+.airworthy-big-sub {
+	margin-top: 8px;
+	color: var(--aw-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.airworthy-stats {
+	flex: 1 1 30rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+	gap: 12px;
+}
+
+.airworthy-stat {
+	padding: 12px 14px;
+	background: var(--aw-soft);
+	border: 1px solid var(--aw-line);
+	border-radius: 10px;
+	min-width: 0;
+}
+
+.airworthy-stat-label {
+	display: block;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--aw-muted);
+}
+
+.airworthy-stat strong {
+	display: block;
+	margin-top: 4px;
+	font-size: 15px;
+	color: var(--aw-ink);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+
+.airworthy-minibar {
+	height: 4px;
+	margin-top: 8px;
+	overflow: hidden;
+	background: var(--aw-line);
+	border-radius: 2px;
+}
+
+.airworthy-minibar span {
+	display: block;
+	height: 100%;
+	width: 0;
+	background: var(--aw-blue);
+	transition: width 0.4s ease;
+}
+
+.airworthy-wrap .airworthy-bar-live {
+	height: 14px;
+	margin: 4px 0 14px;
+	border-radius: 7px;
+	background: #e8edf5;
+}
+
+.airworthy-wrap .airworthy-bar-live span {
+	border-radius: 7px;
+	background-color: var(--aw-blue);
+	background-image:
+		repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.18) 0 10px, transparent 10px 20px),
+		linear-gradient(90deg, #2f74e8, var(--aw-blue-dark));
+	background-size: 28px 28px, 100% 100%;
+	animation: airworthy-stripes 1.2s linear infinite;
+}
+
+@keyframes airworthy-stripes {
+	from { background-position: 0 0, 0 0; }
+	to { background-position: 28px 0, 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.airworthy-wrap .airworthy-bar-live span {
+		animation: none;
+	}
+}
+
+.airworthy-tally {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	min-height: 24px;
+	margin-bottom: 12px;
+}
+
+.airworthy-wrap .airworthy-progress-list li {
+	padding: 6px 0;
+}
+
+/* Results view. */
+
+.airworthy-wrap .airworthy-summary {
+	gap: 12px;
+	margin: 20px 0;
+}
+
+.airworthy-wrap .airworthy-summary li {
+	padding: 14px 16px;
+	border: 1px solid var(--aw-line);
+	border-top-width: 1px;
+	border-left-width: 4px;
+	border-radius: 10px;
+	background: #fff;
+}
+
+.airworthy-wrap .airworthy-summary-count {
+	font-size: 30px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	font-variant-numeric: tabular-nums;
+}
+
+.airworthy-wrap .airworthy-summary-blocker { border-left-color: #d63638; }
+.airworthy-wrap .airworthy-summary-unknown { border-left-color: #8c8f94; }
+.airworthy-wrap .airworthy-summary-suppressed { border-left-color: #dba617; }
+.airworthy-wrap .airworthy-summary-guarded { border-left-color: #72aee6; }
+.airworthy-wrap .airworthy-summary-warnings { border-left-color: #f0c33c; }
+.airworthy-wrap .airworthy-summary-ready { border-left-color: #00a32a; }
+
+/* A non-zero Blocker count stands out. */
+.airworthy-wrap .airworthy-summary-blocker.airworthy-has-items {
+	background: #fcf0f1;
+}
+
+.airworthy-wrap .airworthy-summary-blocker.airworthy-has-items .airworthy-summary-count {
+	color: #b32d2e;
+}
+
+.airworthy-wrap .airworthy-table {
+	max-width: none;
+	border: 1px solid var(--aw-line);
+	border-radius: var(--aw-radius);
+	border-collapse: separate;
+	border-spacing: 0;
+	overflow: hidden;
+	box-shadow: var(--aw-shadow);
+}
+
+.airworthy-wrap .airworthy-table thead th {
+	padding: 12px 14px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--aw-muted);
+	background: var(--aw-soft);
+	border-bottom: 1px solid var(--aw-line);
+}
+
+.airworthy-wrap .airworthy-table tr.airworthy-row td {
+	padding: 14px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.airworthy-wrap .airworthy-table tr.airworthy-row:hover td {
+	background: #fafbfc;
+}
+
+.airworthy-wrap .airworthy-table tr.airworthy-row strong {
+	font-size: 14px;
+}
+
+.airworthy-wrap .airworthy-toolbar {
+	max-width: none;
+	margin: 24px 0 10px;
+}
+
+.airworthy-wrap .airworthy-closed-card {
+	border-left: 4px solid #d63638;
+}
+
+.airworthy-wrap .airworthy-unchecked-card {
+	border-left: 4px solid #8c8f94;
+}
+
+.airworthy-wrap .airworthy-badge {
+	padding: 2px 10px;
+	line-height: 1.8;
+}
+
+@media screen and (max-width: 782px) {
+	.airworthy-wrap .airworthy-card {
+		padding: 18px 16px;
+	}
+
+	.airworthy-big-percent {
+		font-size: 52px;
+	}
+
+	.airworthy-wrap .airworthy-table {
+		border-radius: 10px;
+	}
+}
+
+/* Focus moves to a view's heading when the view changes: show the ring to keyboard users only. */
+.airworthy-wrap h2[tabindex="-1"]:focus:not(:focus-visible) {
+	outline: none;
+}
