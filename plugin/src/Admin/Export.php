@@ -63,7 +63,7 @@ final class Export {
 		check_admin_referer( self::ACTION . '_' . $scan_id );
 
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $scan_id ) );
 		if ( ! $scan ) {
 			wp_die( esc_html__( 'Not found.', 'airworthy' ), 404 );
@@ -102,7 +102,7 @@ final class Export {
 
 		fputcsv( $out, array( 'Target PHP', 'Type', 'Name', 'Slug', 'Version', 'Active', 'Verdict', 'Errors', 'Suppressed', 'Guarded', 'Warnings', 'WordPress.org', 'Closed', 'Closed reason', 'Last updated', 'Abandoned', 'Tested up to', 'Requires PHP', 'Update available', 'File', 'Line', 'Severity', 'Context', 'Rule', 'Message' ), ',', '"', '\\' );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$components = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t['components']} WHERE scan_id = %d ORDER BY FIELD(verdict, 'blocker','unknown','suppressed','guarded','warnings','ready'), name", $scan_id ) );
 		foreach ( $components as $c ) {
 			$w    = $c->wporg ? (array) json_decode( $c->wporg, true ) : array();
@@ -127,7 +127,7 @@ final class Export {
 				isset( $w['requires_php'] ) ? $w['requires_php'] : '',
 				isset( $w['update'] ) ? (string) $w['update'] : '',
 			);
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 			$issues = (array) $wpdb->get_results( $wpdb->prepare( "SELECT file, line, severity, context, rule, message FROM {$t['issues']} WHERE component_id = %d ORDER BY FIELD(severity, 'scan','error','warning','notice'), file, line", $c->id ) );
 			if ( ! $issues ) {
 				fputcsv( $out, self::safe( array_merge( $base, array( '', '', '', '', '', '' ) ) ), ',', '"', '\\' );

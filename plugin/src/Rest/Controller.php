@@ -197,7 +197,7 @@ final class Controller {
 		$t  = Installer::tables();
 		$id = Queue::active_scan_id();
 		if ( ! $id ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 			$id = (int) $wpdb->get_var( "SELECT id FROM {$t['scans']} ORDER BY id DESC LIMIT 1" );
 		}
 		if ( ! $id ) {
@@ -224,7 +224,7 @@ final class Controller {
 			return self::not_found();
 		}
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, type, slug, name, version, is_active, status, phase, verdict, errors, guarded, suppressed, warnings, files_total, files_done, files_failed, files_skipped, files_ignored, wporg FROM {$t['components']} WHERE scan_id = %d ORDER BY id", $scan->id ) );
 
 		$order      = array_flip( Verdict::ALL );
@@ -285,7 +285,7 @@ final class Controller {
 		$where = array( 'scan_id = %d', 'component_id = %d' );
 		$args  = array( $scan, $comp );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$t['components']} WHERE id = %d AND scan_id = %d", $comp, $scan ) ) ) {
 			return self::not_found();
 		}
@@ -300,10 +300,10 @@ final class Controller {
 		$offset    = ( (int) $request['page'] - 1 ) * $per_page;
 		$sql_where = implode( ' AND ', $where );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Own table; placeholders built above.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table; placeholders built above.
 		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t['issues']} WHERE $sql_where", $args ) );
 		// Scan problems first, then errors, then warnings; within each by file and line.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Own table; filter values plus LIMIT/OFFSET are passed as one merged array.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table; filter values plus LIMIT/OFFSET are passed as one merged array.
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT file, line, severity, context, rule, message FROM {$t['issues']} WHERE $sql_where ORDER BY CASE severity WHEN 'scan' THEN 0 WHEN 'error' THEN 1 WHEN 'warning' THEN 2 ELSE 3 END, CASE context WHEN 'plain' THEN 0 WHEN 'suppressed' THEN 1 ELSE 2 END, file, line LIMIT %d OFFSET %d", array_merge( $args, array( $per_page, $offset ) ) ) );
 
 		$items = array();
@@ -336,7 +336,7 @@ final class Controller {
 			return self::not_found();
 		}
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own tables.
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT c.id AS component_id, c.name, c.type, i.file, i.rule, i.message FROM {$t['issues']} i JOIN {$t['components']} c ON c.id = i.component_id WHERE i.scan_id = %d AND i.severity = 'scan' ORDER BY c.name, i.file", (int) $request['id'] ) );
 		$out  = array();
 		foreach ( $rows as $r ) {
@@ -377,7 +377,7 @@ final class Controller {
 	public static function estimate() {
 		global $wpdb;
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$files = (int) $wpdb->get_var( "SELECT files_total FROM {$t['scans']} WHERE files_total > 0 ORDER BY id DESC LIMIT 1" );
 		if ( ! $files ) {
 			foreach ( \Airworthy\Scan\Components::discover() as $c ) {
@@ -436,7 +436,7 @@ final class Controller {
 	private static function scan_row( $id ) {
 		global $wpdb;
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $id ) );
 	}
 

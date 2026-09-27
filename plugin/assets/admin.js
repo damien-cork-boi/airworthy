@@ -655,7 +655,7 @@
 		/* translators: %s: plugin or theme name. */
 		var toggle = el(
 			'button',
-			{ type: 'button', class: 'button-link', 'aria-expanded': 'false', 'aria-controls': detailsId, 'aria-label': sprintf( __( 'Details for %s', 'airworthy' ), c.name ), onclick: function () {
+			{ type: 'button', class: 'button-link', 'aria-expanded': 'false', 'aria-controls': detailsId, 'aria-label': sprintf( /* translators: %s: plugin or theme name. */ __( 'Details for %s', 'airworthy' ), c.name ), onclick: function () {
 				var open = 'true' !== toggle.getAttribute( 'aria-expanded' );
 				toggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
 				toggle.textContent = open ? __( 'Hide details', 'airworthy' ) : __( 'Details', 'airworthy' );
@@ -672,7 +672,7 @@
 		/* translators: %s: plugin or theme name. */
 		var rescan = el(
 			'button',
-			{ type: 'button', class: 'button-link', 'aria-label': sprintf( __( 'Rescan %s', 'airworthy' ), c.name ), onclick: function () {
+			{ type: 'button', class: 'button-link', 'aria-label': sprintf( /* translators: %s: plugin or theme name. */ __( 'Rescan %s', 'airworthy' ), c.name ), onclick: function () {
 				rescan.disabled = true;
 				apiFetch( { path: REST + '/scans/' + scan.id + '/components/' + c.id + '/rescan', method: 'POST' } ).then(
 					function ( s ) {
@@ -702,7 +702,7 @@
 				el(
 					'div',
 					{ class: 'airworthy-small airworthy-muted' },
-					c.version ? sprintf( __( 'Version %s', 'airworthy' ), c.version ) : '',
+					c.version ? sprintf( /* translators: %s: plugin or theme version number. */ __( 'Version %s', 'airworthy' ), c.version ) : '',
 					'theme' === c.type ? ' · ' + __( 'theme', 'airworthy' ) : ( c.active ? '' : ' · ' + __( 'inactive', 'airworthy' ) )
 				)
 			),

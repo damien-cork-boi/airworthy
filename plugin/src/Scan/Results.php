@@ -26,7 +26,7 @@ final class Results {
 	public static function refresh_component( $component_id ) {
 		global $wpdb;
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$c = $wpdb->get_row( $wpdb->prepare( "SELECT id, status, errors, suppressed, guarded, warnings, files_failed, files_skipped, wporg FROM {$t['components']} WHERE id = %d", $component_id ), ARRAY_A );
 		if ( ! $c || 'done' !== $c['status'] ) {
 			return;
@@ -44,7 +44,7 @@ final class Results {
 	public static function refresh_scan( $scan_id ) {
 		global $wpdb;
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		if ( 'complete' !== $wpdb->get_var( $wpdb->prepare( "SELECT status FROM {$t['scans']} WHERE id = %d", $scan_id ) ) ) {
 			return;
 		}
@@ -52,7 +52,7 @@ final class Results {
 		foreach ( Verdict::ALL as $verdict ) {
 			$data[ 'count_' . $verdict ] = 0;
 		}
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		foreach ( (array) $wpdb->get_results( $wpdb->prepare( "SELECT verdict, COUNT(*) AS n FROM {$t['components']} WHERE scan_id = %d GROUP BY verdict", $scan_id ) ) as $row ) {
 			if ( in_array( $row->verdict, Verdict::ALL, true ) ) {
 				$data[ 'count_' . $row->verdict ] = (int) $row->n;

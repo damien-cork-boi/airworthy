@@ -19,7 +19,7 @@ return array(
 			->in( getenv( 'AIRWORTHY_VENDOR_DIR' ) )
 			->exclude( array( 'dealerdirect', 'woocommerce', 'bin' ) ) // Action Scheduler is bundled unscoped; see bin/build.sh.
 			->notPath( '#/(Tests?|tests?|docs?)/#' )
-			->name( array( '*.php', '*.xml', 'LICENSE*', 'COPYING*', 'composer.json', 'installed.json' ) )
+			->name( array( '*.php', '*.xml', 'LICENSE*', 'licence*', 'license*', 'COPYING*', 'composer.json', 'installed.json' ) )
 			->notName( array( 'phpunit.xml*', 'phpcs.xml*', '.phpcs.xml*' ) ),
 	),
 

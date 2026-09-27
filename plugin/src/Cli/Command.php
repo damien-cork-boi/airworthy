@@ -207,7 +207,7 @@ final class Command {
 		global $wpdb;
 		$t       = Installer::tables();
 		$scan_id = $this->scan_id( $assoc_args );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$component = $wpdb->get_row( $wpdb->prepare( "SELECT id, name FROM {$t['components']} WHERE scan_id = %d AND slug = %s", $scan_id, $args[0] ) );
 		if ( ! $component ) {
 			WP_CLI::error( sprintf( '"%1$s" is not in scan %2$d.', $args[0], $scan_id ) );
@@ -222,7 +222,7 @@ final class Command {
 			}
 		}
 		$sql  = "SELECT file, line, severity, context, rule, message FROM {$t['issues']} WHERE " . implode( ' AND ', $where ) . " ORDER BY FIELD(severity, 'scan','error','warning','notice'), file, line";
-		$rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, $vals ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared -- Own table; placeholders built above.
+		$rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, $vals ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table; placeholders built above.
 		Utils\format_items( isset( $assoc_args['format'] ) ? $assoc_args['format'] : 'table', $rows, array( 'file', 'line', 'severity', 'context', 'rule', 'message' ) );
 	}
 
@@ -237,7 +237,7 @@ final class Command {
 		$t  = Installer::tables();
 		$id = Queue::active_scan_id();
 		$id = $id ? $id : $this->scan_id( array() );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $id ) );
 		$pct  = $scan->files_total ? (int) floor( 100 * $scan->files_done / $scan->files_total ) : 0;
 		WP_CLI::log( sprintf( 'Scan %1$d · PHP %2$s · %3$s · %4$d%% (%5$s of %6$s files) · WordPress.org: %7$s', $scan->id, $scan->target_php, $scan->status, $pct, number_format_i18n( $scan->files_done ), number_format_i18n( $scan->files_total ), $scan->wporg_status ? $scan->wporg_status : '-' ) );
@@ -288,7 +288,7 @@ final class Command {
 		$scan_id = $this->scan_id( array() );
 		$ids     = array();
 		foreach ( $args as $slug ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 			$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$t['components']} WHERE scan_id = %d AND slug = %s", $scan_id, $slug ) );
 			if ( ! $id ) {
 				WP_CLI::error( sprintf( '"%1$s" is not in scan %2$d. Run a new scan to include it.', $slug, $scan_id ) );
@@ -321,7 +321,7 @@ final class Command {
 	public function export( $args, $assoc_args ) {
 		global $wpdb;
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $this->scan_id( $assoc_args ) ) );
 		$path = isset( $assoc_args['file'] ) ? (string) $assoc_args['file'] : 'php://stdout';
 		$out  = @fopen( $path, 'w' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- CLI output file.
@@ -385,7 +385,7 @@ final class Command {
 		while ( true ) {
 			Queue::run_batch( $scan_id );   // Returns at once if a web request holds the lock.
 			Fetcher::run( $scan_id );       // WordPress.org signals, alongside.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 			$scan = $wpdb->get_row( $wpdb->prepare( "SELECT status, files_done, files_total, wporg_status FROM {$t['scans']} WHERE id = %d", $scan_id ) );
 			if ( ! $bar && $scan->files_total ) {
 				$bar = Utils\make_progress_bar( 'Scanning files', (int) $scan->files_total );
@@ -410,7 +410,7 @@ final class Command {
 		if ( $bar ) {
 			$bar->finish();
 		}
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$status = $wpdb->get_var( $wpdb->prepare( "SELECT status FROM {$t['scans']} WHERE id = %d", $scan_id ) );
 		if ( 'complete' !== $status ) {
 			WP_CLI::warning( sprintf( 'Scan %1$d ended as "%2$s"; results are incomplete.', $scan_id, $status ) );
@@ -426,7 +426,7 @@ final class Command {
 	private function print_results( $scan_id, array $assoc_args ) {
 		global $wpdb;
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$scan   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $scan_id ) );
 		$rows   = $this->components( $scan_id );
 		$format = isset( $assoc_args['format'] ) ? $assoc_args['format'] : 'table';
@@ -492,7 +492,7 @@ final class Command {
 	private function components( $scan_id ) {
 		global $wpdb;
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t['components']} WHERE scan_id = %d ORDER BY FIELD(verdict, 'blocker','unknown','suppressed','guarded','warnings','ready'), name", $scan_id ) );
 		$out  = array();
 		foreach ( $rows as $c ) {
@@ -546,8 +546,8 @@ final class Command {
 	private function scan_id( array $assoc_args ) {
 		global $wpdb;
 		$t  = Installer::tables();
-		$id = isset( $assoc_args['scan'] ) ? absint( $assoc_args['scan'] ) : (int) $wpdb->get_var( "SELECT MAX(id) FROM {$t['scans']}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		$id = isset( $assoc_args['scan'] ) ? absint( $assoc_args['scan'] ) : (int) $wpdb->get_var( "SELECT MAX(id) FROM {$t['scans']}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
 		if ( ! $id || ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$t['scans']} WHERE id = %d", $id ) ) ) {
 			WP_CLI::error( 'No scan found. Run one with: wp airworthy scan' );
 		}

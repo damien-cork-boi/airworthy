@@ -187,7 +187,7 @@ final class Installer {
 		self::unschedule_jobs();
 
 		foreach ( self::tables() as $table ) {
-			$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery -- Table names are our own constants.
+			$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table names are our own constants.
 		}
 
 		foreach ( self::OPTIONS as $option ) {

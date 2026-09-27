@@ -3,7 +3,7 @@
 #   1. installs the scan engine (production deps only) from plugin/composer.json
 #   2. prefixes it with PHP-Scoper (scoper.inc.php) into the plugin's vendor/ folder
 #   3. regenerates the scoped Composer autoloader
-#   3b. bundles Action Scheduler (unscoped) in lib/
+#   3b. bundles Action Scheduler (unscoped) in vendor/woocommerce/action-scheduler
 #   4. copies the plugin source and zips it to dist/airworthy.zip
 #
 # Usage: bin/build.sh            release build from the committed composer.lock
@@ -67,20 +67,34 @@ composer dump-autoload --working-dir="$OUT" --classmap-authoritative --no-dev --
 rm "$OUT/composer.json"
 
 echo "==> Bundling Action Scheduler (unscoped: it picks the newest copy loaded by any plugin)"
-mkdir -p "$OUT/lib"
+mkdir -p "$OUT/vendor/woocommerce"
 rsync -a --exclude tests --exclude docs --exclude '*.md' --exclude phpunit.xml.dist --exclude phpcs.xml \
-	"$STAGE/vendor/woocommerce/action-scheduler/" "$OUT/lib/action-scheduler/"
+	"$STAGE/vendor/woocommerce/action-scheduler/" "$OUT/vendor/woocommerce/action-scheduler/"
 
 echo "==> Copying plugin source"
 # src/Dev.php (previews for screenshots/tests) only goes into development builds.
 DEV_EXCLUDE="--exclude src/Dev.php"
 [ "${DEV_BUILD:-0}" = "1" ] && DEV_EXCLUDE=""
-rsync -a --exclude composer.json --exclude composer.lock --exclude vendor $DEV_EXCLUDE "$ROOT/plugin/" "$OUT/"
+# composer.json/.lock ship too, so the bundled libraries and their versions are visible.
+rsync -a --exclude vendor $DEV_EXCLUDE "$ROOT/plugin/" "$OUT/"
+echo "==> Software bill of materials"
+VERSION=$(sed -n "s/.*define( 'AIRWORTHY_VERSION', '\([^']*\)' );.*/\1/p" "$ROOT/plugin/airworthy.php")
+php "$ROOT/bin/sbom.php" "$VERSION" "$ROOT/plugin/composer.lock" "$OUT/sbom.cdx.json"
+cp "$OUT/sbom.cdx.json" "$ROOT/docs/sbom.cdx.json"
+
+ZIP="$SLUG.zip"
+if [ "${DEV_BUILD:-0}" = "1" ]; then
+	# Development builds say so in their version (turns on previews and asset cache-busting),
+	# and never overwrite the release zip.
+	sed -i.bak -E "s/('AIRWORTHY_VERSION', '[0-9.]+)'/\1-dev'/" "$OUT/airworthy.php" && rm -f "$OUT/airworthy.php.bak"
+	grep -q "AIRWORTHY_VERSION', '[0-9.]*-dev'" "$OUT/airworthy.php" || { echo "Could not mark the dev build's version." >&2; exit 1; }
+	ZIP="$SLUG-dev.zip"
+fi
 
 echo "==> Zipping"
-rm -f "$ROOT/dist/$SLUG.zip"
-( cd "$BUILD" && zip -qr "$ROOT/dist/$SLUG.zip" "$SLUG" )
+rm -f "$ROOT/dist/$ZIP"
+( cd "$BUILD" && zip -qr "$ROOT/dist/$ZIP" "$SLUG" )
 rm -rf "$STAGE"
 
 echo "Built $OUT"
-echo "Zip:  dist/$SLUG.zip ($(du -h "$ROOT/dist/$SLUG.zip" | cut -f1)), unpacked $(du -sh "$OUT" | cut -f1)"
+echo "Zip:  dist/$ZIP ($(du -h "$ROOT/dist/$ZIP" | cut -f1)), unpacked $(du -sh "$OUT" | cut -f1)"

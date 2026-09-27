@@ -13,7 +13,7 @@ Exact versions in `plugin/composer.json`, and locked in `plugin/composer.lock`. 
 | phpcompatibility/php-compatibility | 10.0.0-alpha2 | LGPL-3.0-or-later |
 | phpcompatibility/phpcompatibility-paragonie | 2.0.0-alpha2 | LGPL-3.0-or-later |
 | phpcompatibility/phpcompatibility-wp | 3.0.0-alpha2 | LGPL-3.0-or-later |
-| woocommerce/action-scheduler (background jobs, bundled **unscoped** in `lib/`) | 3.9.3 | GPL-3.0-or-later |
+| woocommerce/action-scheduler (background jobs, bundled **unscoped** in `vendor/woocommerce/action-scheduler/`) | 3.9.3 | GPL-3.0-or-later |
 
 PHP_CodeSniffer 4 sets the plugin's minimum PHP version: **7.2**.
 
