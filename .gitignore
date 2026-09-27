@@ -19,3 +19,6 @@ vendor/
 # Deliberately unreadable fixture (chmod 000); recreated by the test setup
 /engine-test/fixtures/plugins/fx-unreadable/inc/secret.php
 /engine-test/coexist.php.bak
+
+# Test fixtures deliberately contain vendor/ folders (the scanner must scan them).
+!/engine-test/fixtures/plugins/*/vendor/
