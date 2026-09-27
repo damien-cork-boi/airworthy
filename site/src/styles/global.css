@@ -213,6 +213,49 @@ pre code {
 	color: var(--ink);
 }
 
+/* Phones: logo and links on one row; the header's install button is left out (the hero has one). */
+@media (max-width: 640px) {
+	.site-header .wrap {
+		min-height: 56px;
+		gap: 12px;
+		flex-wrap: nowrap;
+	}
+
+	.brand {
+		font-size: 1.05rem;
+		gap: 8px;
+	}
+
+	.brand svg {
+		width: 28px;
+		height: 28px;
+	}
+
+	.site-nav {
+		gap: 14px;
+		flex-wrap: nowrap;
+	}
+
+	.site-nav a {
+		font-size: 0.95rem;
+	}
+
+	.site-nav .header-cta {
+		display: none;
+	}
+
+	pre {
+		font-size: 0.8rem;
+		padding: 12px;
+	}
+}
+
+@media (max-width: 360px) {
+	.brand span {
+		display: none; /* The logo alone, so the three links still fit on one row. */
+	}
+}
+
 /* Buttons */
 
 .button {

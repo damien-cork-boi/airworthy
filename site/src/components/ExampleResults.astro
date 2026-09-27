@@ -71,4 +71,19 @@ const rows = [
 	figcaption {
 		font-size: 0.85rem;
 	}
+
+	/* Narrow screens: the badge goes under the name instead of squeezing it. */
+	@media (max-width: 480px) {
+		.example {
+			padding: 16px;
+		}
+
+		li {
+			grid-template-columns: 1fr;
+		}
+
+		.badge {
+			justify-self: start;
+		}
+	}
 </style>
