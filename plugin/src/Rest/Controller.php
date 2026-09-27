@@ -12,6 +12,7 @@ use Airworthy\Installer;
 use Airworthy\Scan\Queue;
 use Airworthy\Scan\Verdict;
 use Airworthy\Targets;
+use Airworthy\Wporg\Fetcher;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -410,8 +411,9 @@ final class Controller {
 	}
 
 	/**
-	 * POST /scans/{id}/nudge: runs one batch in this request. The admin screen calls it while
-	 * open, so scans still progress on sites where WP-Cron is disabled or rarely triggered.
+	 * POST /scans/{id}/nudge: runs one batch in this request (file scan, or the WordPress.org
+	 * lookups left once it's done). The admin screen calls it while open, so scans still
+	 * progress on sites where WP-Cron is disabled or rarely triggered.
 	 *
 	 * @param \WP_REST_Request $request Request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -423,6 +425,8 @@ final class Controller {
 		}
 		if ( in_array( $scan->status, array( 'queued', 'running' ), true ) ) {
 			Queue::run_batch( (int) $scan->id ); // Returns at once if another runner holds the lock.
+		} elseif ( 'complete' === $scan->status && 'pending' === $scan->wporg_status ) {
+			Fetcher::run( (int) $scan->id ); // WordPress.org lookups still left after the file scan.
 		}
 		return new \WP_REST_Response( self::scan_summary( self::scan_row( (int) $scan->id ) ), 200 );
 	}

@@ -19,7 +19,8 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 WP_PATH=${1:?Usage: tests/run.sh <path to WordPress> [--uninstall]}
 UNINSTALL=${2:-}
 read -r -a WPCMD <<< "${WP_CLI:-wp}"
-wp() { "${WPCMD[@]}" --path="$WP_PATH" "$@"; }
+# `command` so the default "wp" runs WP-CLI, not this function again.
+wp() { command "${WPCMD[@]}" --path="$WP_PATH" "$@"; }
 
 PLUGINS=$(wp eval 'echo WP_PLUGIN_DIR;')
 MU=$(wp eval 'echo WPMU_PLUGIN_DIR;')

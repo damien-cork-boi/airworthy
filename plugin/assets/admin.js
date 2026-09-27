@@ -29,6 +29,7 @@
 	var state = {
 		scan: null,
 		pollTimer: null,
+		wporgTimer: null,
 		lastDone: -1,
 		lastChange: Date.now(),
 		nudging: false,
@@ -264,6 +265,7 @@
 	}
 
 	function showStart( canGoBack ) {
+		clearTimeout( state.wporgTimer );
 		backButton.hidden = ! canGoBack;
 		startError.hidden = true;
 		updateEndedNote();
@@ -315,6 +317,7 @@
 	// ---------------------------------------------------------------------------------------
 
 	function startProgress() {
+		clearTimeout( state.wporgTimer );
 		state.lastDone = -1;
 		// Announce 25% milestones from here on (a rescan may start at 99%).
 		state.lastAnnounced = Math.floor( ( ( state.scan && state.scan.progress && state.scan.progress.percent ) || 0 ) / 25 );
@@ -713,7 +716,7 @@
 				v ? el( 'div', { class : 'airworthy-small' }, 'blocker' === c.verdict ? sprintf( v.line, scan.target_php ) : v.line ) : null
 			),
 			el( 'td', { 'data-label': __( 'Findings', 'airworthy' ) }, el( 'span', { class: 'airworthy-small' }, findingsSummary( c ) ) ),
-			el( 'td', { 'data-label': __( 'WordPress.org', 'airworthy' ) }, wporgCell( c, isRunning( scan ) ) ),
+			el( 'td', { 'data-label': __( 'WordPress.org', 'airworthy' ) }, wporgCell( c, isRunning( scan ) || wporgPending( scan ) ) ),
 			el( 'td', { class: 'airworthy-actions' }, toggle, el( 'span', { class: 'airworthy-sep' }, ' · ' ), rescan )
 		);
 		return [ row, details ];
@@ -781,6 +784,7 @@
 
 	function renderResults( scan, moveFocus ) {
 		clearTimeout( state.pollTimer );
+		clearTimeout( state.wporgTimer );
 		state.scan     = scan;
 		var components = scan.components || [];
 		var visible    = state.blockersOnly ? components.filter(
@@ -979,6 +983,53 @@
 		if ( moveFocus ) {
 			focusHeading( views.results );
 		}
+		watchWporg( scan );
+	}
+
+	function wporgPending( scan ) {
+		return ! ! scan && 'complete' === scan.status && 'pending' === scan.wporg;
+	}
+
+	/**
+	 * WordPress.org lookups can still be running when the file scan finishes. Keep asking
+	 * until they're done (running them from this page if nothing moves, like maybeNudge),
+	 * then redraw: verdicts can change, e.g. a plugin whose "Requires PHP" is above the target
+	 * becomes a Blocker.
+	 */
+	function watchWporg( scan ) {
+		if ( ! wporgPending( scan ) ) {
+			return;
+		}
+		var since        = Date.now();
+		var check        = function () {
+			var stalled = Date.now() - since > NUDGE_AFTER_MS;
+			var nudge   = stalled ? apiFetch( { path : REST + '/scans/' + scan.id + '/nudge', method : 'POST' } ) : Promise.resolve();
+			nudge.catch( function () {} ).then(
+				function () {
+					if ( stalled ) {
+						since = Date.now();
+					}
+					return apiFetch( { path: REST + '/scans/' + scan.id } );
+				}
+			).then(
+				function ( fresh ) {
+					if ( views.results.hidden || ! state.scan || state.scan.id !== fresh.id ) {
+						return; // The user moved on.
+					}
+					if ( wporgPending( fresh ) ) {
+						state.wporgTimer = setTimeout( check, POLL_MS );
+						return;
+					}
+					renderResults( fresh, views.results.contains( document.activeElement ) );
+					announce( __( 'WordPress.org details added.', 'airworthy' ) );
+				}
+			).catch(
+				function () {
+					state.wporgTimer = setTimeout( check, POLL_MS * 2 );
+				}
+			);
+		};
+		state.wporgTimer = setTimeout( check, POLL_MS );
 	}
 
 	// ---------------------------------------------------------------------------------------

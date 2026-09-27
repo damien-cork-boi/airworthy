@@ -22,3 +22,4 @@ vendor/
 
 # Test fixtures deliberately contain vendor/ folders (the scanner must scan them).
 !/engine-test/fixtures/plugins/*/vendor/
+/engine-test/clean/

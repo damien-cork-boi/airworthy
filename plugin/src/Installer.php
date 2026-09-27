@@ -194,14 +194,16 @@ final class Installer {
 			delete_site_option( $option );
 		}
 
-		// Cached WordPress.org lookups: transients (single site) or site transients (multisite).
-		$like         = $wpdb->esc_like( '_transient_' . self::TRANSIENT_PREFIX ) . '%';
-		$like_timeout = $wpdb->esc_like( '_transient_timeout_' . self::TRANSIENT_PREFIX ) . '%';
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $like, $like_timeout ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// Cached WordPress.org lookups. They're site transients, which live in the options table
+		// on a single site (as _site_transient_*) and in sitemeta on multisite. Plain transients
+		// are matched too, in case an older version stored any.
+		$patterns = array();
+		foreach ( array( '_site_transient_', '_site_transient_timeout_', '_transient_', '_transient_timeout_' ) as $prefix ) {
+			$patterns[] = $wpdb->esc_like( $prefix . self::TRANSIENT_PREFIX ) . '%';
+		}
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s", $patterns[0], $patterns[1], $patterns[2], $patterns[3] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		if ( is_multisite() ) {
-			$site_like         = $wpdb->esc_like( '_site_transient_' . self::TRANSIENT_PREFIX ) . '%';
-			$site_like_timeout = $wpdb->esc_like( '_site_transient_timeout_' . self::TRANSIENT_PREFIX ) . '%';
-			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s OR meta_key LIKE %s", $site_like, $site_like_timeout ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s OR meta_key LIKE %s", $patterns[0], $patterns[1] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		}
 	}
 
