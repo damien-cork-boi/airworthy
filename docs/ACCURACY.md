@@ -18,7 +18,9 @@ Always one exact target version (e.g. 8.4), never a range.
 ## How a finding is classified (`plugin/src/Scan/Classifier.php`)
 
 In this order:
-1. **Own code:** a removed-extension finding whose flagged calls are all the plugin's own functions. PHPCompatibility matches removed extensions by prefix, so `sqlite_plugin_init()` looks like the old `sqlite` extension. Stored as an informational notice with no verdict impact.
+1. **Own code:** the flagged name is provided by the plugin itself. Stored as an informational notice with no verdict impact.
+   - A removed-extension finding whose flagged calls are all the plugin's own functions. PHPCompatibility matches removed extensions by prefix, so `sqlite_plugin_init()` looks like the old `sqlite` extension.
+   - A "new in PHP x" / "removed in PHP x" function, constant or class the plugin declares in the global namespace: polyfills such as Symfony's `str_contains()` or `INTL_IDNA_VARIANT_2003`, PHP_CodeSniffer's `defined( 'T_ENUM' ) || define( … )`, or an old plugin's own `each()`. Deprecations and keyword/syntax rules still count.
 2. **Guarded:** the line is in code that can't run on the target:
    - inside an `if`/`elseif` branch whose condition is false on the target, an `else` branch whose condition is true, code after an early `return`/`exit`/`throw` in an `if` body, or after `condition &&` in the same statement;
    - conditions are version checks (`PHP_VERSION_ID`, `PHP_MAJOR_VERSION`, `version_compare( PHP_VERSION, … )`) evaluated against the target, or capability checks (`function_exists`, `extension_loaded`, `class_exists`, `defined`, `is_callable`, `method_exists`) that name the flagged thing itself;
@@ -82,4 +84,20 @@ Both real bugs should be reported to the authors, with file and line, before the
 
 1. **Guards in another file**: handled by the cross-file check for declaration-only files and conditional includes (see above). Not covered: inheritance chains, dynamic class names, and includes the check can't resolve. Those are deliberately left as plain.
 2. **Runtime-flag guards** such as UpdraftPlus's `if ( $this->use_mysqli ) … else mysql_*()`: can't be proven statically. They're only Suppressed where the author annotated them. Stage 2's runtime logging settles these.
-3. **Coverage gaps from Step 1** (static): the 8.1 `ArrayAccess` return types, 8.2 `HTML-ENTITIES` and `"self::"` callables, and the 8.5 `case;`, null offset and `PDO::MYSQL_ATTR_*` cases. Planned as our own sniffs (see ENGINE.md).
+3. **Guards behind a helper function, at target 8.0 only**: WooCommerce ships PHP 8.1 syntax (enums, readonly properties) in its new `src/Api` code, and only switches it on when `Main::is_enabled()` returns `PHP_VERSION_ID >= 80100 && …`. Following a guard through a method call, and through autoloaded classes imported with `use`, isn't supported, so WooCommerce is a false Blocker at target **8.0**. It's correct at 8.1 and above, which is where almost every upgrade goes. Fix option: treat simple predicate methods (`return <version check> && …;`) as conditions at their call sites.
+4. **Coverage gaps from Step 1** (static): the 8.1 `ArrayAccess` return types, 8.2 `HTML-ENTITIES` and `"self::"` callables, and the 8.5 `case;`, null offset and `PDO::MYSQL_ATTR_*` cases. Planned as our own sniffs (see ENGINE.md).
+
+## WordPress.org signals (Step 5, `plugin/src/Wporg/`)
+
+| Signal | Rule |
+|---|---|
+| Closed | "Removed from WordPress.org", with date and reason (e.g. Security Issue); shown prominently |
+| Last updated | Abandoned when there's been no update for 2+ years |
+| Tested up to | Warning when 3+ WordPress feature releases behind the latest |
+| Requires PHP | **Blocker** when above the target PHP version |
+| Update available | From core's own update check, or the WordPress.org version |
+| Not listed | Premium, custom, `Update URI` elsewhere, or a folder-name clash with a different WordPress.org plugin. Never an error |
+
+Identification: WordPress core's update check (`w.org/plugins/<slug>`) first, then the folder name. The names must match either way, because core itself matches by folder name (a custom plugin in `calendar/` gets WordPress.org's "Calendar"). Name matching compares words: every word of the shorter name appears in the longer one, or at least 2 leading words are shared ("Ultimate Addons for Elementor (UAE)" = "Ultimate Addons for Elementor – Widgets, …"). Result: 30/30 top plugins matched; "calendar", "WP Super Cache" vs "WP Super Edit", "Elementor Pro" vs "Elementor" and similar look-alikes correctly rejected.
+
+Privacy, verified by logging every request: only the slug is sent, the User-Agent is `Airworthy/<version>` (never WordPress's default, which carries the site URL), and 0 of 50 requests contained the site address. Cached 24 hours; a second scan made 0 requests. Offline: the scan completes, reports "offline", and gives up after 2 failed lookups in a row; failures aren't cached.

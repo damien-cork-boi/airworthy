@@ -122,6 +122,7 @@ final class Queue {
 		$wpdb->query( $wpdb->prepare( "UPDATE {$t['scans']} SET status = 'cancelled', finished_at = %s, locked_until = NULL WHERE id = %d AND status IN ('queued','running')", self::now(), $scan_id ) );
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {
 			as_unschedule_all_actions( self::HOOK, array( (int) $scan_id ), Installer::JOB_GROUP );
+			as_unschedule_all_actions( \Airworthy\Wporg\Fetcher::HOOK, array( (int) $scan_id ), Installer::JOB_GROUP );
 		}
 	}
 
@@ -238,9 +239,13 @@ final class Queue {
 			$count++;
 		}
 
+		// WordPress.org signals are fetched alongside the file scan.
+		\Airworthy\Wporg\Fetcher::enqueue( (int) $scan->id );
+
 		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$t['scans'],
 			array(
+				'wporg_status'     => 'pending',
 				'status'           => 'running',
 				'started_at'       => self::now(),
 				'components_total' => $count,
@@ -297,7 +302,7 @@ final class Queue {
 			}
 			$prepass               = (array) json_decode( (string) $c->prepass, true );
 			$state['serializable'] = isset( $prepass['serializable'] ) ? (array) $prepass['serializable'] : array();
-			$state['functions']    = isset( $prepass['functions'] ) ? (array) $prepass['functions'] : array();
+			$state['own']          = array_intersect_key( $prepass, array_flip( array( 'functions', 'constants', 'classes' ) ) );
 
 			if ( null !== $c->inflight_file ) {
 				self::recover_crash( $c, $state );
@@ -420,8 +425,8 @@ final class Queue {
 				continue;
 			}
 			if ( ! $classifier ) {
-				$graph      = LoadGraph::for_component( $state['root'], $state['files'], $state['target'], $state['functions'] );
-				$classifier = new Classifier( (string) file_get_contents( $path ), $state['files'][ $index ], $state['target'], $state['functions'], $graph );
+				$graph      = LoadGraph::for_component( $state['root'], $state['files'], $state['target'], $state['own'] );
+				$classifier = new Classifier( (string) file_get_contents( $path ), $state['files'][ $index ], $state['target'], $state['own'], $graph );
 			}
 			$issues[ $k ]['context'] = $classifier->classify( $issue );
 			if ( Classifier::OWN_CODE === $issues[ $k ]['context'] ) {
@@ -430,7 +435,7 @@ final class Queue {
 				$issues[ $k ]['context']  = Classifier::PLAIN;
 				$issues[ $k ]['message']  = sprintf(
 					/* translators: %s: original PHP_CodeSniffer message. */
-					__( 'Not a problem: the flagged call is this plugin\'s own function, not the removed PHP extension. (%s)', 'airworthy' ),
+					__( 'Not a problem: this plugin provides the flagged function, constant or class itself (its own code or a polyfill). (%s)', 'airworthy' ),
 					$issue['message']
 				);
 				continue;
@@ -603,11 +608,11 @@ final class Queue {
 				'status'        => 'done',
 				'phase'         => 'done',
 				'inflight_file' => null,
-				'verdict'       => Verdict::from_counts( $state['counts'] ),
 				'finished_at'   => self::now(),
 			),
 			array( 'id' => (int) $c->id )
 		);
+		Results::refresh_component( (int) $c->id ); // Counts plus WordPress.org signals, if they're in.
 	}
 
 	/**
@@ -618,21 +623,15 @@ final class Queue {
 	private static function finish( $scan_id ) {
 		global $wpdb;
 		$t = Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
-		$data = array(
-			'status'      => 'complete',
-			'finished_at' => self::now(),
+		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$t['scans'],
+			array(
+				'status'      => 'complete',
+				'finished_at' => self::now(),
+			),
+			array( 'id' => $scan_id )
 		);
-		foreach ( Verdict::ALL as $verdict ) {
-			$data[ 'count_' . $verdict ] = 0;
-		}
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
-		foreach ( (array) $wpdb->get_results( $wpdb->prepare( "SELECT verdict, COUNT(*) AS n FROM {$t['components']} WHERE scan_id = %d GROUP BY verdict", $scan_id ) ) as $row ) {
-			if ( in_array( $row->verdict, Verdict::ALL, true ) ) {
-				$data[ 'count_' . $row->verdict ] = (int) $row->n;
-			}
-		}
-		$wpdb->update( $t['scans'], $data, array( 'id' => $scan_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		Results::refresh_scan( $scan_id );
 	}
 
 	/**

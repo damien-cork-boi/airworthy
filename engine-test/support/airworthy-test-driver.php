@@ -11,7 +11,8 @@ if ( ! in_array( $_SERVER['REMOTE_ADDR'] ?? '', array( '127.0.0.1', '::1', '' ),
 	return;
 }
 
-$airworthy_knobs = (array) json_decode( (string) get_option( 'airworthy_test_knobs', '{}' ), true );
+$airworthy_knobs = get_option( 'airworthy_test_knobs', array() );
+$airworthy_knobs = is_array( $airworthy_knobs ) ? $airworthy_knobs : (array) json_decode( (string) $airworthy_knobs, true );
 
 // Memory cap: see the .aw-mem switch in wp-config.php (it must apply before WordPress loads).
 if ( ! empty( $airworthy_knobs['nobudget'] ) ) {
@@ -30,6 +31,32 @@ if ( ! empty( $airworthy_knobs['only'] ) ) {
 		} );
 	} );
 }
+// WordPress.org lookups: log every outgoing request (URL + User-Agent), optionally simulate
+// WordPress.org being unreachable, or answer canned responses for made-up slugs.
+add_filter(
+	'pre_http_request',
+	static function ( $pre, $args, $url ) use ( $airworthy_knobs ) {
+		if ( false === strpos( $url, 'api.wordpress.org/plugins/info' ) ) {
+			return $pre;
+		}
+		$log   = (array) get_option( 'airworthy_test_http_log', array() );
+		$log[] = array( 'url' => $url, 'user-agent' => isset( $args['user-agent'] ) ? $args['user-agent'] : '', 'headers' => isset( $args['headers'] ) ? $args['headers'] : array() );
+		update_option( 'airworthy_test_http_log', array_slice( $log, -200 ), false );
+		if ( ! empty( $airworthy_knobs['offline'] ) ) {
+			return new WP_Error( 'http_request_failed', 'cURL error 6: Could not resolve host: api.wordpress.org (simulated)' );
+		}
+		if ( ! empty( $airworthy_knobs['wporg_mock'] ) ) {
+			parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $q );
+			$slug = isset( $q['request']['slug'] ) ? $q['request']['slug'] : '';
+			if ( isset( $airworthy_knobs['wporg_mock'][ $slug ] ) ) {
+				return array( 'headers' => array(), 'body' => wp_json_encode( $airworthy_knobs['wporg_mock'][ $slug ] ), 'response' => array( 'code' => 200, 'message' => 'OK' ), 'cookies' => array(), 'filename' => null );
+			}
+		}
+		return $pre;
+	},
+	10,
+	3
+);
 if ( ! empty( $airworthy_knobs['recovery'] ) ) {
 	add_filter( 'airworthy_recovery_delay', static function () use ( $airworthy_knobs ) {
 		return (int) $airworthy_knobs['recovery'];

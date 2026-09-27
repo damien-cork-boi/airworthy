@@ -353,6 +353,7 @@ final class Controller {
 				'components'  => (int) $s->components_total,
 			),
 			'counts'      => $counts,
+			'wporg'       => $s->wporg_status ? $s->wporg_status : null, // pending | done | partial | offline.
 			'created_at'  => self::iso( $s->created_at ),
 			'started_at'  => self::iso( $s->started_at ),
 			'finished_at' => self::iso( $s->finished_at ),

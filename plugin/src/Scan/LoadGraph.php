@@ -58,9 +58,9 @@ final class LoadGraph {
 	private $target;
 
 	/**
-	 * Own functions with removed-extension prefixes (for classifiers of referencing files).
+	 * Names the component declares itself (for classifiers of referencing files).
 	 *
-	 * @var string[]
+	 * @var array
 	 */
 	private $own_functions;
 
@@ -98,7 +98,7 @@ final class LoadGraph {
 	 * @param string   $root          Component folder.
 	 * @param string[] $files         Relative paths.
 	 * @param string   $target        Target PHP version.
-	 * @param string[] $own_functions Own functions with removed-extension prefixes.
+	 * @param array    $own_functions Names the component declares (FileLister::prepass()).
 	 * @return self
 	 */
 	public static function for_component( $root, array $files, $target, array $own_functions = array() ) {
@@ -115,7 +115,7 @@ final class LoadGraph {
 	 * @param string   $root          Component folder.
 	 * @param string[] $files         Relative paths.
 	 * @param string   $target        Target PHP version.
-	 * @param string[] $own_functions Own functions with removed-extension prefixes.
+	 * @param array    $own_functions Names the component declares (FileLister::prepass()).
 	 */
 	private function __construct( $root, array $files, $target, array $own_functions ) {
 		$this->root          = rtrim( $root, '/\\' );

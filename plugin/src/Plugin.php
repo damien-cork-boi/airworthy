@@ -22,6 +22,7 @@ final class Plugin {
 		// Job handler, registered by name so the queue class (and the scan engine) only load
 		// when a job actually runs. Must match Scan\Queue::HOOK.
 		add_action( 'airworthy_scan_batch', array( Scan\Queue::class, 'run_batch' ) );
+		add_action( 'airworthy_wporg_batch', array( Wporg\Fetcher::class, 'run' ) );
 
 		// REST routes: the controller only loads on REST requests.
 		add_action( 'rest_api_init', array( Rest\Controller::class, 'register_routes' ) );

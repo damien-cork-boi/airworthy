@@ -36,9 +36,11 @@ foreach ( $scan['files'] as $f ) {
 		$croot            = implode( '/', array_slice( $parts, 0, $idx + 2 ) );
 		$listed           = Airworthy\Scan\FileLister::list_files( $croot )['files'];
 		$prepass[ $slug ] = Airworthy\Scan\FileLister::prepass( $croot, $listed );
-		$prepass[ $slug ]['graph'] = Airworthy\Scan\LoadGraph::for_component( $croot, $listed, $target, $prepass[ $slug ]['functions'] );
+		$own              = array_intersect_key( $prepass[ $slug ], array_flip( array( 'functions', 'constants', 'classes' ) ) );
+		$prepass[ $slug ]['own']   = $own;
+		$prepass[ $slug ]['graph'] = Airworthy\Scan\LoadGraph::for_component( $croot, $listed, $target, $own );
 	}
-	$cls      = new Airworthy\Scan\Classifier( file_get_contents( $f['path'] ), $relative, $target, $prepass[ $slug ]['functions'], $prepass[ $slug ]['graph'] );
+	$cls      = new Airworthy\Scan\Classifier( file_get_contents( $f['path'] ), $relative, $target, $prepass[ $slug ]['own'], $prepass[ $slug ]['graph'] );
 	foreach ( $f['issues'] as $i ) {
 		$i['rule'] = $i['source']; // scan.php calls it "source"; the plugin stores "rule".
 		if ( '.Changed' === substr( $i['rule'], -8 ) ) {

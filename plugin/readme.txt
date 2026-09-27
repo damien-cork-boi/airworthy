@@ -16,7 +16,9 @@ Development build. The full description is written in the hardening step (Step 8
 
 = Privacy =
 
-This plugin reads your plugin and theme files on your own server; it never runs them and never sends them anywhere. To show whether a plugin is still maintained, it looks up each plugin's slug (its folder name) in the public WordPress.org plugin directory. No other site data is sent.
+This plugin reads your plugin and theme files on your own server; it never runs them and never sends them anywhere.
+
+To show whether a plugin is still maintained, it looks up each plugin's slug (its folder name) in the public WordPress.org plugin directory (api.wordpress.org). Nothing else is sent: not your site's address (the requests use their own "Airworthy" user agent instead of WordPress's default, which includes your site URL), not your plugin list, not your PHP version. Answers are cached for 24 hours.
 
 == Changelog ==
 

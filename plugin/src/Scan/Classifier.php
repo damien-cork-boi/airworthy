@@ -37,8 +37,14 @@ final class Classifier {
 	const SUPPRESSED = 'suppressed';
 
 	/**
-	 * Not a PHP problem at all: a removed-extension finding whose flagged calls on the line are
-	 * all the component's own functions (sqlite_plugin_init() is not the old sqlite extension).
+	 * Not a PHP problem at all: the flagged name is provided by the component itself.
+	 * - A removed-extension finding whose flagged calls on the line are all the component's own
+	 *   functions (sqlite_plugin_init() is not the old sqlite extension).
+	 * - A "new in PHP x" or "removed in PHP x" function, constant or class the component
+	 *   declares itself: polyfills such as Symfony's str_contains(), PHP_CodeSniffer's
+	 *   `defined( 'T_ENUM' ) || define( 'T_ENUM', … )`, or an old plugin's own each().
+	 *   Deprecations still count (a polyfill never replaces a function PHP still has), and so
+	 *   do keyword and syntax rules (defining T_ENUM doesn't make `enum` syntax work).
 	 * Stored as an informational notice, never counted towards the verdict.
 	 */
 	const OWN_CODE = 'own';
@@ -121,11 +127,11 @@ final class Classifier {
 	private $disabled = array();
 
 	/**
-	 * The component's own functions with removed-extension prefixes (lowercase).
+	 * Names the component declares itself (lowercase): functions, constants, classes.
 	 *
-	 * @var array<string,bool>
+	 * @var array<string,array<string,bool>>
 	 */
-	private $own_functions;
+	private $own;
 
 	/**
 	 * Cross-file analysis for the component, when available.
@@ -140,14 +146,20 @@ final class Classifier {
 	 * @param string   $source        File contents.
 	 * @param string   $relative      Path relative to the component.
 	 * @param string   $target        Exact target PHP version, e.g. "8.4".
-	 * @param string[] $own_functions The component's own functions with removed-extension prefixes.
-	 * @param LoadGraph|null $graph   Cross-file analysis for the component (optional).
+	 * @param array    $own      Names the component declares (FileLister::prepass(): functions,
+	 *                           constants, classes; a plain list is taken as functions).
+	 * @param LoadGraph|null $graph Cross-file analysis for the component (optional).
 	 */
-	public function __construct( $source, $relative, $target, array $own_functions = array(), $graph = null ) {
+	public function __construct( $source, $relative, $target, array $own = array(), $graph = null ) {
 		$this->graph          = $graph;
 		$this->source         = $source;
 		$this->relative       = $relative;
-		$this->own_functions  = array_fill_keys( array_map( 'strtolower', $own_functions ), true );
+		if ( $own && ! isset( $own['functions'] ) && ! isset( $own['constants'] ) && ! isset( $own['classes'] ) ) {
+			$own = array( 'functions' => $own );
+		}
+		foreach ( array( 'functions', 'constants', 'classes' ) as $kind ) {
+			$this->own[ $kind ] = array_fill_keys( array_map( 'strtolower', isset( $own[ $kind ] ) ? (array) $own[ $kind ] : array() ), true );
+		}
 		$parts                = array_map( 'intval', explode( '.', $target ) );
 		$this->target_id      = $parts[0] * 10000 + ( isset( $parts[1] ) ? $parts[1] : 0 ) * 100;
 		$this->target_version = $parts[0] . '.' . ( isset( $parts[1] ) ? $parts[1] : 0 ) . '.0';
@@ -187,7 +199,13 @@ final class Classifier {
 	 * @return bool
 	 */
 	private function is_own_code( array $issue ) {
-		if ( ! $this->own_functions || false === strpos( (string) $issue['rule'], '.Extensions.RemovedExtensions.' ) ) {
+		$rule = (string) $issue['rule'];
+		// New/removed functions, constants and classes the component provides itself.
+		if ( preg_match( '/\.(FunctionUse\.(New|Removed)Functions|Constants\.(New|Removed)Constants|Classes\.(New|Removed)Classes|Interfaces\.(New|Removed)Interfaces)\.(.+?)(DeprecatedRemoved|Removed|Found)$/', $rule, $m ) ) {
+			$kind = 'Constants' === substr( $m[1], 0, 9 ) ? 'constants' : ( 'FunctionUse' === substr( $m[1], 0, 11 ) ? 'functions' : 'classes' );
+			return isset( $this->own[ $kind ][ strtolower( rtrim( $m[6], '_' ) ) ] );
+		}
+		if ( ! $this->own['functions'] || false === strpos( $rule, '.Extensions.RemovedExtensions.' ) ) {
 			return false;
 		}
 		$parts  = explode( '.', (string) $issue['rule'] );
@@ -209,7 +227,7 @@ final class Classifier {
 			return false;
 		}
 		foreach ( $calls as $name ) {
-			if ( ! isset( $this->own_functions[ $name ] ) ) {
+			if ( ! isset( $this->own['functions'][ $name ] ) ) {
 				return false;
 			}
 		}
