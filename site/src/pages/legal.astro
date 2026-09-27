@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, COMPANY } from '../config';
+---
+<Base title="Legal notice" description="Company details for airworthywp.com and the Airworthy plugin.">
+	<div class="wrap page-head">
+		<p class="eyebrow">Legal</p>
+		<h1>Legal notice</h1>
+	</div>
+	<div class="wrap prose" style="padding-bottom: 80px;">
+		<p>This website and the Airworthy plugin are provided by:</p>
+		<p>
+			<strong>{ COMPANY.name }</strong><br />
+			Registered in Ireland, company number { COMPANY.cro }<br />
+			Registered office: { COMPANY.address }<br />
+			VAT number: { COMPANY.vat }<br />
+			Email: <a href={ `mailto:${ SITE.email.hello }` }>{ SITE.email.hello }</a><br />
+			Website: <a href={ COMPANY.url }>{ COMPANY.url.replace( 'https://', '' ) }</a>
+		</p>
+
+		<h2>Licence</h2>
+		<p>The Airworthy plugin is free software, released under the GNU General Public License. It bundles open-source libraries under their own licences; see the <a href="/docs/#bundled-libraries-and-licences">list in the docs</a>.</p>
+
+		<h2>No warranty</h2>
+		<p>Airworthy reads code without running it, so it can't catch every problem. Its results help you plan an upgrade; they're not a guarantee. Test on a staging copy of your site and keep a backup before changing your PHP version. As the licence says, the plugin comes without any warranty.</p>
+
+		<h2>Trademarks</h2>
+		<p>WordPress is a trademark of the WordPress Foundation. PHP is a trademark of the PHP Group. Airworthy is not affiliated with or endorsed by either. Plugin names mentioned on this site belong to their owners.</p>
+	</div>
+</Base>

@@ -21,6 +21,13 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - WP-CLI output is English only (like WP-CLI itself); the admin screen is fully translatable. Revisit if users ask.
 - Airworthy's own scan shows "Warnings" (5 deprecations, all in bundled Action Scheduler 3.9.3 and PHPCompatibility, none in our code). Update when Action Scheduler fixes them, or move to 4.x once WordPress 6.9+ passes ~90% of sites.
 
+**Website (airworthywp.com, `site/`; step 1 done 27 Sep 2026):**
+- Step 2: brand (icon, wordmark, WordPress.org icon 256×256 and banner 1544×500) and a content review with Damo on the preview.
+- Step 3: Cloudflare account, nameservers changed at Hosting Ireland, Email Routing for security@ and hello@, Pages project (settings in site/README.md).
+- Screenshots 2–4 are held off the site (`heldScreenshots` in site/src/config.ts) until the implode() bugs are reported and fixed, or the screenshots are recaptured without those plugins.
+- Set `listed: true` in site/src/config.ts once WordPress.org approves the plugin.
+- Launch headline: the UpdraftPlus finding is in library code UpdraftPlus never calls (latent, not reachable). Reword "the 2 real bugs" (readme "Fewer false alarms", docs/ACCURACY.md) before it's used publicly.
+
 **Before launch / submission:**
 - Report the two reversed implode() bugs (fatal on PHP 8) to the authors before any public mention: Essential Addons for Elementor includes/Elements/Advanced_Data_Table.php:1934, and UpdraftPlus's bundled Rackspace library vendor/rackspace/php-opencloud/lib/OpenCloud/ObjectStore/Service.php:180.
 - Create the WordPress.org account "digitalkind" (readme Contributors must be a real username); confirm the "airworthy" slug on submission.

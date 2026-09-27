@@ -1,0 +1,81 @@
+---
+import '../styles/global.css';
+import Logo from '../components/Logo.astro';
+import InstallButton from '../components/InstallButton.astro';
+import { SITE, COMPANY, NAV } from '../config';
+
+interface Props {
+	title?: string;
+	description?: string;
+	/** Extra JSON-LD for this page. */
+	schema?: Record<string, unknown>;
+}
+
+const { title, description = SITE.description, schema } = Astro.props;
+const fullTitle = title ? `${ title } · ${ SITE.name }` : `${ SITE.name }: ${ SITE.tagline }`;
+const canonical = new URL( Astro.url.pathname, SITE.url ).href;
+const ogImage = new URL( '/screenshots/screenshot-1.png', SITE.url ).href;
+const path = Astro.url.pathname;
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{ fullTitle }</title>
+		<meta name="description" content={ description } />
+		<link rel="canonical" href={ canonical } />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<link rel="sitemap" href="/sitemap-index.xml" />
+		<meta name="theme-color" content="#1f5fd0" />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={ SITE.name } />
+		<meta property="og:title" content={ fullTitle } />
+		<meta property="og:description" content={ description } />
+		<meta property="og:url" content={ canonical } />
+		<meta property="og:image" content={ ogImage } />
+		<meta name="twitter:card" content="summary_large_image" />
+
+		{ schema && <script type="application/ld+json" set:html={ JSON.stringify( schema ) } /> }
+	</head>
+	<body>
+		<a class="skip" href="#main">Skip to content</a>
+		<header class="site-header">
+			<div class="wrap">
+				<a class="brand" href="/" aria-label={ `${ SITE.name } home` }>
+					<Logo />
+					<span>{ SITE.name }</span>
+				</a>
+				<nav class="site-nav" aria-label="Main">
+					{ NAV.map( ( item ) => (
+						<a href={ item.href } aria-current={ path.startsWith( item.href ) ? 'page' : undefined }>{ item.label }</a>
+					) ) }
+					<InstallButton size="small" />
+				</nav>
+			</div>
+		</header>
+
+		<main id="main">
+			<slot />
+		</main>
+
+		<footer class="site-footer">
+			<div class="wrap">
+				<div class="footer-company">
+					<p><strong>{ SITE.name }</strong> is made in Ireland by <a href={ COMPANY.url }>DigitalKind</a>.</p>
+					<p>© { year } { COMPANY.name }. The plugin is free software, licensed under the GPL.</p>
+				</div>
+				<ul class="footer-links">
+					<li><a href="/docs/">Docs</a></li>
+					<li><a href="/changelog/">Changelog</a></li>
+					<li><a href="/security/">Security</a></li>
+					<li><a href="/privacy/">Privacy</a></li>
+					<li><a href="/legal/">Legal notice</a></li>
+					<li><a href={ `mailto:${ SITE.email.hello }` }>Contact</a></li>
+				</ul>
+			</div>
+		</footer>
+	</body>
+</html>

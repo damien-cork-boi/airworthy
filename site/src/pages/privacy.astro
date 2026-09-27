@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, COMPANY } from '../config';
+import { sub } from '../lib/readme';
+
+// The plugin's privacy section comes from its readme, so it always matches the code.
+const plugin = sub( 'description', 'Privacy' );
+---
+<Base title="Privacy" description="What the Airworthy plugin and this website do with your data.">
+	<div class="wrap page-head">
+		<p class="eyebrow">Privacy</p>
+		<h1>Privacy</h1>
+		<p class="lede">Short version: the plugin keeps your code on your server, and this website doesn't track you.</p>
+	</div>
+	<div class="wrap prose" style="padding-bottom: 80px;">
+		<h2 style="border-top: 0; margin-top: 0;">The Airworthy plugin</h2>
+		{ plugin && <Fragment set:html={ plugin.html } /> }
+		<p>Scan results are stored in your own WordPress database, visible only to administrators, and removed when you delete the plugin. We (DigitalKind) never receive them.</p>
+
+		<h2>This website</h2>
+		<ul>
+			<li><strong>No cookies</strong> and no tracking scripts. There are no forms to fill in.</li>
+			<li><strong>Hosting.</strong> The site is served by Cloudflare. Like any web host, Cloudflare processes technical data such as your IP address to deliver the site and protect it from attacks. See <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a>.</li>
+			<li><strong>Email.</strong> If you email us, we use your message and address only to reply to you, and we don't share them.</li>
+		</ul>
+
+		<h2>Who is responsible</h2>
+		<p>{ COMPANY.name }, { COMPANY.address }. Questions or requests about your data (access, correction, deletion): <a href={ `mailto:${ SITE.email.hello }` }>{ SITE.email.hello }</a>. You can also complain to the Irish Data Protection Commission (<a href="https://www.dataprotection.ie/">dataprotection.ie</a>).</p>
+	</div>
+</Base>

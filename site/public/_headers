@@ -1,0 +1,15 @@
+# Cloudflare Pages response headers. The site has no JavaScript, forms or third-party
+# resources, so the Content Security Policy can be strict.
+/*
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  X-Frame-Options: DENY
+
+/.well-known/security.txt
+  Content-Type: text/plain; charset=utf-8
+
+/screenshots/*
+  Cache-Control: public, max-age=604800

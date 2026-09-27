@@ -27,6 +27,26 @@ jobs:
       - run: composer install --no-interaction --no-progress
       - run: vendor/bin/phpcs -q --report=full --report-summary
 
+  site:
+    name: Website builds
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+        working-directory: site
+      - run: npm run build
+        working-directory: site
+      - name: Held screenshots are not in the build
+        run: |
+          held=$(sed -n 's/.*heldScreenshots: *\[\([^]]*\)\].*/\1/p' site/src/config.ts | tr -d ' ' | tr ',' ' ')
+          for n in $held; do [ ! -e site/dist/screenshots/screenshot-$n.png ] || { echo "screenshot-$n.png is held but in the site build"; exit 1; }; done
+          echo "held: ${held:-none}"
+
   build:
     name: Build release zip
     runs-on: ubuntu-24.04

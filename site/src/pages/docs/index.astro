@@ -1,0 +1,75 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE } from '../../config';
+import { readme } from '../../lib/readme';
+
+// The docs are the plugin's readme.txt, section by section.
+const r = readme();
+const order = [ 'description', 'installation', 'frequently-asked-questions', 'screenshots' ];
+const titles: Record<string, string> = {
+	description: 'Overview',
+	installation: 'Installation',
+	'frequently-asked-questions': 'Frequently asked questions',
+	screenshots: 'Screenshots',
+};
+const sections = order.map( ( key ) => r.sections[ key ] ).filter( Boolean );
+const shots = r.screenshots.filter( ( s ) => ! SITE.heldScreenshots.includes( s.n ) );
+const requirements = [
+	[ 'WordPress', `${ r.headers[ 'Requires at least' ] } or newer (tested up to ${ r.headers[ 'Tested up to' ] })` ],
+	[ 'PHP on your server', `${ r.headers[ 'Requires PHP' ] } or newer` ],
+	[ 'Checks against', 'PHP 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5' ],
+	[ 'Current version', r.headers[ 'Stable tag' ] ],
+	[ 'Licence', r.headers[ 'License' ] ],
+];
+---
+<Base title="Docs" description="How to install and use Airworthy, what each verdict means, and what a static PHP compatibility scan can and can't catch.">
+	<div class="wrap page-head">
+		<p class="eyebrow">Docs</p>
+		<h1>Using Airworthy</h1>
+		<p class="lede">{ r.short }</p>
+	</div>
+	<div class="wrap docs-layout">
+		<nav class="toc" aria-label="On this page">
+			<ul>
+				<li><a href="#requirements">Requirements</a></li>
+				{ sections.map( ( s ) => (
+					<li><a href={ `#${ s.slug }` }>{ titles[ s.slug ] || s.title }</a></li>
+				) ) }
+			</ul>
+		</nav>
+		<article class="prose">
+			<h2 id="requirements" style="border-top: 0; margin-top: 0; padding-top: 0;">Requirements</h2>
+			<table>
+				<tbody>
+					{ requirements.map( ( [ k, v ] ) => (
+						<tr><th scope="row">{ k }</th><td>{ v }</td></tr>
+					) ) }
+				</tbody>
+			</table>
+
+			{ sections.map( ( s ) => (
+				<section>
+					<h2 id={ s.slug }>{ titles[ s.slug ] || s.title }</h2>
+					{ s.slug === 'screenshots' ? (
+						shots.length ? shots.map( ( shot ) => (
+							<figure style="margin-bottom: 28px;">
+								<img class="shot" src={ `/screenshots/screenshot-${ shot.n }.png` } alt={ shot.caption } loading="lazy" />
+								<figcaption>{ shot.caption }</figcaption>
+							</figure>
+						) ) : null
+					) : (
+						<>
+							<Fragment set:html={ s.intro } />
+							{ s.subsections.map( ( sub ) => (
+								<>
+									<h3 id={ sub.slug }>{ sub.title }</h3>
+									<Fragment set:html={ sub.html } />
+								</>
+							) ) }
+						</>
+					) }
+				</section>
+			) ) }
+		</article>
+	</div>
+</Base>

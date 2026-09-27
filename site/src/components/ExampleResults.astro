@@ -1,0 +1,74 @@
+---
+/**
+ * An illustrative results panel for the home page, drawn in HTML with made-up plugin names.
+ * Labelled as an example, so it can't be read as claims about real plugins.
+ */
+const rows = [
+	{ name: 'Acme Contact Forms', verdict: 'Ready', v: 'ready', note: 'No problems found for this PHP version.' },
+	{ name: 'Sample Slider Pro', verdict: 'Blocker', v: 'blocker', note: 'Some of its code will not work on PHP 8.4.' },
+	{ name: 'Example SEO Toolkit', verdict: 'Guarded legacy code', v: 'guarded', note: 'Old code that never runs on this PHP version.' },
+	{ name: 'Demo Gallery', verdict: 'Warnings', v: 'warnings', note: 'Works now. Needs updating before a future version.' },
+	{ name: 'Old Widget Pack', verdict: 'Removed from WordPress.org', v: 'blocker', note: 'Closed: no more updates or security fixes.' },
+];
+---
+<figure class="example" aria-label="Example of Airworthy's results">
+	<div class="example-head">
+		<strong>Results for PHP 8.4</strong>
+		<span class="muted">Example</span>
+	</div>
+	<ul>
+		{ rows.map( ( r ) => (
+			<li>
+				<span class="name">{ r.name }</span>
+				<span class={ `badge v-${ r.v }` }>{ r.verdict }</span>
+				<span class="note muted">{ r.note }</span>
+			</li>
+		) ) }
+	</ul>
+	<figcaption>An example with made-up plugin names. Real results come from your own site.</figcaption>
+</figure>
+
+<style>
+	.example {
+		background: var(--bg-card);
+		border: 1px solid var(--line);
+		border-radius: 14px;
+		box-shadow: var(--shadow);
+		padding: 20px 22px 16px;
+	}
+
+	.example-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--line);
+	}
+
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	li {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 4px 12px;
+		padding: 12px 0;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.name {
+		font-weight: 600;
+	}
+
+	.note {
+		grid-column: 1 / -1;
+		font-size: 0.9rem;
+	}
+
+	figcaption {
+		font-size: 0.85rem;
+	}
+</style>

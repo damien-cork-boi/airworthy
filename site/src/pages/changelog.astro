@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import { readme } from '../lib/readme';
+
+const r = readme();
+const releases = r.sections.changelog?.subsections || [];
+const notices = Object.fromEntries( ( r.sections[ 'upgrade-notice' ]?.subsections || [] ).map( ( n ) => [ n.title, n.html ] ) );
+---
+<Base title="Changelog" description="What changed in each Airworthy release.">
+	<div class="wrap page-head">
+		<p class="eyebrow">Changelog</p>
+		<h1>What's new</h1>
+		<p class="lede">Every Airworthy release. Updates arrive through your WordPress dashboard like any other plugin.</p>
+	</div>
+	<div class="wrap prose" style="padding-bottom: 80px;">
+		{ releases.map( ( rel, i ) => (
+			<section>
+				<h2 id={ `v${ rel.slug }` } style={ i === 0 ? 'border-top: 0; margin-top: 0;' : undefined }>
+					Version { rel.title }
+				</h2>
+				<Fragment set:html={ rel.html } />
+				{ notices[ rel.title ] && (
+					<p class="muted"><strong>Upgrade notice:</strong> <Fragment set:html={ notices[ rel.title ].replace( /^<p>|<\/p>\s*$/g, '' ) } /></p>
+				) }
+			</section>
+		) ) }
+	</div>
+</Base>

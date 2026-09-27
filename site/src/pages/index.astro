@@ -1,0 +1,264 @@
+---
+import Base from '../layouts/Base.astro';
+import InstallButton from '../components/InstallButton.astro';
+import ExampleResults from '../components/ExampleResults.astro';
+import { SITE, COMPANY } from '../config';
+import { readme, sub, boldList } from '../lib/readme';
+
+const r = readme();
+const features = boldList( sub( 'description', 'What you get' )?.markdown || '' );
+const verdicts = boldList( sub( 'frequently-asked-questions', 'What does each verdict mean?' )?.markdown || '' );
+const cli = sub( 'description', 'WP-CLI' );
+const faq = r.sections[ 'frequently-asked-questions' ].subsections.filter( ( q ) =>
+	[ 'does-airworthy-change-my-php-version-or-my-site', 'what-can-a-static-scan-catch-and-what-can-t-it', 'what-is-sent-to-wordpress-org', 'will-a-scan-slow-down-my-site' ].includes( q.slug )
+);
+const verdictClass = ( title: string ) => 'v-' + title.toLowerCase().split( ' ' )[ 0 ];
+const shotOne = r.screenshots.find( ( s ) => s.n === 1 );
+
+const schema = {
+	'@context': 'https://schema.org',
+	'@type': 'SoftwareApplication',
+	name: r.name,
+	description: r.short,
+	applicationCategory: 'DeveloperApplication',
+	operatingSystem: `WordPress ${ r.headers[ 'Requires at least' ] }+`,
+	softwareVersion: r.headers[ 'Stable tag' ],
+	offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+	url: SITE.url,
+	publisher: { '@type': 'Organization', name: COMPANY.name, url: COMPANY.url },
+};
+---
+<Base schema={ schema }>
+	<section class="hero">
+		<div class="wrap hero-grid">
+			<div>
+				<p class="eyebrow">Free WordPress plugin</p>
+				<h1>Know what breaks <span class="nowrap">before you</span> upgrade PHP.</h1>
+				<p class="lede">{ r.short }</p>
+				<div class="actions">
+					<InstallButton />
+					<a class="button button-secondary" href="/docs/">Read the docs</a>
+				</div>
+				<p class="meta muted">
+					Checks against PHP 8.0–8.5 · WordPress { r.headers[ 'Requires at least' ] }+ · Runs on PHP { r.headers[ 'Requires PHP' ] }+ · Multisite · WP-CLI
+				</p>
+			</div>
+			<ExampleResults />
+		</div>
+	</section>
+
+	<section class="section section-soft">
+		<div class="wrap">
+			<div class="section-head">
+				<p class="eyebrow">What you get</p>
+				<h2>One clear verdict per plugin, and the reasons behind it.</h2>
+				<p class="lede">Your host wants you on a newer PHP version. Airworthy reads every plugin and theme and tells you, in plain words, what will survive the switch.</p>
+			</div>
+			<div class="grid features">
+				{ features.map( ( f ) => (
+					<div class="card">
+						<h3>{ f.title }</h3>
+						<p set:html={ f.html } />
+					</div>
+				) ) }
+			</div>
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="wrap">
+			<div class="section-head">
+				<p class="eyebrow">Verdicts</p>
+				<h2>Six verdicts. No guessing.</h2>
+				<p class="lede">Most scanners call every old line of code an error. Airworthy tells apart code that will break from code that can never run on the version you picked.</p>
+			</div>
+			<dl class="verdicts">
+				{ verdicts.map( ( v ) => (
+					<div class="verdict">
+						<dt><span class={ `badge ${ verdictClass( v.title ) }` }>{ v.title }</span></dt>
+						<dd set:html={ v.html } />
+					</div>
+				) ) }
+			</dl>
+		</div>
+	</section>
+
+	{ shotOne && (
+		<section class="section section-soft">
+			<div class="wrap split">
+				<div>
+					<p class="eyebrow">How it works</p>
+					<h2>Pick a version. Airworthy does the rest.</h2>
+					<ol class="steps">
+						<li><strong>Choose the PHP version</strong> you want to move to. Airworthy suggests the oldest one that still gets security fixes.</li>
+						<li><strong>Start the scan.</strong> It runs in the background in short batches, so it never times out, and you can leave the page.</li>
+						<li><strong>Read the results.</strong> Update what can be updated, send the rest to the plugin's author or your developer, and upgrade with confidence.</li>
+					</ol>
+				</div>
+				<figure>
+					<img class="shot" src="/screenshots/screenshot-1.png" width="1280" height="620" alt="The Airworthy screen in WordPress: the server's PHP version, what will be scanned, the estimated time and a PHP version picker." loading="lazy" />
+					<figcaption>{ shotOne.caption }</figcaption>
+				</figure>
+			</div>
+		</section>
+	) }
+
+	<section class="section">
+		<div class="wrap split">
+			<div>
+				<p class="eyebrow">Privacy</p>
+				<h2>Your code stays on your server.</h2>
+				<p>Airworthy reads your plugin and theme files where they are. It never runs them and never sends them anywhere.</p>
+				<p>To check whether plugins are still maintained, it looks up each plugin's folder name in the public WordPress.org directory. Not your site's address, not your plugin list, not your PHP version.</p>
+				<p><a href="/privacy/">What exactly is sent</a></p>
+			</div>
+			{ cli && (
+				<div>
+					<p class="eyebrow">For developers</p>
+					<h2>Everything works from WP-CLI.</h2>
+					<pre><code>{ `wp airworthy scan --target=8.4
+wp airworthy scan --only=my-plugin --fail-on=blocker
+wp airworthy results --verdict=blocker,unknown
+wp airworthy export --file=report.csv` }</code></pre>
+					<p class="muted">Use <code>--fail-on=blocker</code> to stop a deploy in CI when something would break.</p>
+				</div>
+			) }
+		</div>
+	</section>
+
+	<section class="section section-soft">
+		<div class="wrap narrow">
+			<div class="section-head">
+				<p class="eyebrow">Questions</p>
+				<h2>Good to know</h2>
+			</div>
+			{ faq.map( ( q ) => (
+				<details class="faq">
+					<summary>{ q.title }</summary>
+					<div set:html={ q.html } />
+				</details>
+			) ) }
+			<p><a href="/docs/#frequently-asked-questions">All questions</a></p>
+		</div>
+	</section>
+
+	<section class="section cta">
+		<div class="wrap narrow center">
+			<h2>Upgrade PHP without the surprises.</h2>
+			<p class="lede">Free, open source, and made for the sites that need it most.</p>
+			<div class="actions center">
+				<InstallButton />
+				<a class="button button-secondary" href="/docs/">Read the docs</a>
+			</div>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.hero {
+		padding: clamp(40px, 7vw, 96px) 0 clamp(48px, 7vw, 88px);
+		background: radial-gradient(1200px 400px at 80% -10%, var(--brand-soft), transparent 70%);
+	}
+
+	.hero-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+		gap: 48px;
+		align-items: center;
+	}
+
+	.grid.features {
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+	}
+
+	.nowrap {
+		white-space: nowrap;
+	}
+
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		margin: 28px 0 16px;
+	}
+
+	.actions.center {
+		justify-content: center;
+	}
+
+	.meta {
+		font-size: 0.95rem;
+	}
+
+	.verdicts {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+		gap: 16px 32px;
+		margin: 0;
+	}
+
+	.verdict {
+		padding: 16px 0;
+		border-top: 1px solid var(--line);
+	}
+
+	.verdict dd {
+		margin: 10px 0 0;
+		color: var(--muted);
+	}
+
+	.split {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+		gap: 48px;
+		align-items: center;
+	}
+
+	.steps {
+		padding-left: 1.2em;
+	}
+
+	.steps li {
+		margin-bottom: 0.8em;
+	}
+
+	.narrow {
+		max-width: 780px;
+	}
+
+	.center {
+		text-align: center;
+	}
+
+	.center .section-head,
+	.center .lede {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.faq {
+		border-top: 1px solid var(--line);
+		padding: 14px 0;
+	}
+
+	.faq summary {
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 1.05rem;
+	}
+
+	.faq div {
+		margin-top: 10px;
+		color: var(--muted);
+	}
+
+	.cta {
+		background: linear-gradient(180deg, var(--bg), var(--brand-soft));
+	}
+
+	@media (max-width: 900px) {
+		.hero-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

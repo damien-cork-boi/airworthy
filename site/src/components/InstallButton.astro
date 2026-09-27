@@ -1,0 +1,18 @@
+---
+/**
+ * "Get it on WordPress.org" once the plugin is listed (SITE.listed); until then a quiet,
+ * non-clickable "Coming soon" label.
+ */
+import { SITE } from '../config';
+
+interface Props {
+	size?: 'small' | 'large';
+}
+const { size = 'large' } = Astro.props;
+const cls = `button ${ size === 'small' ? 'header-cta' : '' }`;
+---
+{ SITE.listed ? (
+	<a class={ `${ cls } button-primary` } href={ SITE.wporgUrl }>Get it free on WordPress.org</a>
+) : (
+	<span class={ cls } aria-disabled="true">Coming soon to WordPress.org</span>
+) }
