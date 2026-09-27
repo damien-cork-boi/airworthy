@@ -39,10 +39,26 @@ final class Components {
 			);
 		}
 
-		$theme = wp_get_theme();
-		$out[] = self::theme_row( $theme );
-		if ( $theme->parent() ) {
-			$out[] = self::theme_row( $theme->parent() );
+		// The theme in use and its parent. On multisite, every network-enabled theme too (and
+		// their parents), since each site may use a different one. Inactive themes on a single
+		// site never run, so they're left out.
+		$active = wp_get_theme();
+		$themes = array( $active );
+		if ( is_multisite() ) {
+			foreach ( array_keys( \WP_Theme::get_allowed_on_network() ) as $stylesheet ) {
+				$themes[] = wp_get_theme( $stylesheet );
+			}
+		}
+		$seen = array();
+		foreach ( $themes as $theme ) {
+			foreach ( array( $theme, $theme->parent() ) as $t ) {
+				if ( ! $t || ! $t->exists() || isset( $seen[ $t->get_stylesheet() ] ) ) {
+					continue;
+				}
+				$seen[ $t->get_stylesheet() ] = true;
+				$in_use                       = $t->get_stylesheet() === $active->get_stylesheet() || $t->get_stylesheet() === $active->get_template();
+				$out[]                        = self::theme_row( $t, $in_use || is_multisite() );
+			}
 		}
 
 		/**
@@ -71,17 +87,18 @@ final class Components {
 	/**
 	 * Builds a component row for a theme.
 	 *
-	 * @param \WP_Theme $theme Theme.
+	 * @param \WP_Theme $theme  Theme.
+	 * @param bool      $in_use Whether it's in use (on multisite: network-enabled).
 	 * @return array
 	 */
-	private static function theme_row( \WP_Theme $theme ) {
+	private static function theme_row( \WP_Theme $theme, $in_use ) {
 		return array(
 			'type'      => 'theme',
 			'slug'      => $theme->get_stylesheet(),
 			'name'      => (string) $theme->get( 'Name' ),
 			'version'   => (string) $theme->get( 'Version' ),
 			'rel_path'  => $theme->get_stylesheet(),
-			'is_active' => true,
+			'is_active' => (bool) $in_use,
 		);
 	}
 }

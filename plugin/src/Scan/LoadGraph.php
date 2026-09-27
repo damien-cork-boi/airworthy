@@ -104,7 +104,8 @@ final class LoadGraph {
 	public static function for_component( $root, array $files, $target, array $own_functions = array() ) {
 		$key = $root . '|' . $target;
 		if ( ! isset( self::$instances[ $key ] ) ) {
-			self::$instances[ $key ] = new self( $root, $files, $target, $own_functions );
+			// One component at a time: a WP-CLI scan runs every component in one process.
+			self::$instances = array( $key => new self( $root, $files, $target, $own_functions ) );
 		}
 		return self::$instances[ $key ];
 	}
@@ -143,6 +144,9 @@ final class LoadGraph {
 		}
 		$this->memo[ $key ] = false; // Cycles count as "can run".
 		$this->build();
+		if ( $this->index['incomplete'] ) {
+			return false; // A file couldn't be read, so uses and includes may be missing.
+		}
 		$facts = isset( $this->index['files'][ $relative ] ) ? $this->index['files'][ $relative ] : null;
 		if ( ! $facts ) {
 			return false;
@@ -183,6 +187,9 @@ final class LoadGraph {
 	 * @return bool|null
 	 */
 	public function helper_value( $relative, $name, $class_name, array $subjects, $removed, $depth ) {
+		if ( ! $this->readable( $relative ) ) {
+			return null;
+		}
 		$code = (string) @file_get_contents( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
 		$cls  = new Classifier( $code, $relative, $this->target, $this->own_functions, $this, $depth );
 		return $cls->predicate_value( $name, $class_name, $subjects, $removed );
@@ -260,6 +267,9 @@ final class LoadGraph {
 	 */
 	private function line_is_dead( $relative, $line, array $subjects, $removed, $depth ) {
 		if ( ! isset( $this->classifiers[ $relative ] ) ) {
+			if ( ! $this->readable( $relative ) ) {
+				return false;
+			}
 			$code                           = (string) @file_get_contents( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
 			$this->classifiers[ $relative ] = new Classifier( $code, $relative, $this->target, $this->own_functions, $this );
 		}
@@ -267,6 +277,17 @@ final class LoadGraph {
 			return true;
 		}
 		return $this->file_is_dead( $relative, $subjects, $removed, $depth + 1 );
+	}
+
+	/**
+	 * Whether a component file can be read and tokenised in the free memory now.
+	 *
+	 * @param string $relative File.
+	 * @return bool
+	 */
+	private function readable( $relative ) {
+		$size = @filesize( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Missing files are simply not readable.
+		return false !== $size && Budget::tokenizable( (int) $size );
 	}
 
 	/**
@@ -286,6 +307,7 @@ final class LoadGraph {
 			'blocked'             => array(), // Classes the rule can't follow.
 			'includes'            => array(), // target relative => [[relative, line], …].
 			'unresolved_includes' => false,
+			'incomplete'          => false, // A file was unreadable or too big to read now.
 		);
 		$strings     = array(); // Lowercase string literals, for dynamic-creation checks.
 		$dynamic     = false;   // Any `new $x` / `$x::` in the component.
@@ -294,8 +316,9 @@ final class LoadGraph {
 		$declared    = array(); // All declared class names (lowercase) => relative.
 
 		foreach ( $this->files as $relative ) {
-			$code = @file_get_contents( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
+			$code = $this->readable( $relative ) ? @file_get_contents( $this->root . '/' . $relative ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
 			if ( false === $code ) {
+				$this->index['incomplete'] = true;
 				continue;
 			}
 			try {

@@ -101,6 +101,11 @@ final class FileLister {
 	 *   define( 'T_ENUM', … )`. A "new in PHP x" or "removed in PHP x" finding about a name the
 	 *   component provides itself is not a PHP problem (see Classifier::OWN_CODE).
 	 *
+	 * Files too big to tokenise in the free memory (see Budget::tokenizable()) are left out of
+	 * the declarations: a crash here would happen before any file is marked in flight, so the
+	 * scan could never get past it. Their declarations are then simply not known, which can
+	 * only make results stricter.
+	 *
 	 * @param string   $root  Component folder (or single file).
 	 * @param string[] $files Relative paths from list_files().
 	 * @return array{serializable:string[],functions:string[],constants:string[],classes:string[]}
@@ -113,6 +118,10 @@ final class FileLister {
 		);
 		foreach ( $files as $relative ) {
 			$path = is_file( $root ) ? $root : rtrim( $root, '/\\' ) . '/' . $relative;
+			$size = @filesize( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Unreadable files are reported by the scan.
+			if ( false === $size || ! Budget::tokenizable( (int) $size ) ) {
+				continue;
+			}
 			$code = @file_get_contents( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file; unreadable files are reported by the scan.
 			if ( false === $code || ! preg_match( '/\\b(function|define|const|class|interface|trait)\\b/i', $code ) ) {
 				continue;

@@ -40,6 +40,7 @@ for dir in "$ROOT"/engine-test/fixtures/plugins/*/ "$ROOT"/engine-test/fixtures/
 	rsync -a --exclude secret.php "$dir" "$PLUGINS/$slug/"
 done
 # Unreadable file (git can't store it).
+mkdir -p "$PLUGINS/fx-unreadable/inc"
 printf '<?php\nmysql_connect();\n' > "$PLUGINS/fx-unreadable/inc/secret.php"
 chmod 000 "$PLUGINS/fx-unreadable/inc/secret.php"
 # Links out of the plugins folder must never be followed.

@@ -1,16 +1,25 @@
 # Airworthy follow-ups
 
-Open items collected during Steps 1–6 (27 Sep 2026). Tick them off here as they are done.
+Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as they are done.
 
-**Step 8 (hardening):**
-- Test multisite for real. The network-admin placement (Settings > Airworthy), network-only activation and shared tables are built but untested on a multisite network.
-- Test on real MySQL/MariaDB. Every test so far ran on SQLite (the local test site uses the SQLite drop-in).
-- Test on an old-PHP host (PHP 7.2, the declared minimum) and on cheap shared hosting.
-- Run WordPress coding standards and the WordPress.org Plugin Check.
-- Publish a security policy and vulnerability-reporting contact (EU Cyber Resilience Act). Use airworthywp.com / digitalkind.ie.
-- Write the full readme.txt description (currently a placeholder).
-- Optionally hide Action Scheduler's "Tools > Scheduled Actions" menu, which now shows on sites without WooCommerce.
-- Dev builds (version ending "-dev") append the file's modified time to asset versions to avoid caching; release builds use the plain version. Check this before release.
+**Step 8 (hardening): done 27 Sep 2026**
+- [x] Multisite: tested in CI (network activation, site admins refused, network uninstall).
+- [x] MySQL/MariaDB: CI runs on MySQL 8.0, and MariaDB 10.6 for PHP 7.2.
+- [x] PHP 7.2 (declared minimum): CI runs the full suite on real PHP 7.2 with WordPress 6.5. Cheap shared hosting is still to test with real sites.
+- [x] WordPress coding standards 0/0; Plugin Check 0 errors / 0 warnings (see docs/RELEASE.md).
+- [x] Security policy (SECURITY.md), vulnerability handling (docs/VULNERABILITY-HANDLING.md), SBOM (docs/sbom.cdx.json).
+- [x] Full readme.txt.
+- [x] Scheduled Actions menu: kept (it's Action Scheduler's, and WooCommerce sites have it anyway); explained in the readme FAQ.
+- [x] Dev asset versioning: release builds are 1.0.0 (plain asset versions); CI checks the version has no "-dev".
+
+**New from Step 8 (before submission):**
+- Make the source public: the readme's "Source code and build" section points to https://github.com/damien-cork-boi/airworthy, which is private. Make it public, or create a public repo (e.g. under a digitalkind organisation) and update the readme link.
+- Create the security@airworthywp.com mailbox (named in SECURITY.md, readme and SBOM) and test it.
+- Confirm the CRA points in docs/VULNERABILITY-HANDLING.md: whether Airworthy counts as "commercial activity", and the declared support period (at least 5 years from 1.0.0).
+- Licence: the distributed zip as a whole is GPLv3 (Action Scheduler is GPLv3, PHPCompatibility LGPLv3). The readme says so. Part of the legal check below.
+- Optional clean-up: use the %i identifier placeholder (WordPress 6.2+) for our table names instead of the 49 per-line Plugin Check ignores.
+- WP-CLI output is English only (like WP-CLI itself); the admin screen is fully translatable. Revisit if users ask.
+- Airworthy's own scan shows "Warnings" (5 deprecations, all in bundled Action Scheduler 3.9.3 and PHPCompatibility, none in our code). Update when Action Scheduler fixes them, or move to 4.x once WordPress 6.9+ passes ~90% of sites.
 
 **Before launch / submission:**
 - Report the two reversed implode() bugs (fatal on PHP 8) to the authors before any public mention: Essential Addons for Elementor includes/Elements/Advanced_Data_Table.php:1934, and UpdraftPlus's bundled Rackspace library vendor/rackspace/php-opencloud/lib/OpenCloud/ObjectStore/Service.php:180.

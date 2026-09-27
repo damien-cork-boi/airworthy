@@ -29,6 +29,9 @@ final class Budget {
 	const FIXED_BYTES    = 2097152;  // 2 MB.
 	const RESERVE_BYTES  = 16777216; // 16 MB.
 
+	/** Tokenizer memory per byte of source, with a margin (FileLister::prepass()). */
+	const TOKENS_PER_BYTE = 100;
+
 	/**
 	 * When this batch started (microtime).
 	 *
@@ -98,6 +101,21 @@ final class Budget {
 	 */
 	public function has_time() {
 		return ( microtime( true ) - $this->started ) < $this->seconds;
+	}
+
+	/**
+	 * Whether PHP's tokenizer can read a file of this size in the free memory right now.
+	 * Measured: about 70 bytes per byte (141 MB for a 2 MB file). Used where other files of a
+	 * component are read while one file is in flight (FileLister::prepass(), LoadGraph): a
+	 * crash there would be blamed on the wrong file, or on none.
+	 *
+	 * @param int $bytes File size.
+	 * @return bool
+	 */
+	public static function tokenizable( $bytes ) {
+		$limit = wp_convert_hr_to_bytes( (string) ini_get( 'memory_limit' ) );
+		$limit = $limit > 0 ? $limit : 1073741824;
+		return $bytes * self::TOKENS_PER_BYTE + self::FIXED_BYTES <= $limit - memory_get_usage() - self::RESERVE_BYTES;
 	}
 
 	/**
