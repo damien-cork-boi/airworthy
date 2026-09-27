@@ -38,9 +38,15 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - Before selling Pro: a solicitor to draft terms of sale (warranty, limitation of liability, refunds, EU consumer rights) and review the website's legal notice. The free plugin relies on the GPL's no-warranty terms plus the in-plugin and website disclaimers (added 27 Sep 2026).
 - Update Targets::SECURITY_UNTIL (PHP support dates) against php.net at every release.
 
+**Free improvements (27 Sep 2026 list):**
+- Now: "Update available" in the results (update, then Airworthy rescans), a PHP support countdown on the start and results screens, results grouped by what to do next.
+- Next: a dashboard widget (last result, date, Scan button; the one allowed spot for a small, dismissible Pro mention), a "Copy summary for my host or developer" button, plugin icons from WordPress.org (with consent).
+
 **Post-launch:**
 - Full namespaced class-name resolution in LoadGraph (FQCN keys, `use … as` aliases, `X::class` passed to a container, a hash_algos() capability check). This fixes WooCommerce's false Blocker at target PHP 8.0 only. See docs/ACCURACY.md "Post-launch".
 - Write our own sniffs for the static coverage gaps: 8.1 ArrayAccess return types (ReturnTypeWillChange), 8.2 mb_convert_encoding HTML-ENTITIES and "self::" callables, 8.5 `case X;` semicolons, null array offsets and PDO::MYSQL_ATTR_* constants, plus array_is_list() not being flagged at target 8.0.
 - Stage 2+ (runtime logging and later stages), per the spec.
 - Pro: its own top-level "Airworthy" admin menu with a count badge for new Blockers, once monitoring makes it something people check regularly. The free plugin stays under Tools (occasional use; WordPress.org reviewers and users dislike sidebar clutter), plus the Site Health check.
+- Pro: upgrade plan (the headline feature): an ordered checklist built from the results (update these, replace closed ones, back up, switch PHP), ticking off as rescans pass. Build with the multi-version scan; they share the data.
+- Pro: replacement suggestions for closed or abandoned plugins; scan history (what changed since last scan); after-upgrade watch (7 days of PHP error logging after the switch, naming the plugin behind each error; spec Stage 2).
 - Pro: every PHP version in one scan. PHPCompatibility takes a testVersion range, so one pass can report findings per target (8.0 to 8.5). Show a plugins × versions table, a "highest safe version" headline and the version each plugin starts to break on. The free plugin keeps one version per scan (the Check against PHP picker). See the business plan's Airworthy Pro table.
