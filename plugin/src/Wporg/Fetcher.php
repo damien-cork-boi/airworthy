@@ -66,7 +66,8 @@ final class Fetcher {
 		}
 		$by_path = array(); // Component rel_path => [plugin file, headers].
 		foreach ( get_plugins() as $file => $headers ) {
-			$by_path[ false === strpos( $file, '/' ) ? $file : dirname( $file ) ] = array( $file, $headers );
+			$key             = false === strpos( $file, '/' ) ? $file : dirname( $file );
+			$by_path[ $key ] = array( $file, $headers );
 		}
 		$latest_wp = self::latest_wordpress();
 		$started   = microtime( true );
@@ -88,7 +89,7 @@ final class Fetcher {
 				$record = $failures >= self::GIVE_UP_AFTER ? new \WP_Error( 'airworthy_wporg_skipped', 'WordPress.org unreachable.' ) : Client::lookup( $slug );
 			}
 			if ( is_wp_error( $record ) ) {
-				$failures++;
+				++$failures;
 				$signals = array( 'status' => 'unreachable' );
 			} else {
 				$failures = 0;

@@ -74,12 +74,12 @@ final class Signals {
 	/**
 	 * Builds the signals record for one plugin.
 	 *
-	 * @param array       $installed    name, version (installed).
-	 * @param array|null  $record       Client::lookup() result, or null if not looked up.
-	 * @param array       $identity     identify() result.
-	 * @param string      $target       Target PHP version.
-	 * @param string      $latest_wp    Latest WordPress version, e.g. "7.1.2".
-	 * @param int|null    $now          Timestamp (for tests).
+	 * @param array      $installed    name, version (installed).
+	 * @param array|null $record       Client::lookup() result, or null if not looked up.
+	 * @param array      $identity     identify() result.
+	 * @param string     $target       Target PHP version.
+	 * @param string     $latest_wp    Latest WordPress version, e.g. "7.1.2".
+	 * @param int|null   $now          Timestamp (for tests).
 	 * @return array
 	 */
 	public static function build( array $installed, $record, array $identity, $target, $latest_wp, $now = null ) {
@@ -118,17 +118,17 @@ final class Signals {
 		}
 
 		$out = array(
-			'status'       => 'listed',
-			'wporg_name'   => $record['name'],
-			'latest'       => $record['version'],
-			'last_updated' => $record['last_updated'],
-			'abandoned'    => '' !== $record['last_updated'] && ( $now - strtotime( $record['last_updated'] . ' 00:00:00 UTC' ) ) > self::ABANDONED_AFTER,
-			'tested'       => $record['tested'],
-			'tested_behind' => null,
-			'tested_warning' => false,
-			'requires_php' => $record['requires_php'],
+			'status'               => 'listed',
+			'wporg_name'           => $record['name'],
+			'latest'               => $record['version'],
+			'last_updated'         => $record['last_updated'],
+			'abandoned'            => '' !== $record['last_updated'] && ( $now - strtotime( $record['last_updated'] . ' 00:00:00 UTC' ) ) > self::ABANDONED_AFTER,
+			'tested'               => $record['tested'],
+			'tested_behind'        => null,
+			'tested_warning'       => false,
+			'requires_php'         => $record['requires_php'],
 			'requires_php_blocker' => '' !== $record['requires_php'] && version_compare( self::minor( $record['requires_php'] ), $target, '>' ),
-			'update'       => null,
+			'update'               => null,
 		);
 		if ( '' !== $record['tested'] ) {
 			$behind                = self::releases_between( $record['tested'], $latest_wp );
@@ -165,7 +165,7 @@ final class Signals {
 		$short  = count( $a ) <= count( $b ) ? $a : $b;
 		$long   = count( $a ) <= count( $b ) ? $b : $a;
 		$shared = count( array_intersect( $short, $long ) );
-		if ( $shared === count( $short ) ) {
+		if ( count( $short ) === $shared ) {
 			return true; // Every word of the shorter name appears in the longer one.
 		}
 		// Renamed plugins keep their leading words: "Ultimate Addons for Elementor (UAE)" vs
@@ -173,7 +173,7 @@ final class Signals {
 		// common, covering at least half of the shorter name.
 		$lead = 0;
 		while ( isset( $a[ $lead ], $b[ $lead ] ) && $a[ $lead ] === $b[ $lead ] ) {
-			$lead++;
+			++$lead;
 		}
 		if ( $lead >= 2 && $lead * 2 >= count( $short ) ) {
 			return true;

@@ -75,7 +75,7 @@ $check( 'admin: POST /scans with unsupported target -> 400', 400 === $status, "H
 // Estimate and single-plugin rescan (on the latest finished scan, with a small plugin).
 list( $status, $data ) = $call( 'GET', '/estimate' );
 $check( 'admin: GET /estimate returns files and minutes', 200 === $status && $data['files'] > 0 && $data['minutes_high'] >= $data['minutes_low'], "HTTP $status, " . ( $data['files'] ?? 0 ) . ' files, ' . ( $data['minutes_low'] ?? '?' ) . '-' . ( $data['minutes_high'] ?? '?' ) . ' min' );
-$done = (int) $wpdb->get_var( "SELECT MAX(id) FROM {$wpdb->base_prefix}airworthy_scans WHERE status = 'complete'" );
+$done = (int) $wpdb->get_var( "SELECT MAX(s.id) FROM {$wpdb->base_prefix}airworthy_scans s JOIN {$wpdb->base_prefix}airworthy_components c ON c.scan_id = s.id AND c.slug = 'akismet' WHERE s.status = 'complete'" );
 $ak   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->base_prefix}airworthy_components WHERE scan_id = %d AND slug = 'akismet'", $done ) );
 list( $status, $data ) = $call( 'POST', "/scans/$done/components/$ak/rescan" );
 $check( 'admin: rescan one plugin re-opens the finished scan', 200 === $status && 'running' === $data['status'], "HTTP $status, scan $done " . ( $data['status'] ?? '' ) );

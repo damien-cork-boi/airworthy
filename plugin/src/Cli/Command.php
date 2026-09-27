@@ -221,7 +221,7 @@ final class Command {
 				$vals    = array_merge( $vals, array_values( $severities ) );
 			}
 		}
-		$sql = "SELECT file, line, severity, context, rule, message FROM {$t['issues']} WHERE " . implode( ' AND ', $where ) . " ORDER BY FIELD(severity, 'scan','error','warning','notice'), file, line";
+		$sql  = "SELECT file, line, severity, context, rule, message FROM {$t['issues']} WHERE " . implode( ' AND ', $where ) . " ORDER BY FIELD(severity, 'scan','error','warning','notice'), file, line";
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, $vals ), ARRAY_A ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared -- Own table; placeholders built above.
 		Utils\format_items( isset( $assoc_args['format'] ) ? $assoc_args['format'] : 'table', $rows, array( 'file', 'line', 'severity', 'context', 'rule', 'message' ) );
 	}
@@ -232,11 +232,11 @@ final class Command {
 	 * @param array $args       Positional arguments.
 	 * @param array $assoc_args Options.
 	 */
-	public function status( $args, $assoc_args ) {
+	public function status( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WP-CLI's command signature.
 		global $wpdb;
-		$t    = Installer::tables();
-		$id   = Queue::active_scan_id();
-		$id   = $id ? $id : $this->scan_id( array() );
+		$t  = Installer::tables();
+		$id = Queue::active_scan_id();
+		$id = $id ? $id : $this->scan_id( array() );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
 		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $id ) );
 		$pct  = $scan->files_total ? (int) floor( 100 * $scan->files_done / $scan->files_total ) : 0;
@@ -249,7 +249,7 @@ final class Command {
 	 * @param array $args       Positional arguments.
 	 * @param array $assoc_args Options.
 	 */
-	public function cancel( $args, $assoc_args ) {
+	public function cancel( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- WP-CLI's command signature.
 		$id = Queue::active_scan_id();
 		if ( ! $id ) {
 			WP_CLI::warning( 'No scan is running.' );
@@ -320,7 +320,7 @@ final class Command {
 	 */
 	public function export( $args, $assoc_args ) {
 		global $wpdb;
-		$t    = Installer::tables();
+		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
 		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $this->scan_id( $assoc_args ) ) );
 		$path = isset( $assoc_args['file'] ) ? (string) $assoc_args['file'] : 'php://stdout';
@@ -395,7 +395,7 @@ final class Command {
 				$shown = (int) $scan->files_done;
 				$idle  = 0;
 			} else {
-				$idle++;
+				++$idle;
 			}
 			if ( in_array( $scan->status, array( 'complete', 'cancelled', 'failed' ), true ) && 'pending' !== $scan->wporg_status ) {
 				break;
@@ -425,7 +425,7 @@ final class Command {
 	 */
 	private function print_results( $scan_id, array $assoc_args ) {
 		global $wpdb;
-		$t      = Installer::tables();
+		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
 		$scan   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $scan_id ) );
 		$rows   = $this->components( $scan_id );
@@ -457,7 +457,7 @@ final class Command {
 		$counts = array_fill_keys( Verdict::ALL, 0 );
 		foreach ( $this->components( $scan_id ) as $r ) {
 			if ( isset( $counts[ $r['verdict'] ] ) ) {
-				$counts[ $r['verdict'] ]++;
+				++$counts[ $r['verdict'] ];
 			}
 		}
 		$summary = sprintf( 'PHP %1$s (scan %2$d, %3$s): %4$d blocker, %5$d unknown, %6$d suppressed, %7$d guarded, %8$d warnings, %9$d ready.', $scan->target_php, $scan->id, $scan->status, $counts['blocker'], $counts['unknown'], $counts['suppressed'], $counts['guarded'], $counts['warnings'], $counts['ready'] );
@@ -491,7 +491,7 @@ final class Command {
 	 */
 	private function components( $scan_id ) {
 		global $wpdb;
-		$t    = Installer::tables();
+		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t['components']} WHERE scan_id = %d ORDER BY FIELD(verdict, 'blocker','unknown','suppressed','guarded','warnings','ready'), name", $scan_id ) );
 		$out  = array();

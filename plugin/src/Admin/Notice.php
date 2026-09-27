@@ -49,7 +49,7 @@ final class Notice {
 			return; // The results are on screen already.
 		}
 		global $wpdb;
-		$t    = Installer::tables();
+		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
 		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT target_php, count_blocker, count_unknown FROM {$t['scans']} WHERE id = %d AND status = 'complete'", $scan_id ) );
 		if ( ! $scan ) {

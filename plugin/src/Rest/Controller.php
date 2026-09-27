@@ -52,10 +52,10 @@ final class Controller {
 				'permission_callback' => $can,
 				'args'                => array(
 					'target' => array(
-						'required'          => true,
-						'type'              => 'string',
-						'enum'              => Targets::ALL,
-						'description'       => __( 'Exact PHP version to check against.', 'airworthy' ),
+						'required'    => true,
+						'type'        => 'string',
+						'enum'        => Targets::ALL,
+						'description' => __( 'Exact PHP version to check against.', 'airworthy' ),
 					),
 				),
 			)
@@ -90,14 +90,14 @@ final class Controller {
 					'id'        => $id,
 					'component' => $id,
 					'severity'  => array(
-						'type' => 'array',
+						'type'  => 'array',
 						'items' => array(
 							'type' => 'string',
 							'enum' => array( 'error', 'warning', 'scan', 'notice' ),
 						),
 					),
 					'context'   => array(
-						'type' => 'array',
+						'type'  => 'array',
 						'items' => array(
 							'type' => 'string',
 							'enum' => array( 'plain', 'guarded', 'suppressed' ),
@@ -189,6 +189,7 @@ final class Controller {
 	/**
 	 * GET /scans/current: the unfinished scan, or else the latest one, with per-component progress.
 	 *
+	 * @param \WP_REST_Request|null $request Request (seen=1 marks a finished scan's notice as seen).
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function current( $request = null ) {
@@ -230,29 +231,29 @@ final class Controller {
 		$components = array();
 		foreach ( $rows as $r ) {
 			$components[] = array(
-				'id'         => (int) $r->id,
-				'type'       => $r->type,
-				'slug'       => $r->slug,
-				'name'       => $r->name,
-				'version'    => $r->version,
-				'active'     => (bool) $r->is_active,
-				'status'     => $r->status,
-				'phase'      => $r->phase,
-				'verdict'    => $r->verdict,
-				'counts'     => array(
+				'id'      => (int) $r->id,
+				'type'    => $r->type,
+				'slug'    => $r->slug,
+				'name'    => $r->name,
+				'version' => $r->version,
+				'active'  => (bool) $r->is_active,
+				'status'  => $r->status,
+				'phase'   => $r->phase,
+				'verdict' => $r->verdict,
+				'counts'  => array(
 					'errors'     => (int) $r->errors,
 					'suppressed' => (int) $r->suppressed,
 					'guarded'    => (int) $r->guarded,
 					'warnings'   => (int) $r->warnings,
 				),
-				'files'      => array(
+				'files'   => array(
 					'total'   => (int) $r->files_total,
 					'checked' => (int) $r->files_done,
 					'failed'  => (int) $r->files_failed,
 					'skipped' => (int) $r->files_skipped,
 					'ignored' => (int) $r->files_ignored,
 				),
-				'wporg'      => $r->wporg ? json_decode( $r->wporg, true ) : null,
+				'wporg'   => $r->wporg ? json_decode( $r->wporg, true ) : null,
 			);
 		}
 		// Most serious first, then by name.
@@ -295,14 +296,14 @@ final class Controller {
 				$args    = array_merge( $args, $values );
 			}
 		}
-		$per_page = (int) $request['per_page'];
-		$offset   = ( (int) $request['page'] - 1 ) * $per_page;
+		$per_page  = (int) $request['per_page'];
+		$offset    = ( (int) $request['page'] - 1 ) * $per_page;
 		$sql_where = implode( ' AND ', $where );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Own table; placeholders built above.
 		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t['issues']} WHERE $sql_where", $args ) );
 		// Scan problems first, then errors, then warnings; within each by file and line.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Own table; placeholders built above.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Own table; filter values plus LIMIT/OFFSET are passed as one merged array.
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT file, line, severity, context, rule, message FROM {$t['issues']} WHERE $sql_where ORDER BY CASE severity WHEN 'scan' THEN 0 WHEN 'error' THEN 1 WHEN 'warning' THEN 2 ELSE 3 END, CASE context WHEN 'plain' THEN 0 WHEN 'suppressed' THEN 1 ELSE 2 END, file, line LIMIT %d OFFSET %d", array_merge( $args, array( $per_page, $offset ) ) ) );
 
 		$items = array();
@@ -375,7 +376,7 @@ final class Controller {
 	 */
 	public static function estimate() {
 		global $wpdb;
-		$t     = Installer::tables();
+		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
 		$files = (int) $wpdb->get_var( "SELECT files_total FROM {$t['scans']} WHERE files_total > 0 ORDER BY id DESC LIMIT 1" );
 		if ( ! $files ) {

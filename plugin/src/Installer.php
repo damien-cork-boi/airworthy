@@ -195,7 +195,7 @@ final class Installer {
 		}
 
 		// Cached WordPress.org lookups: transients (single site) or site transients (multisite).
-		$like = $wpdb->esc_like( '_transient_' . self::TRANSIENT_PREFIX ) . '%';
+		$like         = $wpdb->esc_like( '_transient_' . self::TRANSIENT_PREFIX ) . '%';
 		$like_timeout = $wpdb->esc_like( '_transient_timeout_' . self::TRANSIENT_PREFIX ) . '%';
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $like, $like_timeout ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		if ( is_multisite() ) {

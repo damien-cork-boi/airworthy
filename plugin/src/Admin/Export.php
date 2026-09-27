@@ -13,7 +13,7 @@ use Airworthy\Installer;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * admin-post.php?action=airworthy_export&scan=ID&_wpnonce=…
+ * Download handler: admin-post.php?action=airworthy_export&scan=ID&_wpnonce=…
  *
  * One row per finding, with the plugin's verdict and WordPress.org signals on every row, plus
  * one row for each plugin or theme with no findings, so the file is complete on its own.
@@ -62,7 +62,7 @@ final class Export {
 		}
 		check_admin_referer( self::ACTION . '_' . $scan_id );
 
-		$t    = Installer::tables();
+		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
 		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $scan_id ) );
 		if ( ! $scan ) {

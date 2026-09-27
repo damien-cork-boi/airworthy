@@ -192,7 +192,7 @@ final class Queue {
 				array( 'id' => (int) $c->id )
 			);
 			$any_plugin = $any_plugin || 'plugin' === $c->type;
-			$reset++;
+			++$reset;
 		}
 		if ( ! $reset ) {
 			return true;
@@ -385,13 +385,13 @@ final class Queue {
 				)
 			);
 			$total += count( $listing['files'] );
-			$count++;
+			++$count;
 		}
 
 		// WordPress.org signals are fetched alongside the file scan.
 		\Airworthy\Wporg\Fetcher::enqueue( (int) $scan->id );
 
-		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Own table.
 			$t['scans'],
 			array(
 				'wporg_status'     => 'pending',
@@ -422,7 +422,7 @@ final class Queue {
 				return false;
 			}
 
-			$state = array(
+			$state         = array(
 				'files'    => (array) json_decode( (string) $c->files, true ),
 				'deferred' => (array) json_decode( (string) $c->deferred, true ),
 				'cursor'   => (int) $c->file_cursor,
@@ -440,7 +440,7 @@ final class Queue {
 				'target'   => $scan->target_php,
 			);
 			$state['root'] = Components::root( $c->type, $c->rel_path, $c->slug );
-			$root = Components::root( $c->type, $c->rel_path, $c->slug );
+			$root          = Components::root( $c->type, $c->rel_path, $c->slug );
 
 			// Facts that span files (interfaces extending Serializable; the component's own
 			// functions with removed-extension prefixes), read once before its first file.
@@ -472,26 +472,26 @@ final class Queue {
 
 					if ( ! self::readable_inside( $root, $path ) ) {
 						self::record_problem( $c, $state, $index, self::RULE_UNREADABLE, __( 'The file could not be read.', 'airworthy' ), 'files_failed' );
-						$state['cursor']++;
+						++$state['cursor'];
 						continue;
 					}
 					if ( ! $budget->fits( (int) filesize( $path ) ) ) {
 						$state['deferred'][] = $index; // Retried alone at the end, with the most memory.
-						$state['cursor']++;
+						++$state['cursor'];
 						continue;
 					}
 
 					$engine = $engine ? $engine : Engine::for_target( $scan->target_php );
 					self::scan_one( $engine, $c, $state, $index, $path );
-					$state['cursor']++;
-					$scanned++;
+					++$state['cursor'];
+					++$scanned;
 				}
 				if ( $state['cursor'] >= $n ) {
 					$state['phase'] = $state['deferred'] ? 'retry' : 'done';
 				}
 				self::save( $c, $state, null );
 				if ( 'done' === $state['phase'] ) {
-					self::finish_component( $c, $state );
+					self::finish_component( $c );
 				}
 				continue;
 			}
@@ -518,14 +518,14 @@ final class Queue {
 				array_shift( $state['deferred'] );
 				$engine = $engine ? $engine : Engine::for_target( $scan->target_php );
 				self::scan_one( $engine, $c, $state, $index, $path, true );
-				$scanned++;
+				++$scanned;
 			}
 			if ( ! $state['deferred'] ) {
 				$state['phase'] = 'done';
 			}
 			self::save( $c, $state, null );
 			if ( 'done' === $state['phase'] ) {
-				self::finish_component( $c, $state );
+				self::finish_component( $c );
 			}
 		}
 
@@ -574,7 +574,8 @@ final class Queue {
 				continue;
 			}
 			if ( ! $classifier ) {
-				$graph      = LoadGraph::for_component( $state['root'], $state['files'], $state['target'], $state['own'] );
+				$graph = LoadGraph::for_component( $state['root'], $state['files'], $state['target'], $state['own'] );
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local plugin file.
 				$classifier = new Classifier( (string) file_get_contents( $path ), $state['files'][ $index ], $state['target'], $state['own'], $graph );
 			}
 			$issues[ $k ]['context'] = $classifier->classify( $issue );
@@ -590,17 +591,17 @@ final class Queue {
 				continue;
 			}
 			if ( 'warning' === $issue['severity'] ) {
-				$state['counts']['warnings']++;
+				++$state['counts']['warnings'];
 			} elseif ( Classifier::GUARDED === $issues[ $k ]['context'] ) {
-				$state['counts']['guarded']++;
+				++$state['counts']['guarded'];
 			} elseif ( Classifier::SUPPRESSED === $issues[ $k ]['context'] ) {
-				$state['counts']['suppressed']++;
+				++$state['counts']['suppressed'];
 			} else {
-				$state['counts']['errors']++;
+				++$state['counts']['errors'];
 			}
 		}
 		self::insert_issues( $c, $state['files'][ $index ], $issues );
-		$state['counts']['files_done']++;
+		++$state['counts']['files_done'];
 	}
 
 	/**
@@ -644,7 +645,7 @@ final class Queue {
 	 */
 	private static function recover_crash( $c, array &$state ) {
 		$index = (int) $c->inflight_file;
-		$state['counts']['attempts']++;
+		++$state['counts']['attempts'];
 
 		if ( 'main' === $state['phase'] ) {
 			// First crash: defer it and carry on after it.
@@ -660,7 +661,7 @@ final class Queue {
 		}
 		self::save( $c, $state, null );
 		if ( 'done' === $state['phase'] ) {
-			self::finish_component( $c, $state );
+			self::finish_component( $c );
 		}
 	}
 
@@ -685,7 +686,7 @@ final class Queue {
 		$state['deferred']                = array();
 		$state['phase']                   = 'done';
 		self::save( $c, $state, null );
-		self::finish_component( $c, $state );
+		self::finish_component( $c );
 	}
 
 	/**
@@ -712,7 +713,7 @@ final class Queue {
 				),
 			)
 		);
-		$state['counts'][ $counter ]++;
+		++$state['counts'][ $counter ];
 	}
 
 	/**
@@ -745,10 +746,9 @@ final class Queue {
 	/**
 	 * Marks a component finished, with its verdict.
 	 *
-	 * @param object $c     Component row.
-	 * @param array  $state Component state.
+	 * @param object $c Component row.
 	 */
-	private static function finish_component( $c, array $state ) {
+	private static function finish_component( $c ) {
 		global $wpdb;
 		$t = Installer::tables();
 		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -858,7 +858,7 @@ final class Queue {
 				$rows[] = '(%d,%d,%s,%d,%s,%s,%s,%s)';
 				array_push( $values, (int) $c->scan_id, (int) $c->id, $file, $issue['line'], $issue['severity'], isset( $issue['context'] ) ? $issue['context'] : Classifier::PLAIN, substr( $issue['rule'], 0, 191 ), self::without_server_paths( $issue['message'] ) );
 			}
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Own table; placeholders built above.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Own table; one placeholder group per row, all values passed to prepare().
 			$wpdb->query( $wpdb->prepare( "INSERT INTO {$t['issues']} (scan_id, component_id, file, line, severity, context, rule, message) VALUES " . implode( ',', $rows ), $values ) );
 		}
 	}

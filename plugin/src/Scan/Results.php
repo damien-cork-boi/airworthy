@@ -31,8 +31,8 @@ final class Results {
 		if ( ! $c || 'done' !== $c['status'] ) {
 			return;
 		}
-		$wporg                        = $c['wporg'] ? (array) json_decode( $c['wporg'], true ) : array();
-		$c['requires_php_too_high']   = ! empty( $wporg['requires_php_blocker'] ) ? 1 : 0;
+		$wporg                      = $c['wporg'] ? (array) json_decode( $c['wporg'], true ) : array();
+		$c['requires_php_too_high'] = ! empty( $wporg['requires_php_blocker'] ) ? 1 : 0;
 		$wpdb->update( $t['components'], array( 'verdict' => Verdict::from_counts( $c ) ), array( 'id' => (int) $component_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 

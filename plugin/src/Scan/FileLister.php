@@ -70,7 +70,7 @@ final class FileLister {
 				return ! ( $item->isDir() && in_array( $item->getFilename(), self::SKIP_DIRS, true ) );
 			}
 		);
-		$items = new \RecursiveIteratorIterator( $filter, \RecursiveIteratorIterator::LEAVES_ONLY, \RecursiveIteratorIterator::CATCH_GET_CHILD );
+		$items  = new \RecursiveIteratorIterator( $filter, \RecursiveIteratorIterator::LEAVES_ONLY, \RecursiveIteratorIterator::CATCH_GET_CHILD );
 
 		foreach ( $items as $item ) {
 			if ( 'php' !== strtolower( $item->getExtension() ) || ! $item->isFile() ) {
@@ -78,7 +78,7 @@ final class FileLister {
 			}
 			$relative = str_replace( '\\', '/', substr( $item->getPathname(), $prefix ) );
 			if ( preg_match( self::DATA_FILES, $relative ) || preg_match( self::LIBRARY_TESTS, $relative ) ) {
-				$ignored++;
+				++$ignored;
 				continue;
 			}
 			$files[] = $relative;
@@ -170,7 +170,7 @@ final class FileLister {
 			$prev = $i > 0 ? $sig[ $i - 1 ] : null;
 
 			if ( T_NAMESPACE === $type && is_array( $next ) && T_NS_SEPARATOR !== $next[0] ) {
-				$namespaced = true; // `namespace Foo;` (not `namespace\foo()`).
+				$namespaced = true; // A namespace declaration, not a namespace-relative call.
 			}
 			// phpcs:ignore PHPCompatibility.Constants.NewConstants.t_enumFound -- Guarded by defined().
 			$class_kw = in_array( $type, array( T_CLASS, T_INTERFACE, T_TRAIT ), true ) || ( defined( 'T_ENUM' ) && T_ENUM === $type );
@@ -180,7 +180,7 @@ final class FileLister {
 					$out['classes'][] = strtolower( $next[1] );
 				}
 			} elseif ( '{' === $text || T_CURLY_OPEN === $type || T_DOLLAR_OPEN_CURLY_BRACES === $type ) {
-				$depth++;
+				++$depth;
 				if ( $pending ) {
 					$class_ends[] = $depth;
 					$pending      = false;
@@ -189,11 +189,11 @@ final class FileLister {
 				if ( $class_ends && end( $class_ends ) === $depth ) {
 					array_pop( $class_ends );
 				}
-				$depth--;
+				--$depth;
 			} elseif ( T_FUNCTION === $type && ! $class_ends && ! $namespaced ) {
 				$k = $i + 1;
 				if ( isset( $sig[ $k ] ) && '&' === $sig[ $k ] ) {
-					$k++;
+					++$k;
 				}
 				if ( isset( $sig[ $k ] ) && is_array( $sig[ $k ] ) && T_STRING === $sig[ $k ][0] ) {
 					$out['functions'][] = strtolower( $sig[ $k ][1] ); // Not closures: those have '(' here.

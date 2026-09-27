@@ -158,7 +158,10 @@ final class Engine {
 
 		try {
 			$file->process();
-			foreach ( array( 'error' => $file->getErrors(), 'warning' => $file->getWarnings() ) as $severity => $by_line ) {
+			foreach ( array(
+				'error'   => $file->getErrors(),
+				'warning' => $file->getWarnings(),
+			) as $severity => $by_line ) {
 				foreach ( $by_line as $line => $columns ) {
 					foreach ( $columns as $messages ) {
 						foreach ( $messages as $m ) {

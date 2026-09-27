@@ -11,12 +11,12 @@
 defined( 'ABSPATH' ) || exit;
 
 spl_autoload_register(
-	static function ( $class ) {
+	static function ( $class_name ) {
 		$prefix = 'Airworthy\\';
-		if ( 0 !== strpos( $class, $prefix ) || 0 === strpos( $class, $prefix . 'Vendor\\' ) ) {
+		if ( 0 !== strpos( $class_name, $prefix ) || 0 === strpos( $class_name, $prefix . 'Vendor\\' ) ) {
 			return;
 		}
-		$file = __DIR__ . '/' . str_replace( '\\', '/', substr( $class, strlen( $prefix ) ) ) . '.php';
+		$file = __DIR__ . '/' . str_replace( '\\', '/', substr( $class_name, strlen( $prefix ) ) ) . '.php';
 		if ( is_readable( $file ) ) {
 			require $file;
 		}

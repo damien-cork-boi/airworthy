@@ -104,10 +104,10 @@ final class Page {
 	 * Picker label: version, security-support status, and "recommended" for the default.
 	 *
 	 * @param string $target  Target version.
-	 * @param string $default Default target.
+	 * @param string $recommended Default (recommended) target.
 	 * @return string
 	 */
-	private static function target_label( $target, $default ) {
+	private static function target_label( $target, $recommended ) {
 		$until = Targets::security_until( $target );
 		$date  = $until ? date_i18n( get_option( 'date_format' ), strtotime( $until . ' 12:00:00 UTC' ) ) : '';
 		if ( ! Targets::is_supported( $target ) ) {
@@ -120,19 +120,19 @@ final class Page {
 			/* translators: %s: PHP version. */
 			$label = sprintf( __( 'PHP %s', 'airworthy' ), $target );
 		}
-		return $target === $default ? $label . ' ' . __( '– recommended', 'airworthy' ) : $label;
+		return $target === $recommended ? $label . ' ' . __( '– recommended', 'airworthy' ) : $label;
 	}
 
 	/**
 	 * One line explaining why the default target was chosen.
 	 *
 	 * @param string $current Server PHP version.
-	 * @param string $default Default target.
+	 * @param string $recommended Default (recommended) target.
 	 * @return string
 	 */
-	private static function default_explanation( $current, $default ) {
+	private static function default_explanation( $current, $recommended ) {
 		$current_minor = implode( '.', array_slice( explode( '.', $current ), 0, 2 ) );
-		if ( version_compare( $default, $current_minor, '<=' ) ) {
+		if ( version_compare( $recommended, $current_minor, '<=' ) ) {
 			return __( 'Your server already runs the newest PHP version Airworthy can check.', 'airworthy' );
 		}
 		$oldest = null;
@@ -142,12 +142,12 @@ final class Page {
 				break;
 			}
 		}
-		if ( $default === $oldest ) {
+		if ( $recommended === $oldest ) {
 			/* translators: %s: PHP version. */
-			return sprintf( __( 'PHP %s is recommended: it is the oldest version that still gets security fixes, so it is the smallest upgrade that keeps your site protected. Pick a newer version to plan further ahead.', 'airworthy' ), $default );
+			return sprintf( __( 'PHP %s is recommended: it is the oldest version that still gets security fixes, so it is the smallest upgrade that keeps your site protected. Pick a newer version to plan further ahead.', 'airworthy' ), $recommended );
 		}
 		/* translators: %s: PHP version. */
-		return sprintf( __( 'PHP %s is recommended: it is the next version up from your server\'s that still gets security fixes. Pick a newer version to plan further ahead.', 'airworthy' ), $default );
+		return sprintf( __( 'PHP %s is recommended: it is the next version up from your server\'s that still gets security fixes. Pick a newer version to plan further ahead.', 'airworthy' ), $recommended );
 	}
 
 	/**
@@ -165,8 +165,8 @@ final class Page {
 		}
 		$plugin_count = count( get_plugins() );
 		$theme        = wp_get_theme();
-		$current = \Airworthy\Env::php_version();
-		$default = Targets::default_for( $current );
+		$current      = \Airworthy\Env::php_version();
+		$default      = Targets::default_for( $current );
 		?>
 		<div class="wrap airworthy-wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>

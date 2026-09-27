@@ -160,19 +160,19 @@ final class Classifier {
 	/**
 	 * Prepares a classifier for one file.
 	 *
-	 * @param string   $source        File contents.
-	 * @param string   $relative      Path relative to the component.
-	 * @param string   $target        Exact target PHP version, e.g. "8.4".
-	 * @param array    $own      Names the component declares (FileLister::prepass(): functions,
-	 *                           constants, classes; a plain list is taken as functions).
+	 * @param string         $source        File contents.
+	 * @param string         $relative      Path relative to the component.
+	 * @param string         $target        Exact target PHP version, e.g. "8.4".
+	 * @param array          $own      Names the component declares (FileLister::prepass(): functions,
+	 *                                 constants, classes; a plain list is taken as functions).
 	 * @param LoadGraph|null $graph Cross-file analysis for the component (optional).
-	 * @param int      $depth    Helper-method depth this classifier is used at (internal).
+	 * @param int            $depth    Helper-method depth this classifier is used at (internal).
 	 */
 	public function __construct( $source, $relative, $target, array $own = array(), $graph = null, $depth = 0 ) {
-		$this->graph          = $graph;
-		$this->depth          = (int) $depth;
-		$this->source         = $source;
-		$this->relative       = $relative;
+		$this->graph    = $graph;
+		$this->depth    = (int) $depth;
+		$this->source   = $source;
+		$this->relative = $relative;
 		if ( $own && ! isset( $own['functions'] ) && ! isset( $own['constants'] ) && ! isset( $own['classes'] ) ) {
 			$own = array( 'functions' => $own );
 		}
@@ -313,10 +313,10 @@ final class Classifier {
 			$text = $this->tokens[ $from ][1];
 			if ( '!' === $text ) {
 				$negate = ! $negate;
-				$from++;
+				++$from;
 			} elseif ( '(' === $text && isset( $this->match[ $from ] ) && $this->match[ $from ] === $to ) {
-				$from++;
-				$to--;
+				++$from;
+				--$to;
 			} else {
 				break;
 			}
@@ -333,9 +333,9 @@ final class Classifier {
 		for ( $i = $from; $i <= $to; $i++ ) {
 			$text = $this->tokens[ $i ][1];
 			if ( '(' === $text || '[' === $text ) {
-				$depth++;
+				++$depth;
 			} elseif ( ')' === $text || ']' === $text ) {
-				$depth--;
+				--$depth;
 			} elseif ( 0 === $depth && ( '&&' === $text || 'and' === strtolower( $text ) ) ) {
 				$ands[] = array( $part, $i - 1 );
 				$part   = $i + 1;
@@ -385,7 +385,7 @@ final class Classifier {
 			$text .= $this->tokens[ $i ][1];
 		}
 		$raw  = $text; // Keeps namespace separators, for helper calls.
-		$text = str_replace( '\\', '', $text ); // \function_exists, \PHP_VERSION_ID.
+		$text = str_replace( '\\', '', $text ); // Leading namespace separators, as in fully qualified names.
 		$text = str_replace( '"', "'", $text );
 
 		// Capability check naming the flagged thing: false on the target when it was removed.
@@ -398,7 +398,7 @@ final class Classifier {
 			return null;
 		}
 
-		// A helper that only returns a condition: self::is_supported(), Main::is_enabled(), …
+		// A helper that only returns a condition, such as self::is_supported() or Main::is_enabled().
 		$helper = $this->helper_call_value( ltrim( $raw, '\\' ), $from, $subjects, $removed );
 		if ( null !== $helper ) {
 			return $helper;
@@ -417,7 +417,7 @@ final class Classifier {
 		}
 		// version_compare( PHP_VERSION, 'x.y', 'op' ) [ === true ], or with the operands swapped,
 		// or the three-way form compared with a number.
-		$ver = "(?:PHP_VERSION|phpversion\(\))";
+		$ver = '(?:PHP_VERSION|phpversion\(\))';
 		if ( preg_match( "/^version_compare\($ver,'([\d.]+)',?'?([<>=!a-z]*)'?\)(.*)$/i", $text, $m ) ) {
 			return $this->version_compare_result( $this->target_version, $m[1], $m[2], $m[3] );
 		}
@@ -480,13 +480,13 @@ final class Classifier {
 	 * `return <condition>;`, on the target. Null when there's no such helper.
 	 *
 	 * @param string      $name           Function or method name.
-	 * @param string|null $class          Lowercase class the method must belong to, or null for a function.
+	 * @param string|null $class_name     Lowercase class the method must belong to, or null for a function.
 	 * @param array       $subjects       Finding subjects.
 	 * @param bool        $removed        Removed on the target.
 	 * @param bool        $must_be_sealed Whether the method must be private/final (or its class final).
 	 * @return bool|null
 	 */
-	public function predicate_value( $name, $class, array $subjects, $removed, $must_be_sealed = false ) {
+	public function predicate_value( $name, $class_name, array $subjects, $removed, $must_be_sealed = false ) {
 		$this->parse();
 		$n = count( $this->tokens );
 		for ( $i = 0; $i < $n; $i++ ) {
@@ -494,7 +494,7 @@ final class Classifier {
 				continue;
 			}
 			$owner = $this->class_at( $i );
-			if ( ( null === $class && null !== $owner ) || ( null !== $class && ( ! $owner || $owner[0] !== $class ) ) ) {
+			if ( ( null === $class_name && null !== $owner ) || ( null !== $class_name && ( ! $owner || $owner[0] !== $class_name ) ) ) {
 				continue;
 			}
 			// No parameters: "( )".
@@ -515,7 +515,7 @@ final class Classifier {
 				return null;
 			}
 			$close = $this->match[ $j ];
-			// Body is exactly: return <expr> ;
+			// The body must be exactly one return statement.
 			if ( T_RETURN !== $this->tokens[ $j + 1 ][0] || ';' !== $this->tokens[ $close - 1 ][1] ) {
 				return null;
 			}
@@ -524,9 +524,9 @@ final class Classifier {
 					return null; // More than one statement.
 				}
 			}
-			$this->depth++;
+			++$this->depth;
 			$value = $this->evaluate( $j + 2, $close - 2, $subjects, $removed );
-			$this->depth--;
+			--$this->depth;
 			return $value;
 		}
 		return null;
@@ -825,12 +825,12 @@ final class Classifier {
 			for ( $j = $i + 1; $j < $n; $j++ ) {
 				$type = $this->tokens[ $j ][0];
 				if ( T_IF === $type && isset( $this->tokens[ $j + 1 ] ) && isset( $this->match[ $j + 1 ] ) && isset( $this->tokens[ $this->match[ $j + 1 ] + 1 ] ) && ':' === $this->tokens[ $this->match[ $j + 1 ] + 1 ][1] ) {
-					$depth++;
+					++$depth;
 				} elseif ( T_ENDIF === $type ) {
 					if ( 0 === $depth ) {
 						return array( $i, $j - 1 );
 					}
-					$depth--;
+					--$depth;
 				} elseif ( 0 === $depth && ( T_ELSE === $type || T_ELSEIF === $type ) ) {
 					return array( $i, $j - 1 );
 				}
@@ -939,6 +939,7 @@ final class Classifier {
 
 	/**
 	 * Records phpcs:ignore / phpcs:disable / phpcs:enable (and the legacy
+	 *
 	 * @codingStandardsIgnore* forms) from a comment.
 	 *
 	 * @param string $text Comment text.

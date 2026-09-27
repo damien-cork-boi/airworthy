@@ -176,16 +176,16 @@ final class LoadGraph {
 	 *
 	 * @param string      $relative File declaring it.
 	 * @param string      $name     Function or method name.
-	 * @param string|null $class    Lowercase class name, or null for a function.
-	 * @param array       $subjects Finding subjects.
-	 * @param bool        $removed  Removed on the target.
-	 * @param int         $depth    Helper depth.
+	 * @param string|null $class_name Lowercase class name, or null for a function.
+	 * @param array       $subjects   Finding subjects.
+	 * @param bool        $removed    Removed on the target.
+	 * @param int         $depth      Helper depth.
 	 * @return bool|null
 	 */
-	public function helper_value( $relative, $name, $class, array $subjects, $removed, $depth ) {
+	public function helper_value( $relative, $name, $class_name, array $subjects, $removed, $depth ) {
 		$code = (string) @file_get_contents( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
 		$cls  = new Classifier( $code, $relative, $this->target, $this->own_functions, $this, $depth );
-		return $cls->predicate_value( $name, $class, $subjects, $removed );
+		return $cls->predicate_value( $name, $class_name, $subjects, $removed );
 	}
 
 	/**
@@ -206,8 +206,8 @@ final class LoadGraph {
 			$uses = isset( $this->index['uses'][ $class ] ) ? $this->index['uses'][ $class ] : array();
 			$uses = array_filter(
 				$uses,
-				static function ( $use ) use ( $relative ) {
-					return $use[0] !== $relative; // Uses inside the class's own file only run once it's used.
+				static function ( $site ) use ( $relative ) {
+					return $site[0] !== $relative; // Uses inside the class's own file only run once it's used.
 				}
 			);
 			if ( ! $uses ) {
@@ -260,7 +260,7 @@ final class LoadGraph {
 	 */
 	private function line_is_dead( $relative, $line, array $subjects, $removed, $depth ) {
 		if ( ! isset( $this->classifiers[ $relative ] ) ) {
-			$code                          = (string) @file_get_contents( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
+			$code                           = (string) @file_get_contents( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
 			$this->classifiers[ $relative ] = new Classifier( $code, $relative, $this->target, $this->own_functions, $this );
 		}
 		if ( $this->classifiers[ $relative ]->dead_at( $line, $subjects, $removed ) ) {
@@ -277,18 +277,21 @@ final class LoadGraph {
 			return;
 		}
 		$this->index = array(
-			'declares'            => array( 'class' => array(), 'function' => array() ), // name => relative.
-			'files'               => array(), // relative => [decl_only, classes[]].
-			'uses'                => array(), // class => [[relative, line], …] (new C / C::).
-			'blocked'             => array(), // class => true.
+			'declares'            => array(
+				'class'    => array(),
+				'function' => array(),
+			), // name => relative.
+			'files'               => array(), // Per file: whether it only declares classes, and which.
+			'uses'                => array(), // Per class: where it is created or called statically.
+			'blocked'             => array(), // Classes the rule can't follow.
 			'includes'            => array(), // target relative => [[relative, line], …].
 			'unresolved_includes' => false,
 		);
-		$strings   = array(); // Lowercase string literals, for dynamic-creation checks.
-		$dynamic   = false;   // Any `new $x` / `$x::` in the component.
-		$defines   = array(); // Constant => resolved path value.
-		$raw_incs  = array(); // [relative, line, token slice] to resolve after defines are known.
-		$declared  = array(); // All declared class names (lowercase) => relative.
+		$strings     = array(); // Lowercase string literals, for dynamic-creation checks.
+		$dynamic     = false;   // Any `new $x` / `$x::` in the component.
+		$defines     = array(); // Constant => resolved path value.
+		$raw_incs    = array(); // [relative, line, token slice] to resolve after defines are known.
+		$declared    = array(); // All declared class names (lowercase) => relative.
 
 		foreach ( $this->files as $relative ) {
 			$code = @file_get_contents( $this->root . '/' . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file.
@@ -341,7 +344,7 @@ final class LoadGraph {
 		}
 		foreach ( $strings as $s => $_ ) {
 			if ( isset( $declared[ $s ] ) ) {
-				$this->index['blocked'][ $s ] = true; // class_exists( 'C' ), call_user_func( array( 'C', … ) ), …
+				$this->index['blocked'][ $s ] = true; // Named in a string, e.g. for class_exists() or a callback.
 			}
 		}
 	}
@@ -393,7 +396,7 @@ final class LoadGraph {
 			}
 
 			if ( '{' === $text || T_CURLY_OPEN === $type || T_DOLLAR_OPEN_CURLY_BRACES === $type ) {
-				$depth++;
+				++$depth;
 				if ( $pending ) {
 					$class_ends[] = $depth;
 					$pending      = false;
@@ -407,7 +410,7 @@ final class LoadGraph {
 				if ( $in_guard && $depth === $in_guard ) {
 					$in_guard = 0;
 				}
-				$depth--;
+				--$depth;
 				continue;
 			}
 
@@ -443,7 +446,10 @@ final class LoadGraph {
 			}
 			// extends / implements / use (imports and traits): the class is used in ways we don't follow.
 			if ( in_array( $type, array( T_EXTENDS, T_IMPLEMENTS, T_USE ), true ) ) {
-				for ( $j = $i + 1; $j < $n && ! in_array( $sig[ $j ], array( '{', ';' ), true ); $j++ ) {
+				for ( $j = $i + 1; $j < $n; $j++ ) {
+					if ( '{' === $sig[ $j ] || ';' === $sig[ $j ] ) {
+						break;
+					}
 					if ( is_array( $sig[ $j ] ) && ( T_STRING === $sig[ $j ][0] || ( defined( 'T_NAME_QUALIFIED' ) && in_array( $sig[ $j ][0], array( T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED ), true ) ) ) ) { // phpcs:ignore PHPCompatibility.Constants.NewConstants -- Guarded by defined().
 						$this->index['blocked'][ self::short_name( $sig[ $j ][1] ) ] = true;
 					}
@@ -500,7 +506,7 @@ final class LoadGraph {
 			for ( $j = $i; isset( $sig[ $j ] ) && ';' !== $sig[ $j ]; $j++ ) {
 				$i = $j;
 			}
-			$i++;
+			++$i;
 			return true;
 		}
 		if ( preg_match( "/^if\\(!defined\\(['\"](ABSPATH|WPINC)['\"]\\)\\)(\\{)?(exit|die)/i", $text, $m ) ) {
@@ -563,7 +569,7 @@ final class LoadGraph {
 				$level = 0;
 				for ( $j = $i + 1; $j < $count; $j++ ) {
 					if ( '(' === $tokens[ $j ] ) {
-						$level++;
+						++$level;
 					} elseif ( ')' === $tokens[ $j ] && 0 === --$level ) {
 						break;
 					}
@@ -651,12 +657,12 @@ final class LoadGraph {
 		for ( $j = $start; $j < $n; $j++ ) {
 			$t = $sig[ $j ];
 			if ( '(' === $t || '[' === $t ) {
-				$level++;
+				++$level;
 			} elseif ( ')' === $t || ']' === $t ) {
 				if ( 0 === $level ) {
 					return $j;
 				}
-				$level--;
+				--$level;
 			} elseif ( ( ';' === $t || ',' === $t ) && 0 === $level ) {
 				return $j;
 			}
@@ -697,7 +703,7 @@ final class LoadGraph {
 		}
 		while ( isset( $sig[ $k ] ) && is_array( $sig[ $k ] ) && in_array( $sig[ $k ][0], $kinds, true ) ) {
 			$name .= $sig[ $k ][1];
-			$k++;
+			++$k;
 		}
 		return trim( $name, '\\' ) === '' ? '' : $name;
 	}
