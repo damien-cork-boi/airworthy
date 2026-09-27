@@ -165,12 +165,7 @@ final class Page {
 		}
 		$plugin_count = count( get_plugins() );
 		$theme        = wp_get_theme();
-		/**
-		 * Filters the server PHP version the screen starts from (for tests and previews).
-		 *
-		 * @param string $version Default PHP_VERSION.
-		 */
-		$current = (string) apply_filters( 'airworthy_server_php_version', PHP_VERSION );
+		$current = \Airworthy\Env::php_version();
 		$default = Targets::default_for( $current );
 		?>
 		<div class="wrap airworthy-wrap">

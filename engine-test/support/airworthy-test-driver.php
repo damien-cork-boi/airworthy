@@ -59,7 +59,7 @@ add_filter(
 );
 if ( ! empty( $airworthy_knobs['php'] ) ) {
 	// Pretend the server runs another PHP version (admin screen preview).
-	add_filter( 'airworthy_server_php_version', static function () use ( $airworthy_knobs ) {
+	add_filter( 'airworthy_dev_server_php_version', static function () use ( $airworthy_knobs ) {
 		return $airworthy_knobs['php'];
 	} );
 }

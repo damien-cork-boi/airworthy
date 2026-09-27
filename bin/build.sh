@@ -6,8 +6,9 @@
 #   3b. bundles Action Scheduler (unscoped) in lib/
 #   4. copies the plugin source and zips it to dist/airworthy.zip
 #
-# Usage: bin/build.sh            build from the committed composer.lock
+# Usage: bin/build.sh            release build from the committed composer.lock
 #        bin/build.sh --update   re-resolve dependencies after editing plugin/composer.json
+#        DEV_BUILD=1 bin/build.sh   development build: also includes src/Dev.php (previews)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -71,7 +72,10 @@ rsync -a --exclude tests --exclude docs --exclude '*.md' --exclude phpunit.xml.d
 	"$STAGE/vendor/woocommerce/action-scheduler/" "$OUT/lib/action-scheduler/"
 
 echo "==> Copying plugin source"
-rsync -a --exclude composer.json --exclude composer.lock --exclude vendor "$ROOT/plugin/" "$OUT/"
+# src/Dev.php (previews for screenshots/tests) only goes into development builds.
+DEV_EXCLUDE="--exclude src/Dev.php"
+[ "${DEV_BUILD:-0}" = "1" ] && DEV_EXCLUDE=""
+rsync -a --exclude composer.json --exclude composer.lock --exclude vendor $DEV_EXCLUDE "$ROOT/plugin/" "$OUT/"
 
 echo "==> Zipping"
 rm -f "$ROOT/dist/$SLUG.zip"
