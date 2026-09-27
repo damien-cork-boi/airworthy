@@ -283,6 +283,37 @@ final class Command {
 	}
 
 	/**
+	 * Continues the latest scan after it was stopped, from where it stopped.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--format=<format>]
+	 * : Output format for the results.
+	 * ---
+	 * default: table
+	 * options:
+	 *   - table
+	 *   - json
+	 *   - csv
+	 *   - yaml
+	 *   - summary
+	 * ---
+	 *
+	 * @param array $args       Positional arguments.
+	 * @param array $assoc_args Options.
+	 */
+	public function resume( $args, $assoc_args ) {
+		$scan_id = $this->scan_id( array() );
+		$result  = Queue::resume( $scan_id );
+		if ( is_wp_error( $result ) ) {
+			WP_CLI::error( $result->get_error_message() );
+		}
+		WP_CLI::log( sprintf( 'Continuing scan %d.', $scan_id ) );
+		$this->run_to_completion( $scan_id );
+		$this->print_results( $scan_id, $assoc_args );
+	}
+
+	/**
 	 * Checks plugins or themes again within the latest scan (e.g. after updating them).
 	 *
 	 * ## OPTIONS

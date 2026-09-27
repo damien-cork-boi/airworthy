@@ -38,7 +38,7 @@ Everything on the admin screen also works from the terminal:
 * `wp airworthy scan --only=my-plugin --fail-on=blocker` exits with code 1 if anything would break, for CI.
 * `wp airworthy results --verdict=blocker,unknown` shows what needs attention.
 * `wp airworthy issues <slug>` lists one plugin's findings with file and line.
-* `wp airworthy rescan <slug>`, `wp airworthy export --file=report.csv`, `wp airworthy status`, `wp airworthy cancel` and `wp airworthy targets` do what their names say.
+* `wp airworthy rescan <slug>`, `wp airworthy export --file=report.csv`, `wp airworthy status`, `wp airworthy cancel`, `wp airworthy resume` and `wp airworthy targets` do what their names say.
 
 = Privacy =
 
@@ -152,7 +152,7 @@ Email security@airworthywp.com. Please don't post it in the public support forum
 * Tells real problems from old code that never runs on the new PHP version, including code that falls back to a replacement PHP extension.
 * Marks problems that already apply on the PHP version your site runs now, so they aren't counted as new with this upgrade.
 * Optional WordPress.org check (you choose): plugins removed from WordPress.org, not updated in two years, or needing a newer PHP version.
-* Runs in the background with live progress, so a large site never times out.
+* Runs in the background with live progress, so a large site never times out. A stopped scan can be continued where it left off.
 * Settings: skip inactive plugins, never scan chosen plugins or themes, and choose how hard scans work your server.
 * A PHP upgrade readiness check in Tools > Site Health.
 * CSV export and WP-CLI commands.

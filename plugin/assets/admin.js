@@ -1095,9 +1095,17 @@
 			);
 		}
 
-		var status = null;
+		// Continue scan is the main action on a stopped scan; otherwise New scan is.
+		var newScanClass = scan.resumable ? 'button' : 'button button-primary';
+		var status       = null;
 		if ( 'cancelled' === scan.status ) {
-			status = el( 'p', { class: 'airworthy-note airworthy-note-warning' }, __( 'This scan was stopped before it finished. The results below are incomplete.', 'airworthy' ) );
+			status = el(
+				'p',
+				{ class: 'airworthy-note airworthy-note-warning' },
+				scan.resumable ?
+				__( 'This scan was stopped before it finished, so the results below are incomplete. Continue scan picks up where it stopped; plugins and themes already checked keep their results.', 'airworthy' ) :
+				__( 'This scan was stopped before it finished. The results below are incomplete.', 'airworthy' )
+			);
 		} else if ( 'failed' === scan.status ) {
 			status = el( 'p', { class: 'airworthy-note airworthy-note-error' }, scan.error || __( 'The scan could not be completed.', 'airworthy' ) );
 		}
@@ -1185,9 +1193,28 @@
 						'div',
 						{ class: 'airworthy-head-actions' },
 						el( 'a', { class: 'button', href: scan.export_url }, __( 'Export CSV', 'airworthy' ) ),
+						scan.resumable ? el(
+							'button',
+							{ type: 'button', class: 'button button-primary', onclick: function ( event ) {
+								event.target.disabled = true;
+								apiFetch( { path: REST + '/scans/' + scan.id + '/resume', method: 'POST' } ).then(
+									function ( s ) {
+										state.scan = s;
+										announce( __( 'Continuing the scan.', 'airworthy' ) );
+										startProgress(); // Fresh progress screen and time estimate.
+									}
+								).catch(
+									function ( error ) {
+										event.target.disabled = false;
+										window.alert( errorMessage( error ) );
+									}
+								);
+							} },
+							__( 'Continue scan', 'airworthy' )
+						) : null,
 						el(
 							'button',
-							{ type: 'button', class: 'button button-primary', onclick: function () {
+							{ type: 'button', class: newScanClass, onclick: function () {
 								showStart( true );
 							} },
 							__( 'New scan', 'airworthy' )

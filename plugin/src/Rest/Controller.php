@@ -175,6 +175,16 @@ final class Controller {
 		);
 		register_rest_route(
 			$ns,
+			$scan . '/resume',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'resume' ),
+				'permission_callback' => $can,
+				'args'                => array( 'id' => $id ),
+			)
+		);
+		register_rest_route(
+			$ns,
 			$scan . '/nudge',
 			array(
 				'methods'             => 'POST',
@@ -433,6 +443,24 @@ final class Controller {
 	}
 
 	/**
+	 * POST /scans/{id}/resume: continues a stopped scan where it left off.
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function resume( \WP_REST_Request $request ) {
+		if ( ! self::scan_row( (int) $request['id'] ) ) {
+			return self::not_found();
+		}
+		$result = Queue::resume( (int) $request['id'] );
+		if ( is_wp_error( $result ) ) {
+			$result->add_data( array( 'status' => 409 ) );
+			return $result;
+		}
+		return new \WP_REST_Response( self::scan_summary( self::scan_row( (int) $request['id'] ) ), 200 );
+	}
+
+	/**
 	 * POST /scans/{id}/nudge: runs one batch in this request (file scan, or the WordPress.org
 	 * lookups left once it's done). The admin screen calls it while open, so scans still
 	 * progress on sites where WP-Cron is disabled or rarely triggered.
@@ -484,6 +512,7 @@ final class Controller {
 			'host_php'     => $s->host_php,
 			'from_php'     => isset( $s->from_php ) && '' !== $s->from_php ? $s->from_php : null,
 			'status'       => $s->status,
+			'resumable'    => Queue::can_resume( $s ),
 			'progress'     => array(
 				'files_done'  => (int) $s->files_done,
 				'files_total' => $total,

@@ -206,6 +206,11 @@ if ( 201 === $status ) {
 list( $status ) = $call( 'GET', '/scans/999999' );
 $check( 'REST: unknown scan is 404', 404 === $status, (string) $status );
 
+// Continue scan: only a stopped scan, and only the latest one.
+$check( 'Resume: a finished scan cannot be continued', ! \Airworthy\Scan\Queue::can_resume( (object) array( 'id' => PHP_INT_MAX, 'status' => 'complete' ) ) );
+$check( 'Resume: an older stopped scan cannot be continued', ! \Airworthy\Scan\Queue::can_resume( (object) array( 'id' => -1, 'status' => 'cancelled' ) ) );
+$check( 'Resume: an unknown scan is refused', is_wp_error( \Airworthy\Scan\Queue::resume( 999999 ) ) );
+
 // Site Health: the test is registered and answers for the site's PHP version.
 $tests = apply_filters( 'site_status_tests', array( 'direct' => array(), 'async' => array() ) );
 $check( 'Site Health: test is registered', isset( $tests['direct'][ \Airworthy\Admin\SiteHealth::TEST ] ) );

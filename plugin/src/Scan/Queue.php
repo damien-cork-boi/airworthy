@@ -284,7 +284,9 @@ final class Queue {
 	}
 
 	/**
-	 * Cancels a scan and its queued jobs. Results so far are kept.
+	 * Cancels a scan and its queued jobs. Results so far are kept, and resume() can carry on
+	 * from here. The lock is left to expire, so a batch still running when the scan was
+	 * stopped can't overlap one started by a quick resume.
 	 *
 	 * @param int $scan_id Scan ID.
 	 */
@@ -292,11 +294,64 @@ final class Queue {
 		global $wpdb;
 		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
-		$wpdb->query( $wpdb->prepare( "UPDATE {$t['scans']} SET status = 'cancelled', finished_at = %s, locked_until = NULL WHERE id = %d AND status IN ('queued','running')", self::now(), $scan_id ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$t['scans']} SET status = 'cancelled', finished_at = %s WHERE id = %d AND status IN ('queued','running')", self::now(), $scan_id ) );
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {
 			as_unschedule_all_actions( self::HOOK, array( (int) $scan_id ), Installer::JOB_GROUP );
 			as_unschedule_all_actions( \Airworthy\Wporg\Fetcher::HOOK, array( (int) $scan_id ), Installer::JOB_GROUP );
 		}
+	}
+
+	/**
+	 * Whether a stopped scan can be continued: it's the latest scan and nothing else is running.
+	 *
+	 * @param object $scan Scan row (id, status).
+	 * @return bool
+	 */
+	public static function can_resume( $scan ) {
+		global $wpdb;
+		if ( ! $scan || 'cancelled' !== $scan->status ) {
+			return false;
+		}
+		$t = Installer::tables();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
+		$latest = (int) $wpdb->get_var( "SELECT MAX(id) FROM {$t['scans']}" );
+		return (int) $scan->id === $latest;
+	}
+
+	/**
+	 * Continues a stopped scan where it left off: finished plugins and themes keep their
+	 * results, the one in progress carries on from its next file, and the rest follow.
+	 *
+	 * @param int $scan_id Scan ID.
+	 * @return true|\WP_Error
+	 */
+	public static function resume( $scan_id ) {
+		global $wpdb;
+		$t = Installer::tables();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
+		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT id, status, started_at, wporg_status FROM {$t['scans']} WHERE id = %d", $scan_id ) );
+		if ( ! $scan ) {
+			return new \WP_Error( 'airworthy_not_found', __( 'Not found.', 'airworthy' ) );
+		}
+		if ( self::active_scan_id() ) {
+			return new \WP_Error( 'airworthy_scan_running', __( 'A scan is already running.', 'airworthy' ) );
+		}
+		if ( ! self::can_resume( $scan ) ) {
+			return new \WP_Error( 'airworthy_cannot_resume', __( 'Only the latest scan can be continued, and only if it was stopped. Start a new scan instead.', 'airworthy' ) );
+		}
+		if ( ! function_exists( 'as_enqueue_async_action' ) || ! Engine::is_available() ) {
+			return new \WP_Error( 'airworthy_no_queue', __( 'The scan can\'t run on this copy of the plugin. Reinstall it from WordPress.org.', 'airworthy' ) );
+		}
+
+		// A scan stopped before its first batch hasn't listed its plugins yet: it starts over.
+		$status = null === $scan->started_at ? 'queued' : 'running';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
+		$wpdb->query( $wpdb->prepare( "UPDATE {$t['scans']} SET status = %s, finished_at = NULL, error = NULL, attempts = 0 WHERE id = %d AND status = 'cancelled'", $status, $scan_id ) );
+		if ( 'pending' === $scan->wporg_status ) {
+			\Airworthy\Wporg\Fetcher::enqueue( (int) $scan_id ); // Its lookups were stopped too.
+		}
+		self::enqueue_now( (int) $scan_id );
+		return true;
 	}
 
 	/**
