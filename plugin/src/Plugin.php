@@ -27,6 +27,11 @@ final class Plugin {
 		// REST routes: the controller only loads on REST requests.
 		add_action( 'rest_api_init', array( Rest\Controller::class, 'register_routes' ) );
 
+		// `wp airworthy …` commands.
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			Cli\Command::register();
+		}
+
 		// Re-check plugins and themes in the latest results after WordPress updates them.
 		add_action( 'upgrader_process_complete', array( Scan\Queue::class, 'after_upgrade' ), 20, 2 );
 

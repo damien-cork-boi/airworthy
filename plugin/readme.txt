@@ -14,6 +14,16 @@ Find out which plugins and themes will break on a newer PHP version, and which l
 
 Development build. The full description is written in the hardening step (Step 8).
 
+= WP-CLI =
+
+Everything on the admin screen also works from the terminal:
+
+* `wp airworthy scan --target=8.4` checks every plugin and theme and prints the results.
+* `wp airworthy scan --only=my-plugin --fail-on=blocker` exits with code 1 if anything would break, for CI.
+* `wp airworthy results --verdict=blocker,unknown` shows what needs attention.
+* `wp airworthy issues <slug>` lists one plugin's findings with file and line.
+* `wp airworthy rescan <slug>`, `wp airworthy export --file=report.csv`, `wp airworthy status`, `wp airworthy cancel` and `wp airworthy targets` do what their names say.
+
 = Privacy =
 
 This plugin reads your plugin and theme files on your own server; it never runs them and never sends them anywhere.

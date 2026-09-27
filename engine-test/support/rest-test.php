@@ -21,7 +21,7 @@ $check = static function ( $label, $ok, $detail = '' ) use ( &$pass, &$fail ) {
 
 global $wpdb;
 $editor = get_user_by( 'login', 'sua_editor' );
-$latest = (int) $wpdb->get_var( "SELECT MAX(id) FROM {$wpdb->base_prefix}airworthy_scans" );
+$latest = (int) $wpdb->get_var( "SELECT MAX(id) FROM {$wpdb->base_prefix}airworthy_scans WHERE status = 'complete'" ); // A finished scan with results.
 $comp   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->base_prefix}airworthy_components WHERE scan_id = %d AND slug = 'fx-fake-guard'", $latest ) );
 if ( ! $comp ) {
 	$comp = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->base_prefix}airworthy_components WHERE scan_id = %d AND slug = 'updraftplus'", $latest ) );

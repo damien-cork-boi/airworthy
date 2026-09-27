@@ -69,11 +69,35 @@ final class Export {
 			wp_die( esc_html__( 'Not found.', 'airworthy' ), 404 );
 		}
 
-		$filename = sprintf( 'airworthy-php-%s-%s.csv', $scan->target_php, gmdate( 'Y-m-d', strtotime( $scan->created_at . ' UTC' ) ) );
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+		header( 'Content-Disposition: attachment; filename="' . self::filename( $scan ) . '"' );
 		$out = fopen( 'php://output', 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Streaming the download.
+		self::write( $scan, $out );
+		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Streaming the download.
+		exit;
+	}
+
+	/**
+	 * File name for a scan's CSV, e.g. airworthy-php-8.4-2026-09-27.csv.
+	 *
+	 * @param object $scan Scan row.
+	 * @return string
+	 */
+	public static function filename( $scan ) {
+		return sprintf( 'airworthy-php-%s-%s.csv', $scan->target_php, gmdate( 'Y-m-d', strtotime( $scan->created_at . ' UTC' ) ) );
+	}
+
+	/**
+	 * Writes a scan's CSV to an open stream (the download above, or a file from WP-CLI).
+	 *
+	 * @param object   $scan Scan row.
+	 * @param resource $out  Writable stream.
+	 */
+	public static function write( $scan, $out ) {
+		global $wpdb;
+		$t       = Installer::tables();
+		$scan_id = (int) $scan->id;
 		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- UTF-8 BOM so spreadsheets read accents correctly.
 
 		fputcsv( $out, array( 'Target PHP', 'Type', 'Name', 'Slug', 'Version', 'Active', 'Verdict', 'Errors', 'Suppressed', 'Guarded', 'Warnings', 'WordPress.org', 'Closed', 'Closed reason', 'Last updated', 'Abandoned', 'Tested up to', 'Requires PHP', 'Update available', 'File', 'Line', 'Severity', 'Context', 'Rule', 'Message' ), ',', '"', '\\' );
@@ -112,8 +136,6 @@ final class Export {
 				fputcsv( $out, self::safe( array_merge( $base, array( $i->file, (int) $i->line, $i->severity, $i->context, $i->rule, $i->message ) ) ), ',', '"', '\\' );
 			}
 		}
-		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Streaming the download.
-		exit;
 	}
 
 	/**
