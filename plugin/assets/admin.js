@@ -479,12 +479,17 @@
 				stat( __( 'Checking now', 'airworthy' ), parts.now, el( 'div', { class: 'airworthy-minibar' }, parts.nowBar ) )
 			)
 		);
-		parts.listCard = el(
+		parts.legendCard = el(
+			'div',
+			{ class: 'airworthy-card', hidden: true },
+			el( 'h3', null, __( 'What the verdicts mean', 'airworthy' ) ),
+			verdictLegend( scan )
+		);
+		parts.listCard   = el(
 			'div',
 			{ class: 'airworthy-card', hidden: true },
 			el( 'h3', null, __( 'Plugins and themes', 'airworthy' ) ),
-			el( 'p', { class: 'airworthy-muted' }, __( 'Each plugin and theme gets a verdict as soon as its files are checked. What the verdicts mean:', 'airworthy' ) ),
-			verdictLegend( scan ),
+			el( 'p', { class: 'airworthy-muted' }, __( 'Each plugin and theme gets a verdict as soon as its files are checked.', 'airworthy' ) ),
 			parts.list
 		);
 		fill(
@@ -513,6 +518,7 @@
 				)
 			),
 			checksCard( scan ),
+			parts.legendCard,
 			parts.listCard
 		);
 		parts.scanId        = scan.id;
@@ -652,7 +658,8 @@
 			__( 'Your site runs background tasks only when it has visitors, so keep this page open to speed things up.', 'airworthy' ) :
 			__( 'This runs in the background. You can leave this page; you will see a notice when it is done.', 'airworthy' );
 
-		parts.listCard.hidden = ! components.length;
+		parts.listCard.hidden   = ! components.length;
+		parts.legendCard.hidden = ! components.length;
 		fill(
 			parts.list,
 			components.slice().sort(
