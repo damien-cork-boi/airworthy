@@ -300,9 +300,24 @@
 				}
 			).catch(
 				function ( error ) {
+					if ( error && 'airworthy_scan_running' === error.code ) {
+						// Started elsewhere (another tab, WP-CLI): follow that scan instead.
+						return apiFetch( { path: REST + '/scans/current' } ).then(
+							function ( scan ) {
+								state.scan = scan;
+								announce( __( 'A scan is already running. Showing its progress.', 'airworthy' ) );
+								startProgress();
+							}
+						);
+					}
 					startError.textContent = errorMessage( error );
 					startError.hidden      = false;
 					announce( startError.textContent );
+				}
+			).catch(
+				function ( error ) {
+					startError.textContent = errorMessage( error );
+					startError.hidden      = false;
 				}
 			).then(
 				function () {
