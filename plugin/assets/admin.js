@@ -561,6 +561,40 @@
 	// Results view.
 	// ---------------------------------------------------------------------------------------
 
+	/**
+	 * WordPress.org's closure reason in plain words ("Author Request" -> "the author withdrew
+	 * it"); an unknown reason is shown as WordPress.org gave it.
+	 */
+	function closedReason( reason ) {
+		var key   = String( reason || '' ).toLowerCase();
+		var plain = {
+			'security issue': __( 'because of a security problem', 'airworthy' ),
+			'author request': __( 'the author withdrew it', 'airworthy' ),
+			'guideline violation': __( 'for breaking WordPress.org\'s rules', 'airworthy' ),
+			'licensing/trademark violation': __( 'over a licence or trademark problem', 'airworthy' ),
+			'merged into core': __( 'its features are now part of WordPress itself', 'airworthy' ),
+			unused: __( 'because it was no longer used', 'airworthy' ),
+		};
+		return plain[ key ] || reason || __( 'no reason given', 'airworthy' );
+	}
+
+	/**
+	 * What to do about a closed plugin, depending on whether it is active on this site.
+	 */
+	function closedAdvice( c ) {
+		var key = String( ( c.wporg && c.wporg.closed_reason ) || '' ).toLowerCase();
+		if ( ! c.active ) {
+			return __( 'It isn\'t active on your site, so the simplest fix is to delete it. Inactive plugins still leave their files on the server.', 'airworthy' );
+		}
+		if ( 'security issue' === key ) {
+			return __( 'It is active on your site: replace it as soon as you can.', 'airworthy' );
+		}
+		if ( 'merged into core' === key ) {
+			return __( 'It is active on your site, but WordPress now does this itself: you can probably remove it.', 'airworthy' );
+		}
+		return __( 'It is active on your site: find a maintained replacement before you upgrade PHP.', 'airworthy' );
+	}
+
 	function wporgCell( c, running ) {
 		var w = c.wporg;
 		if ( 'theme' === c.type && ! w ) {
@@ -577,8 +611,8 @@
 				el(
 					'div',
 					{ class: 'airworthy-small' },
-					/* translators: 1: date, 2: reason. */
-					w.closed_reason ? sprintf( __( 'Closed %1$s: %2$s. No more updates will come.', 'airworthy' ), formatDate( w.closed_date ), w.closed_reason ) :
+					/* translators: 1: date, 2: reason in plain words, e.g. "the author withdrew it". */
+					w.closed_reason ? sprintf( __( 'Closed %1$s: %2$s. No more updates will come.', 'airworthy' ), formatDate( w.closed_date ), closedReason( w.closed_reason ) ) :
 						/* translators: %s: date. */
 					sprintf( __( 'Closed %s. No more updates will come.', 'airworthy' ), formatDate( w.closed_date ) )
 				)
@@ -960,7 +994,7 @@
 					/* translators: %d: number of plugins. */
 					sprintf( _n( '%d plugin has been removed from WordPress.org', '%d plugins have been removed from WordPress.org', closed.length, 'airworthy' ), closed.length )
 				),
-				el( 'p', null, __( 'No more updates, including security fixes, will come for these. Look for a replacement.', 'airworthy' ) ),
+				el( 'p', null, __( 'Nobody can download these from WordPress.org any more, and no more updates will come for them, including security fixes.', 'airworthy' ) ),
 				el(
 					'ul',
 					null,
@@ -971,11 +1005,9 @@
 								null,
 								el( 'strong', null, c.name ),
 								' · ',
-								c.wporg.closed_reason ?
-								/* translators: 1: date, 2: reason. */
-								sprintf( __( 'closed %1$s: %2$s', 'airworthy' ), formatDate( c.wporg.closed_date ), c.wporg.closed_reason ) :
-								/* translators: %s: date. */
-								sprintf( __( 'closed %s', 'airworthy' ), formatDate( c.wporg.closed_date ) )
+								/* translators: 1: date, 2: reason in plain words, e.g. "the author withdrew it". */
+								sprintf( __( 'closed %1$s: %2$s.', 'airworthy' ), formatDate( c.wporg.closed_date ), closedReason( c.wporg.closed_reason ) ),
+								el( 'div', { class: 'airworthy-closed-advice' }, closedAdvice( c ) )
 							);
 						}
 					)
