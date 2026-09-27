@@ -128,6 +128,9 @@ final class Command {
 		}
 
 		if ( Utils\get_flag_value( $assoc_args, 'background', false ) ) {
+			if ( $only ) {
+				Queue::prepare_now( $scan_id ); // Apply --only now: background batches won't see this filter.
+			}
 			WP_CLI::success( sprintf( 'Scan %1$d queued (PHP %2$s). Check on it with: wp airworthy status', $scan_id, $target ) );
 			return;
 		}

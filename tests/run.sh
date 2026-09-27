@@ -68,6 +68,12 @@ for target in 8.0 8.1 8.2 8.3 8.4 8.5; do
 	php "$ROOT/tests/compare-verdicts.php" "$ROOT/tests/expected-verdicts.json" "$target" "$OUT" || FAILED=1
 done
 
+echo "==> WP-CLI: --only applies to background scans"
+wp airworthy scan --target=8.4 --only=fx-ready,fx-implode --background > /dev/null
+COMPONENTS=$(wp eval 'global $wpdb; $t = Airworthy\Installer::tables(); echo implode( ",", $wpdb->get_col( "SELECT slug FROM {$t["components"]} WHERE scan_id = ( SELECT MAX(id) FROM {$t["scans"]} ) ORDER BY slug" ) );')
+wp airworthy cancel > /dev/null
+if [ "$COMPONENTS" = "fx-implode,fx-ready" ]; then echo "PASS background scan covers only fx-implode,fx-ready"; else echo "FAIL background scan covers: $COMPONENTS"; FAILED=1; fi
+
 echo "==> Checks"
 AIRWORTHY_TESTS_ROOT="$ROOT" wp eval-file "$ROOT/tests/checks.php" || FAILED=1
 

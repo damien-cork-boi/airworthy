@@ -62,6 +62,13 @@ final class Notice {
 				$scan->target_php,
 				(int) $scan->count_blocker
 			);
+		} elseif ( (int) $scan->count_unknown > 0 ) {
+			$summary = sprintf(
+				/* translators: 1: PHP version, 2: number of plugins/themes. */
+				_n( 'Airworthy finished checking your site for PHP %1$s: %2$d plugin or theme could not be fully checked.', 'Airworthy finished checking your site for PHP %1$s: %2$d plugins or themes could not be fully checked.', (int) $scan->count_unknown, 'airworthy' ),
+				$scan->target_php,
+				(int) $scan->count_unknown
+			);
 		} else {
 			$summary = sprintf(
 				/* translators: %s: PHP version. */

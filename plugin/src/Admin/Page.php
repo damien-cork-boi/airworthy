@@ -187,14 +187,28 @@ final class Page {
 					<dt><?php esc_html_e( 'Will be scanned', 'airworthy' ); ?></dt>
 					<dd>
 						<?php
-						echo esc_html(
-							sprintf(
-								/* translators: 1: number of plugins, 2: theme name. */
-								_n( '%1$d plugin (active and inactive) and the active theme, %2$s', '%1$d plugins (active and inactive) and the active theme, %2$s', $plugin_count, 'airworthy' ),
-								$plugin_count,
-								$theme->get( 'Name' )
-							)
-						);
+						if ( is_multisite() ) {
+							$theme_count = count( \WP_Theme::get_allowed_on_network() );
+							echo esc_html(
+								sprintf(
+									/* translators: 1: number of plugins, 2: number of themes. */
+									__( '%1$s and %2$s', 'airworthy' ),
+									/* translators: %d: number of plugins. */
+									sprintf( _n( '%d plugin', '%d plugins', $plugin_count, 'airworthy' ), $plugin_count ),
+									/* translators: %d: number of themes. */
+									sprintf( _n( '%d network-enabled theme (and any parent themes)', '%d network-enabled themes (and any parent themes)', $theme_count, 'airworthy' ), $theme_count )
+								)
+							);
+						} else {
+							echo esc_html(
+								sprintf(
+									/* translators: 1: number of plugins, 2: theme name. */
+									_n( '%1$d plugin (active and inactive) and the active theme, %2$s', '%1$d plugins (active and inactive) and the active theme, %2$s', $plugin_count, 'airworthy' ),
+									$plugin_count,
+									$theme->get( 'Name' )
+								)
+							);
+						}
 						?>
 					</dd>
 					<dt><?php esc_html_e( 'Time needed', 'airworthy' ); ?></dt>

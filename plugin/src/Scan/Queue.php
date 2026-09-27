@@ -138,8 +138,11 @@ final class Queue {
 		if ( ! $scan ) {
 			return new \WP_Error( 'airworthy_not_found', __( 'Not found.', 'airworthy' ) );
 		}
-		if ( 'complete' !== $scan->status || self::active_scan_id() ) {
+		if ( self::active_scan_id() ) {
 			return new \WP_Error( 'airworthy_scan_running', __( 'Wait for the current scan to finish, then try again.', 'airworthy' ) );
+		}
+		if ( 'complete' !== $scan->status ) {
+			return new \WP_Error( 'airworthy_scan_incomplete', __( 'This scan was stopped before it finished, so single plugins can\'t be checked again in it. Start a new scan instead.', 'airworthy' ) );
 		}
 
 		$installed = array();
@@ -163,8 +166,8 @@ final class Queue {
 			$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				$t['components'],
 				array(
-					'name'          => $fresh['name'],
-					'version'       => $fresh['version'],
+					'name'          => mb_substr( $fresh['name'], 0, 255 ),
+					'version'       => mb_substr( $fresh['version'], 0, 64 ),
 					'rel_path'      => $fresh['rel_path'],
 					'is_active'     => $fresh['is_active'] ? 1 : 0,
 					'status'        => 'queued',
@@ -354,6 +357,29 @@ final class Queue {
 	}
 
 	/**
+	 * Lists a queued scan's components now, in this request, instead of in its first batch.
+	 * For WP-CLI's `scan --only … --background`: the --only filter only exists in the CLI
+	 * process, so the list must be built before it exits.
+	 *
+	 * @param int $scan_id Scan ID.
+	 */
+	public static function prepare_now( $scan_id ) {
+		global $wpdb;
+		$scan_id = (int) $scan_id;
+		if ( ! self::lock( $scan_id, Budget::for_batch() ) ) {
+			return;
+		}
+		$t = Installer::tables();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
+		$scan = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t['scans']} WHERE id = %d", $scan_id ) );
+		if ( $scan && 'queued' === $scan->status ) {
+			self::prepare( $scan );
+			self::sync_scan_progress( $scan_id );
+		}
+		self::unlock( $scan_id );
+	}
+
+	/**
 	 * First batch: lists components and their files.
 	 *
 	 * @param object $scan Scan row.
@@ -372,8 +398,8 @@ final class Queue {
 					'scan_id'       => (int) $scan->id,
 					'type'          => $c['type'],
 					'slug'          => $c['slug'],
-					'name'          => $c['name'],
-					'version'       => $c['version'],
+					'name'          => mb_substr( $c['name'], 0, 255 ),
+					'version'       => mb_substr( $c['version'], 0, 64 ),
 					'rel_path'      => $c['rel_path'],
 					'is_active'     => $c['is_active'] ? 1 : 0,
 					'status'        => 'queued',
@@ -856,7 +882,7 @@ final class Queue {
 			$values = array();
 			foreach ( $chunk as $issue ) {
 				$rows[] = '(%d,%d,%s,%d,%s,%s,%s,%s)';
-				array_push( $values, (int) $c->scan_id, (int) $c->id, $file, $issue['line'], $issue['severity'], isset( $issue['context'] ) ? $issue['context'] : Classifier::PLAIN, substr( $issue['rule'], 0, 191 ), self::without_server_paths( $issue['message'] ) );
+				array_push( $values, (int) $c->scan_id, (int) $c->id, mb_substr( $file, 0, 512 ), $issue['line'], $issue['severity'], isset( $issue['context'] ) ? $issue['context'] : Classifier::PLAIN, substr( $issue['rule'], 0, 191 ), self::without_server_paths( $issue['message'] ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table; one placeholder group per row, all values passed to prepare().
 			$wpdb->query( $wpdb->prepare( "INSERT INTO {$t['issues']} (scan_id, component_id, file, line, severity, context, rule, message) VALUES " . implode( ',', $rows ), $values ) );
