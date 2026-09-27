@@ -416,6 +416,7 @@
 	function buildProgress( scan ) {
 		var parts      = {
 			heading: el( 'h2', null ),
+			what: el( 'p', { class: 'airworthy-progress-what' } ),
 			bar: el( 'span', null ),
 			text: el( 'p', { class: 'airworthy-progress-text' } ),
 			note: el( 'p', { class: 'description' } ),
@@ -429,6 +430,7 @@
 				'div',
 				{ class: 'airworthy-card' },
 				parts.heading,
+				parts.what,
 				parts.barWrap,
 				parts.text,
 				parts.note,
@@ -446,11 +448,54 @@
 					)
 				)
 			),
+			checksCard( scan ),
 			parts.listCard
 		);
 		parts.scanId        = scan.id;
 		state.progressParts = parts;
 		return parts;
+	}
+
+	/**
+	 * What a scan looks for, in plain words, so the progress screen explains itself. The
+	 * examples are real PHP changes; PHPCompatibility checks many more of each kind.
+	 */
+	function checksCard( scan ) {
+		var item = function ( title, text ) {
+			return el( 'li', null, el( 'strong', null, title ), ' ', text );
+		};
+		return el(
+			'div',
+			{ class: 'airworthy-card airworthy-checks' },
+			el( 'h3', null, __( 'What each file is checked for', 'airworthy' ) ),
+			el(
+				'ul',
+				null,
+				item(
+					__( 'Removed features.', 'airworthy' ),
+					__( 'Functions, classes and settings PHP no longer has, such as create_function() and each(), both removed in PHP 8.0. Code that uses them stops the page with a fatal error.', 'airworthy' )
+				),
+				item(
+					__( 'Stricter rules.', 'airworthy' ),
+					__( 'Code that older PHP let slide with a warning but PHP 8 stops with an error, such as giving implode() its arguments in the wrong order.', 'airworthy' )
+				),
+				item(
+					__( 'Features being phased out.', 'airworthy' ),
+					__( 'They still work, but will be removed in a later version, such as adding undeclared properties to objects (deprecated in PHP 8.2). These show as Warnings, not Blockers.', 'airworthy' )
+				),
+				item(
+					__( 'Safety checks in the code.', 'airworthy' ),
+					/* translators: %s: PHP version. */
+					sprintf( __( 'Whether old code only runs on old PHP versions, behind a version check. If it can never run on PHP %s, it is marked as guarded legacy code, not as a problem.', 'airworthy' ), scan.target_php )
+				),
+				'off' === scan.wporg ? null : item(
+					__( 'WordPress.org details.', 'airworthy' ),
+					/* translators: %s: PHP version. */
+					sprintf( __( 'Whether each plugin was removed from WordPress.org, looks abandoned, is tested with recent WordPress, or needs a newer PHP version than PHP %s.', 'airworthy' ), scan.target_php )
+				)
+			),
+			el( 'p', { class: 'airworthy-muted' }, __( 'Nothing is run or changed: Airworthy only reads the files.', 'airworthy' ) )
+		);
 	}
 
 	function renderProgress( scan ) {
@@ -467,7 +512,9 @@
 
 		/* translators: %s: PHP version. */
 		parts.heading.textContent = sprintf( __( 'Checking your site for PHP %s', 'airworthy' ), scan.target_php );
-		parts.bar.style.width     = Math.max( 2, p.percent ) + '%';
+		/* translators: %s: PHP version. */
+		parts.what.textContent = sprintf( __( 'Airworthy is reading every PHP file in your plugins and theme, without running any of it, and checking each line against what changed up to PHP %s.', 'airworthy' ), scan.target_php );
+		parts.bar.style.width  = Math.max( 2, p.percent ) + '%';
 		parts.barWrap.setAttribute( 'aria-valuenow', String( p.percent ) );
 		fill(
 			parts.text,
@@ -475,8 +522,8 @@
 				__( 'Getting ready…', 'airworthy' ) :
 				/* translators: 1: percent, 2: files checked, 3: total files. */
 				sprintf( __( '%1$d%% · %2$s of %3$s files checked', 'airworthy' ), p.percent, p.files_done.toLocaleString(), p.files_total.toLocaleString() ),
-			/* translators: %s: plugin or theme name. */
-			checking ? el( 'span', { class : 'airworthy-muted' }, ' · ' + sprintf( __( 'now: %s', 'airworthy' ), checking.name ) ) : null
+			/* translators: 1: plugin or theme name, 2: its files checked, 3: its total files. */
+			checking ? el( 'span', { class : 'airworthy-muted' }, ' · ' + sprintf( __( 'now: %1$s (%2$s of %3$s files)', 'airworthy' ), checking.name, checking.files.checked.toLocaleString(), checking.files.total.toLocaleString() ) ) : null
 		);
 		parts.note.textContent = slow ?
 			__( 'Your site runs background tasks only when it has visitors, so keep this page open to speed things up.', 'airworthy' ) :
