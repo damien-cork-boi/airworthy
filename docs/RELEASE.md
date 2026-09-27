@@ -28,6 +28,10 @@ Then:
 - [ ] Add a changelog entry to `plugin/readme.txt` (and an Upgrade Notice for anything users must know). For security fixes, write "Security fix" and the severity, without exploit details.
 - [ ] Regenerate the translation template: `wp i18n make-pot plugin plugin/languages/airworthy.pot --exclude=vendor,languages --headers='{"Report-Msgid-Bugs-To":"https://wordpress.org/support/plugin/airworthy"}'` and check there are no new "translators:" warnings.
 
+## Test builds (before a release)
+
+Zips for real-site testing are release candidates: `RC=3 bin/build.sh` numbers the build `X.Y.Z-rc.3` (the source keeps `X.Y.Z`). Count up with every test zip you hand out, so sites can tell builds apart and browsers reload the admin screen. rc.1 and rc.2 of 1.0.0 went out on 27 Sep 2026.
+
 ## 4. Build and check
 
 - [ ] `bin/build.sh` (release build: no `DEV_BUILD`). It fails if the lock file, the PHP-Scoper checksum or the scoping patches are wrong.
