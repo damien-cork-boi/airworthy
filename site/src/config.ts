@@ -7,7 +7,7 @@ export const SITE = {
 	name: 'Airworthy',
 	tagline: 'PHP Compatibility & Upgrade Checker for WordPress',
 	description:
-		'Find out which WordPress plugins and themes will break on a newer PHP version, and which look abandoned, before you upgrade. Free on WordPress.org.',
+		'Before you upgrade PHP, see which WordPress plugins and themes are ready, which need fixing, and which look abandoned. Free on WordPress.org.',
 
 	/** Flip to true once the plugin is approved on WordPress.org: turns on the install buttons. */
 	listed: false,

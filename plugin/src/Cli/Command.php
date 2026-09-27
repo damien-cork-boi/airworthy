@@ -20,7 +20,7 @@ use WP_CLI\Utils;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Checks which plugins and themes will break on a newer PHP version, from the terminal.
+ * Checks which plugins and themes are ready for a newer PHP version, from the terminal.
  *
  * Uses the same scanner, verdicts and results as the admin screen (Tools > Airworthy), so both
  * always agree. Scans run in this process, without the web's time limits, unless --background

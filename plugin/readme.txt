@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Find out which plugins and themes will break on a newer PHP version, and which look abandoned, before you upgrade.
+Before you upgrade PHP, see which plugins and themes are ready, which need fixing, and which look abandoned.
 
 == Description ==
 
