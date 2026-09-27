@@ -22,7 +22,8 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - Airworthy's own scan shows "Warnings" (5 deprecations, all in bundled Action Scheduler 3.9.3 and PHPCompatibility, none in our code). Update when Action Scheduler fixes them, or move to 4.x once WordPress 6.9+ passes ~90% of sites.
 
 **Website (airworthywp.com, `site/`):** live on 27 Sep 2026. Cloudflare Worker `airworthywp` (static assets), deploys on push to main; nameservers moved from Hosting Ireland to Cloudflare; www redirects to the root; Email Routing forwards security@ and hello@ to Damo's Gmail; SPF and a strict DMARC (p=reject) record in place.
-- Turn on "Always Use HTTPS" (SSL/TLS > Edge Certificates) if not yet done; confirm test emails to security@ and hello@ arrived.
+- Done: http redirects to https; test emails to security@ and hello@ arrive at info@digitalkind.ie (Google Workspace). Email Routing forwards there, not to Gmail.
+- Lesson for future domains: remove the registrar's own email forwarding (Hosting Ireland had forwarders on for this domain) and its DNS records before or when moving to Cloudflare. Otherwise mail can still end up at the old host, and the Cloudflare Activity log stays empty.
 - Optionally set build watch paths on the Worker (site/*, plugin/readme.txt, SECURITY.md, assets/*) so plugin-only commits don't rebuild the site.
 - Screenshots 2–4 are held off the site (`heldScreenshots` in site/src/config.ts) until the implode() bugs are reported and fixed, or the screenshots are recaptured without those plugins.
 - Set `listed: true` in site/src/config.ts once WordPress.org approves the plugin.
