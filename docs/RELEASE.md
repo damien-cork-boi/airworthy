@@ -42,7 +42,7 @@ Zips for real-site testing are release candidates: `RC=3 bin/build.sh` numbers t
 
 ## 5. WordPress.org submission (first release only)
 
-- [ ] Report the two reversed `implode()` bugs to Essential Addons for Elementor and UpdraftPlus first, and wait for fixes (or a reasonable time). Screenshots 2–4 show both plugins (4 with the file and line) and go on the WordPress.org listing, so recapture them without those plugins or wait. The development repo (damien-cork-boi/airworthy) names both bugs and stays private.
+- [ ] Report the two reversed `implode()` bugs to Essential Addons for Elementor and UpdraftPlus first, and wait for fixes (or a reasonable time). The screenshots were recaptured on 27 Sep 2026 on a neutral demo site and don't show either plugin. The development repo (damien-cork-boi/airworthy) names both bugs and stays private.
 - [ ] github.com/DigitalKind/airworthy (the public source repo, made by `bin/export-public.sh`) is public and up to date: the readme's "Source code and build" section links to it.
 
 ## 6. Publish
