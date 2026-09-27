@@ -6,6 +6,9 @@
 	<file>plugin/uninstall.php</file>
 	<file>plugin/src</file>
 	<file>plugin/assets/admin.js</file>
+	<file>pro/airworthy-pro.php</file>
+	<file>pro/src</file>
+	<file>pro/assets/branding.js</file>
 
 	<arg name="extensions" value="php,js"/>
 	<arg name="colors"/>
@@ -21,6 +24,7 @@
 		<properties>
 			<property name="text_domain" type="array">
 				<element value="airworthy"/>
+				<element value="airworthy-pro"/>
 			</property>
 		</properties>
 	</rule>

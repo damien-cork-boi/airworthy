@@ -41,6 +41,11 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - Now: "Update available" in the results (update, then Airworthy rescans), a PHP support countdown on the start and results screens, results grouped by what to do next.
 - Next: a dashboard widget (last result, date, Scan button; the one allowed spot for a small, dismissible Pro mention), a "Copy summary for my host or developer" button, plugin icons from WordPress.org (with consent).
 
+**Pro (27 Sep 2026: client report built, v0.1.0 in pro/, see docs/EXTENDING.md):**
+- Licensing and updates for Pro (Freemius or own; see the business plan's "Selling" section) before it's sold; Pro has no licence check yet.
+- Pro's own readme, changelog and translation template; a Pro page on airworthywp.com when it launches.
+- Client report ideas for later: an optional note from the agency, a white-label option (hide "Made with Airworthy") for the agency tier, and a true server-side PDF if customers ask.
+
 **Post-launch:**
 - Full namespaced class-name resolution in LoadGraph (FQCN keys, `use … as` aliases, `X::class` passed to a container, a hash_algos() capability check). This fixes WooCommerce's false Blocker at target PHP 8.0 only. See docs/ACCURACY.md "Post-launch".
 - Write our own sniffs for the static coverage gaps: 8.1 ArrayAccess return types (ReturnTypeWillChange), 8.2 mb_convert_encoding HTML-ENTITIES and "self::" callables, 8.5 `case X;` semicolons, null array offsets and PDO::MYSQL_ATTR_* constants, plus array_is_list() not being flagged at target 8.0.

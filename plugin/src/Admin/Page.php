@@ -78,12 +78,61 @@ final class Page {
 			'airworthy-admin',
 			'window.airworthyConfig = ' . wp_json_encode(
 				array(
-					'rest'         => '/airworthy/v1',
-					'cronDisabled' => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON,
+					'rest'           => '/airworthy/v1',
+					'cronDisabled'   => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON,
+					'resultsActions' => self::results_actions(),
 				)
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Extra buttons for the results header, from add-ons (Airworthy Pro's client report).
+	 * Each is array( 'label' => …, 'url' => … ) where "__SCAN__" in the URL becomes the scan ID.
+	 *
+	 * @return array<int,array{label:string,url:string}>
+	 */
+	private static function results_actions() {
+		/**
+		 * Filters the extra buttons shown next to Export CSV on the results.
+		 *
+		 * @param array $actions Each array( 'label' => string, 'url' => string with "__SCAN__" ).
+		 */
+		$actions = (array) apply_filters( 'airworthy_results_actions', array() );
+		$out     = array();
+		foreach ( $actions as $a ) {
+			if ( is_array( $a ) && ! empty( $a['label'] ) && ! empty( $a['url'] ) ) {
+				$out[] = array(
+					'label' => (string) $a['label'],
+					'url'   => esc_url_raw( (string) $a['url'] ),
+				);
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Extra tabs on the Airworthy screen, from add-ons: slug => label. Each is drawn by the
+	 * "airworthy_render_tab_{slug}" action.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function extra_tabs() {
+		/**
+		 * Filters extra tabs on the Airworthy screen (after Scan and Settings).
+		 *
+		 * @param array $tabs slug => label.
+		 */
+		$tabs = (array) apply_filters( 'airworthy_admin_tabs', array() );
+		$out  = array();
+		foreach ( $tabs as $slug => $label ) {
+			$slug = sanitize_key( $slug );
+			if ( '' !== $slug && ! in_array( $slug, array( 'scan', 'settings' ), true ) ) {
+				$out[ $slug ] = (string) $label;
+			}
+		}
+		return $out;
 	}
 
 	/**
@@ -163,8 +212,10 @@ final class Page {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
+		$extra_tabs = self::extra_tabs();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which tab to show.
-		$tab          = isset( $_GET['tab'] ) && 'settings' === sanitize_key( wp_unslash( $_GET['tab'] ) ) ? 'settings' : 'scan';
+		$tab          = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'scan';
+		$tab          = 'settings' === $tab || isset( $extra_tabs[ $tab ] ) ? $tab : 'scan';
 		$components   = \Airworthy\Scan\Components::discover(); // With the site's settings applied.
 		$skipped      = \Airworthy\Scan\Components::$last_skipped;
 		$plugin_count = count( wp_list_filter( $components, array( 'type' => 'plugin' ) ) );
@@ -184,10 +235,21 @@ final class Page {
 			<nav class="nav-tab-wrapper airworthy-tabs" aria-label="<?php esc_attr_e( 'Airworthy', 'airworthy' ); ?>">
 				<a href="<?php echo esc_url( self::url() ); ?>" class="nav-tab<?php echo 'scan' === $tab ? ' nav-tab-active' : ''; ?>"<?php echo 'scan' === $tab ? ' aria-current="page"' : ''; ?>><?php esc_html_e( 'Scan', 'airworthy' ); ?></a>
 				<a href="<?php echo esc_url( add_query_arg( 'tab', 'settings', self::url() ) ); ?>" class="nav-tab<?php echo 'settings' === $tab ? ' nav-tab-active' : ''; ?>"<?php echo 'settings' === $tab ? ' aria-current="page"' : ''; ?>><?php esc_html_e( 'Settings', 'airworthy' ); ?></a>
+				<?php foreach ( $extra_tabs as $slug => $label ) : ?>
+					<a href="<?php echo esc_url( add_query_arg( 'tab', $slug, self::url() ) ); ?>" class="nav-tab<?php echo $slug === $tab ? ' nav-tab-active' : ''; ?>"<?php echo $slug === $tab ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $label ); ?></a>
+				<?php endforeach; ?>
 			</nav>
 			<?php
 			if ( 'settings' === $tab ) {
 				self::render_settings();
+				echo '</div>';
+				return;
+			}
+			if ( 'scan' !== $tab ) {
+				/**
+				 * Draws an add-on's tab (see the airworthy_admin_tabs filter).
+				 */
+				do_action( 'airworthy_render_tab_' . $tab );
 				echo '</div>';
 				return;
 			}
@@ -348,7 +410,7 @@ final class Page {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only shows the saved message.
 		$updated = isset( $_GET['updated'] );
 		?>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="airworthy-card airworthy-settings">
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="airworthy-card airworthy-settings" data-autosave="1">
 			<input type="hidden" name="action" value="<?php echo esc_attr( \Airworthy\Settings::ACTION ); ?>" />
 			<?php wp_nonce_field( \Airworthy\Settings::ACTION ); ?>
 			<div class="airworthy-settings-head">

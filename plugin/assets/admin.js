@@ -27,7 +27,7 @@
 		results: document.getElementById( 'airworthy-results' ),
 	};
 	if ( ! views.start ) {
-		autosaveSettings( document.querySelector( '.airworthy-settings' ) );
+		autosaveSettings( document.querySelector( 'form.airworthy-settings[data-autosave]' ) );
 		return; // The Settings tab: nothing else for this script to do.
 	}
 
@@ -39,9 +39,12 @@
 		if ( ! form || ! window.fetch || ! window.FormData ) {
 			return;
 		}
-		var status  = form.querySelector( '.airworthy-save-status' );
-		var note    = form.querySelector( '.airworthy-autosave-note' );
-		var row     = form.querySelector( '.airworthy-save-row' );
+		var status = form.querySelector( '.airworthy-save-status' );
+		var note   = form.querySelector( '.airworthy-autosave-note' );
+		var row    = form.querySelector( '.airworthy-save-row' );
+		if ( ! status || ! note || ! row ) {
+			return;
+		}
 		var timer   = null;
 		var saving  = null;
 		var again   = false;
@@ -1439,6 +1442,11 @@
 						'div',
 						{ class: 'airworthy-head-actions' },
 						el( 'a', { class: 'button', href: scan.export_url }, __( 'Export CSV', 'airworthy' ) ),
+						( config.resultsActions || [] ).map(
+							function ( a ) {
+								return el( 'a', { class: 'button', href: a.url.replace( '__SCAN__', String( scan.id ) ), target: '_blank', rel: 'noopener' }, a.label );
+							}
+						),
 						el(
 							'button',
 							{ type: 'button', class: newScanClass, onclick: function () {

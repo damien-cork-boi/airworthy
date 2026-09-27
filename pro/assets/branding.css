@@ -1,0 +1,25 @@
+/* Airworthy Pro: the Client report tab. */
+
+.airworthy-pro-logo {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+}
+
+.airworthy-pro-logo img {
+	max-height: 56px;
+	max-width: 240px;
+	padding: 6px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.airworthy-pro-logo img[hidden] {
+	display: none;
+}
+
+.airworthy-pro-report .button-hero {
+	margin-top: 4px;
+}
