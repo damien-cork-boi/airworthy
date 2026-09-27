@@ -12,7 +12,7 @@ export const SITE = {
 	/** Flip to true once the plugin is approved on WordPress.org: turns on the install buttons. */
 	listed: false,
 	wporgUrl: 'https://wordpress.org/plugins/airworthy/',
-	repoUrl: 'https://github.com/damien-cork-boi/airworthy',
+	repoUrl: 'https://github.com/DigitalKind/airworthy',
 
 	/**
 	 * Listing screenshots kept off the site for now. 2–4 name plugins with bugs that haven't

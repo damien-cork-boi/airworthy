@@ -38,8 +38,8 @@ Then:
 
 ## 5. WordPress.org submission (first release only)
 
-- [ ] Report the two reversed `implode()` bugs to Essential Addons for Elementor and UpdraftPlus first, and wait for fixes (or a reasonable time). The repo history names both with file and line (docs/ACCURACY.md, docs/FOLLOWUPS.md, engine-test/FINDINGS.md, the fx-implode fixture and screenshots 3–4), so it can't go public before then. Otherwise publish a fresh repo from a cleaned copy instead. The screenshots also go on the WordPress.org listing, so the same applies at submission.
-- [ ] Make github.com/damien-cork-boi/airworthy public before submitting, since the readme's Source code section links to it. Check the repo history first for anything that shouldn't be public (test site details, emails, tokens).
+- [ ] Report the two reversed `implode()` bugs to Essential Addons for Elementor and UpdraftPlus first, and wait for fixes (or a reasonable time). Screenshots 2–4 show both plugins (4 with the file and line) and go on the WordPress.org listing, so recapture them without those plugins or wait. The development repo (damien-cork-boi/airworthy) names both bugs and stays private.
+- [ ] github.com/DigitalKind/airworthy (the public source repo, made by `bin/export-public.sh`) is public and up to date: the readme's "Source code and build" section links to it.
 
 ## 6. Publish
 

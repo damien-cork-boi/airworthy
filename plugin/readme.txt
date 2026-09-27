@@ -48,7 +48,7 @@ Airworthy sets no cookies, adds nothing to your site's front end, and has no tra
 
 = Source code and build =
 
-The full, human-readable source code is public at https://github.com/damien-cork-boi/airworthy.
+The full, human-readable source code is public at https://github.com/DigitalKind/airworthy.
 
 The scan engine is built from open-source libraries: PHP_CodeSniffer, PHPCompatibility and PHPCSUtils. Other plugins, or your own tools, may load their own copies of these, possibly different versions. To keep the copies apart, the release build runs them through PHP-Scoper (https://github.com/humbug/php-scoper), which moves their code into Airworthy's own `Airworthy\Vendor` namespace. The scoped code in the `vendor/` folder is ordinary, readable PHP; only the namespace names change.
 

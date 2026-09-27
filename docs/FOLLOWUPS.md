@@ -13,7 +13,7 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - [x] Dev asset versioning: release builds are 1.0.0 (plain asset versions); CI checks the version has no "-dev".
 
 **New from Step 8 (before submission):**
-- Make the source public: the readme's "Source code and build" section points to https://github.com/damien-cork-boi/airworthy, which is private. Make it public, or create a public repo (e.g. under a digitalkind organisation) and update the readme link.
+- Public source repo: github.com/DigitalKind/airworthy created 27 Sep 2026 from `bin/export-public.sh` (no private history; safe to be public now). Readme and website link to it. Damo to switch it to public.
 - Create the security@airworthywp.com mailbox (named in SECURITY.md, readme and SBOM) and test it.
 - Confirm the CRA points in docs/VULNERABILITY-HANDLING.md: whether Airworthy counts as "commercial activity", and the declared support period (at least 5 years from 1.0.0).
 - Licence: the distributed zip as a whole is GPLv3 (Action Scheduler is GPLv3, PHPCompatibility LGPLv3). The readme says so. Part of the legal check below.
