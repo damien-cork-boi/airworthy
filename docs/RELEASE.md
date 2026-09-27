@@ -43,6 +43,7 @@ Then:
 
 ## 6. Publish
 
+- [ ] Update the public source repo: `bin/export-public.sh` (copies an allowlist into `../airworthy-public` and refuses if anything private is in it), review, commit "Airworthy X.Y.Z", tag and push there.
 - [ ] Commit, tag `vX.Y.Z` and push the tag. Create a GitHub release with the zip and `sbom.cdx.json` attached.
 - [ ] Deploy to WordPress.org SVN: copy `build/airworthy/` to `trunk/`, copy trunk to `tags/X.Y.Z`, and put `assets/icon.svg`, `assets/icon-*.png`, `assets/banner-*.png` and the screenshots from `assets/screenshots/` in the SVN `assets/` folder (brand images are rendered from `assets/source/` with `npm run brand` in `site/`). Commit.
 - [ ] Check the WordPress.org page, and that a test site sees the update and updates cleanly.
