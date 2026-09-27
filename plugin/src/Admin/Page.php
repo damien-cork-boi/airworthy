@@ -52,7 +52,7 @@ final class Page {
 	 * Adds the menu item for users with the required capability.
 	 */
 	public function add_menu() {
-		$title = __( 'Airworthy – PHP Compatibility & Upgrade Checker', 'airworthy' );
+		$title = __( 'Airworthy: PHP Upgrade Check', 'airworthy' );
 		$menu  = __( 'Airworthy', 'airworthy' );
 
 		if ( is_multisite() ) {
@@ -175,9 +175,8 @@ final class Page {
 		?>
 		<div class="wrap airworthy-wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-			<p class="airworthy-lede">
-				<?php esc_html_e( 'Check which plugins and themes will break on a newer PHP version, and which look abandoned, before you upgrade. This tool only reads files; it never changes your site or your server.', 'airworthy' ); ?>
-			</p>
+			<p class="airworthy-lede"><?php esc_html_e( 'Find out which plugins and themes will break on a newer PHP version.', 'airworthy' ); ?></p>
+			<p id="airworthy-live" class="screen-reader-text" aria-live="polite" aria-atomic="true"></p>
 
 			<noscript><div class="notice notice-error"><p><?php esc_html_e( 'Airworthy needs JavaScript to run scans and show results.', 'airworthy' ); ?></p></div></noscript>
 
@@ -206,6 +205,8 @@ final class Page {
 					<dt><?php esc_html_e( 'Time needed', 'airworthy' ); ?></dt>
 					<dd id="airworthy-estimate" class="airworthy-muted"><?php esc_html_e( 'Working it out…', 'airworthy' ); ?></dd>
 				</dl>
+
+				<p class="airworthy-small airworthy-muted"><?php esc_html_e( 'Airworthy only reads files. It never changes your site, your plugins or your server.', 'airworthy' ); ?></p>
 
 				<form class="airworthy-start" id="airworthy-start-form">
 					<label for="airworthy-target"><?php esc_html_e( 'Check against PHP', 'airworthy' ); ?></label>

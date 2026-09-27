@@ -132,6 +132,16 @@ final class Controller {
 		);
 		register_rest_route(
 			$ns,
+			$scan . '/unchecked',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'unchecked' ),
+				'permission_callback' => $can,
+				'args'                => array( 'id' => $id ),
+			)
+		);
+		register_rest_route(
+			$ns,
 			'/estimate',
 			array(
 				'methods'             => 'GET',
@@ -310,6 +320,35 @@ final class Controller {
 		$response->header( 'X-WP-Total', (string) $total );
 		$response->header( 'X-WP-TotalPages', (string) max( 1, (int) ceil( $total / $per_page ) ) );
 		return $response;
+	}
+
+	/**
+	 * GET /scans/{id}/unchecked: every file that couldn't be checked, with its plugin or theme
+	 * and the reason (unreadable, crashed twice, too large for the memory limit, unparseable).
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function unchecked( \WP_REST_Request $request ) {
+		global $wpdb;
+		if ( ! self::scan_row( (int) $request['id'] ) ) {
+			return self::not_found();
+		}
+		$t = Installer::tables();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own tables.
+		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT c.id AS component_id, c.name, c.type, i.file, i.rule, i.message FROM {$t['issues']} i JOIN {$t['components']} c ON c.id = i.component_id WHERE i.scan_id = %d AND i.severity = 'scan' ORDER BY c.name, i.file", (int) $request['id'] ) );
+		$out  = array();
+		foreach ( $rows as $r ) {
+			$out[] = array(
+				'component_id' => (int) $r->component_id,
+				'component'    => $r->name,
+				'type'         => $r->type,
+				'file'         => $r->file,
+				'reason'       => $r->rule, // Airworthy.Scan.Unreadable / Crashed / TooLarge / EngineError / TooManyCrashes.
+				'message'      => $r->message,
+			);
+		}
+		return new \WP_REST_Response( $out, 200 );
 	}
 
 	/**

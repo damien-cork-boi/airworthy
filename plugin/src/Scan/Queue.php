@@ -93,7 +93,8 @@ final class Queue {
 			$t['scans'],
 			array(
 				'target_php' => $target,
-				'host_php'   => PHP_VERSION,
+				/** This filter is documented in src/Admin/Page.php. */
+				'host_php'   => (string) apply_filters( 'airworthy_server_php_version', PHP_VERSION ),
 				'status'     => 'queued',
 				'created_by' => (int) $user_id,
 				'created_at' => self::now(),

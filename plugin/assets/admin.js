@@ -30,7 +30,31 @@
 		lastChange: Date.now(),
 		nudging: false,
 		blockersOnly: false,
+		lastAnnounced: -1,
 	};
+	var live = document.getElementById( 'airworthy-live' );
+
+	/**
+	 * Tells screen-reader users what happened, through one polite live region that isn't
+	 * rebuilt with the view (a rebuilt region is either silent or chatty).
+	 */
+	function announce( text ) {
+		live.textContent = '';
+		window.setTimeout( function () {
+			live.textContent = text;
+		}, 50 );
+	}
+
+	/**
+	 * Moves keyboard focus to a view's heading when the view changes.
+	 */
+	function focusHeading( view ) {
+		var heading = view.querySelector( 'h2' );
+		if ( heading ) {
+			heading.setAttribute( 'tabindex', '-1' );
+			heading.focus();
+		}
+	}
 
 	// ---------------------------------------------------------------------------------------
 	// Wording. The line under each verdict is agreed copy; keep it calm and plain.
@@ -70,6 +94,13 @@
 		error: __( 'Error', 'airworthy' ),
 		warning: __( 'Deprecated', 'airworthy' ),
 		notice: __( 'Not a problem', 'airworthy' ),
+	};
+	var UNCHECKED = {
+		'Airworthy.Scan.Unreadable': __( 'Could not be read (file permissions)', 'airworthy' ),
+		'Airworthy.Scan.Crashed': __( 'Stopped the server process twice (usually a memory or time limit)', 'airworthy' ),
+		'Airworthy.Scan.TooLarge': __( "Too large for this server's memory limit", 'airworthy' ),
+		'Airworthy.Scan.EngineError': __( 'Could not be parsed', 'airworthy' ),
+		'Airworthy.Scan.TooManyCrashes': __( 'Checking stopped after repeated failures in this plugin', 'airworthy' ),
 	};
 	var CONTEXT = {
 		guarded: __( 'guarded', 'airworthy' ),
@@ -153,6 +184,23 @@
 		return ( error && error.message ) || __( 'Something went wrong. Please try again.', 'airworthy' );
 	}
 
+	/**
+	 * A file path (and line) that wraps after slashes, never inside a name or the line number.
+	 */
+	function fileLocation( file, line ) {
+		var code = el( 'code', { class: 'airworthy-loc' } );
+		String( file ).split( '/' ).forEach( function ( part, index, parts ) {
+			code.appendChild( document.createTextNode( part + ( index < parts.length - 1 ? '/' : '' ) ) );
+			if ( index < parts.length - 1 ) {
+				code.appendChild( document.createElement( 'wbr' ) );
+			}
+		} );
+		if ( line ) {
+			code.appendChild( el( 'span', { class: 'airworthy-line' }, ':' + line ) );
+		}
+		return code;
+	}
+
 	function verdictBadge( verdict, running ) {
 		var v = VERDICTS[ verdict ];
 		if ( v ) {
@@ -201,12 +249,15 @@
 		updateEndedNote();
 		show( 'start' );
 		loadEstimate();
+		if ( canGoBack ) {
+			select.focus();
+		}
 	}
 
 	select.addEventListener( 'change', updateEndedNote );
 	backButton.addEventListener( 'click', function () {
 		if ( state.scan ) {
-			renderResults( state.scan );
+			renderResults( state.scan, true );
 		}
 	} );
 	form.addEventListener( 'submit', function ( event ) {
@@ -215,10 +266,13 @@
 		startError.hidden = true;
 		apiFetch( { path: REST + '/scans', method: 'POST', data: { target: select.value } } ).then( function ( scan ) {
 			state.scan = scan;
+			/* translators: %s: PHP version. */
+			announce( sprintf( __( 'Scan started for PHP %s.', 'airworthy' ), scan.target_php ) );
 			startProgress();
 		} ).catch( function ( error ) {
 			startError.textContent = errorMessage( error );
 			startError.hidden = false;
+			announce( startError.textContent );
 		} ).then( function () {
 			startButton.disabled = false;
 		} );
@@ -230,9 +284,13 @@
 
 	function startProgress() {
 		state.lastDone = -1;
+		// Announce 25% milestones from here on (a rescan may start at 99%).
+		state.lastAnnounced = Math.floor( ( ( state.scan && state.scan.progress && state.scan.progress.percent ) || 0 ) / 25 );
 		state.lastChange = Date.now();
+		state.progressParts = null;
 		show( 'progress' );
 		renderProgress( state.scan );
+		focusHeading( views.progress );
 		poll();
 	}
 
@@ -247,9 +305,23 @@
 				}
 				renderProgress( scan );
 				maybeNudge( scan );
+				// Announce every 25%, not every poll.
+				var quarter = Math.floor( scan.progress.percent / 25 );
+				if ( quarter > 0 && quarter !== state.lastAnnounced ) {
+					state.lastAnnounced = quarter;
+					/* translators: %d: percent. */
+					announce( sprintf( __( 'Scan %d%% done.', 'airworthy' ), scan.progress.percent ) );
+				}
 				state.pollTimer = setTimeout( poll, POLL_MS );
 			} else {
-				renderResults( scan );
+				var attention = ( scan.components || [] ).filter( function ( c ) {
+					return 'blocker' === c.verdict || 'unknown' === c.verdict;
+				} ).length;
+				announce( attention ?
+					/* translators: %d: number of plugins. */
+					sprintf( _n( 'Scan finished. %d plugin or theme needs attention.', 'Scan finished. %d plugins or themes need attention.', attention, 'airworthy' ), attention ) :
+					__( 'Scan finished. Nothing needs attention.', 'airworthy' ) );
+				renderResults( scan, true );
 			}
 		} ).catch( function () {
 			state.pollTimer = setTimeout( poll, POLL_MS * 2 );
@@ -274,53 +346,82 @@
 		} );
 	}
 
-	function renderProgress( scan ) {
-		var p = scan.progress || { files_done: 0, files_total: 0, percent: 0 };
-		var components = scan.components || [];
-		var checking = components.filter( function ( c ) {
-			return 'scanning' === c.status;
-		} )[ 0 ];
-		var slow = state.nudging || config.cronDisabled || Date.now() - state.lastChange > NUDGE_AFTER_MS;
-
+	/**
+	 * Builds the progress view once per scan; later polls only update its text, bar and list,
+	 * so keyboard focus (on the heading or the Stop button) is never lost.
+	 */
+	function buildProgress( scan ) {
+		var parts = {
+			heading: el( 'h2', null ),
+			bar: el( 'span', null ),
+			text: el( 'p', { class: 'airworthy-progress-text' } ),
+			note: el( 'p', { class: 'description' } ),
+			list: el( 'ul', { class: 'airworthy-progress-list' } ),
+		};
+		parts.barWrap = el( 'div', { class: 'airworthy-bar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-label': __( 'Scan progress', 'airworthy' ) }, parts.bar );
+		parts.listCard = el( 'div', { class: 'airworthy-card', hidden: true }, el( 'h3', null, __( 'Plugins and themes', 'airworthy' ) ), parts.list );
 		fill( views.progress,
 			el( 'div', { class: 'airworthy-card' },
-				el( 'h2', null,
-					/* translators: %s: PHP version. */
-					sprintf( __( 'Checking your site for PHP %s', 'airworthy' ), scan.target_php ) ),
-				el( 'div', { class: 'airworthy-bar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': p.percent, 'aria-label': __( 'Scan progress', 'airworthy' ) },
-					el( 'span', { style: 'width:' + Math.max( 2, p.percent ) + '%' } ) ),
-				el( 'p', { class: 'airworthy-progress-text', 'aria-live': 'polite' },
-					'queued' === scan.status ?
-						__( 'Getting ready…', 'airworthy' ) :
-						/* translators: 1: percent, 2: files checked, 3: total files. */
-						sprintf( __( '%1$d%% · %2$s of %3$s files checked', 'airworthy' ), p.percent, p.files_done.toLocaleString(), p.files_total.toLocaleString() ),
-					checking ? el( 'span', { class: 'airworthy-muted' }, ' · ' + sprintf( __( 'now: %s', 'airworthy' ), checking.name ) ) : null ),
-				el( 'p', { class: 'description' }, slow ?
-					__( 'Your site runs background tasks only when it has visitors, so keep this page open to speed things up.', 'airworthy' ) :
-					__( 'This runs in the background. You can leave this page; you will see a notice when it is done.', 'airworthy' ) ),
+				parts.heading,
+				parts.barWrap,
+				parts.text,
+				parts.note,
 				el( 'p', null,
 					el( 'button', { type: 'button', class: 'button', onclick: function () {
 						if ( window.confirm( __( 'Stop this scan? Results so far are kept.', 'airworthy' ) ) ) {
-							apiFetch( { path: REST + '/scans/' + scan.id + '/cancel', method: 'POST' } ).then( poll );
+							apiFetch( { path: REST + '/scans/' + state.scan.id + '/cancel', method: 'POST' } ).then( poll );
 						}
 					} }, __( 'Stop scan', 'airworthy' ) ) ) ),
-			components.length ? el( 'div', { class: 'airworthy-card' },
-				el( 'h3', null, __( 'Plugins and themes', 'airworthy' ) ),
-				el( 'ul', { class: 'airworthy-progress-list' }, components.slice().sort( function ( a, b ) {
-					return a.name.localeCompare( b.name );
-				} ).map( function ( c ) {
-					var status;
-					if ( 'done' === c.status ) {
-						status = verdictBadge( c.verdict, true );
-					} else if ( 'scanning' === c.status ) {
-						/* translators: 1: files checked, 2: total files. */
-						status = el( 'span', { class: 'airworthy-muted' }, sprintf( __( 'checking %1$s / %2$s', 'airworthy' ), c.files.checked.toLocaleString(), c.files.total.toLocaleString() ) );
-					} else {
-						status = el( 'span', { class: 'airworthy-muted' }, __( 'waiting', 'airworthy' ) );
-					}
-					return el( 'li', null, el( 'span', null, c.name ), status );
-				} ) ) ) : null
-		);
+			parts.listCard );
+		parts.scanId = scan.id;
+		state.progressParts = parts;
+		return parts;
+	}
+
+	function renderProgress( scan ) {
+		var parts = state.progressParts && state.progressParts.scanId === scan.id ? state.progressParts : buildProgress( scan );
+		var p = scan.progress || { files_done: 0, files_total: 0, percent: 0 };
+		var components = scan.components || [];
+		// The plugin being worked through now (not one whose large files wait for the end).
+		var checking = components.filter( function ( c ) {
+			return 'scanning' === c.status && 'retry' !== c.phase;
+		} )[ 0 ];
+		var slow = state.nudging || config.cronDisabled || Date.now() - state.lastChange > NUDGE_AFTER_MS;
+
+		/* translators: %s: PHP version. */
+		parts.heading.textContent = sprintf( __( 'Checking your site for PHP %s', 'airworthy' ), scan.target_php );
+		parts.bar.style.width = Math.max( 2, p.percent ) + '%';
+		parts.barWrap.setAttribute( 'aria-valuenow', String( p.percent ) );
+		fill( parts.text,
+			'queued' === scan.status ?
+				__( 'Getting ready…', 'airworthy' ) :
+				/* translators: 1: percent, 2: files checked, 3: total files. */
+				sprintf( __( '%1$d%% · %2$s of %3$s files checked', 'airworthy' ), p.percent, p.files_done.toLocaleString(), p.files_total.toLocaleString() ),
+			/* translators: %s: plugin or theme name. */
+			checking ? el( 'span', { class: 'airworthy-muted' }, ' · ' + sprintf( __( 'now: %s', 'airworthy' ), checking.name ) ) : null );
+		parts.note.textContent = slow ?
+			__( 'Your site runs background tasks only when it has visitors, so keep this page open to speed things up.', 'airworthy' ) :
+			__( 'This runs in the background. You can leave this page; you will see a notice when it is done.', 'airworthy' );
+
+		parts.listCard.hidden = ! components.length;
+		fill( parts.list, components.slice().sort( function ( a, b ) {
+			return a.name.localeCompare( b.name );
+		} ).map( function ( c ) {
+			var status;
+			if ( 'done' === c.status ) {
+				status = verdictBadge( c.verdict, true );
+			} else if ( 'scanning' === c.status && 'retry' === c.phase ) {
+				var left = Math.max( 1, c.files.total - c.files.checked - c.files.failed - c.files.skipped );
+				/* translators: %d: number of files. */
+				status = el( 'span', { class: 'airworthy-muted' }, sprintf( _n( '%d large file left for the end', '%d large files left for the end', left, 'airworthy' ), left ) );
+			} else if ( 'scanning' === c.status ) {
+				/* translators: 1: files checked, 2: total files. */
+				status = el( 'span', { class: 'airworthy-muted' }, sprintf( __( 'checking %1$s / %2$s', 'airworthy' ), c.files.checked.toLocaleString(), c.files.total.toLocaleString() ) );
+			} else {
+				status = el( 'span', { class: 'airworthy-muted' }, __( 'waiting', 'airworthy' ) );
+			}
+			return el( 'li', null, el( 'span', null, c.name ), status );
+		} ) );
 	}
 
 	// ---------------------------------------------------------------------------------------
@@ -426,7 +527,7 @@
 				items.forEach( function ( i ) {
 					list.appendChild( el( 'li', { class: 'airworthy-issue airworthy-sev-' + i.severity + ( CONTEXT[ i.context ] ? ' airworthy-ctx-' + i.context : '' ) },
 						el( 'span', { class: 'airworthy-sev' }, SEVERITY[ i.severity ] || i.severity, CONTEXT[ i.context ] ? ' (' + CONTEXT[ i.context ] + ')' : '' ),
-						el( 'code', { class: 'airworthy-loc' }, i.file + ( i.line ? ':' + i.line : '' ) ),
+						fileLocation( i.file, i.line ),
 						el( 'span', { class: 'airworthy-msg' }, i.message ) ) );
 				} );
 				var shown = list.children.length;
@@ -450,7 +551,8 @@
 	function componentRows( scan, c ) {
 		var detailsId = 'airworthy-details-' + c.id;
 		var details = el( 'tr', { class: 'airworthy-details', id: detailsId, hidden: true }, el( 'td', { colspan: 5 }, el( 'div', { class: 'airworthy-issues-wrap' } ) ) );
-		var toggle = el( 'button', { type: 'button', class: 'button-link', 'aria-expanded': 'false', 'aria-controls': detailsId, onclick: function () {
+		/* translators: %s: plugin or theme name. */
+		var toggle = el( 'button', { type: 'button', class: 'button-link', 'aria-expanded': 'false', 'aria-controls': detailsId, 'aria-label': sprintf( __( 'Details for %s', 'airworthy' ), c.name ), onclick: function () {
 			var open = 'true' !== toggle.getAttribute( 'aria-expanded' );
 			toggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
 			toggle.textContent = open ? __( 'Hide details', 'airworthy' ) : __( 'Details', 'airworthy' );
@@ -462,10 +564,13 @@
 				loadIssues( scan, c, wrap, 1 );
 			}
 		} }, __( 'Details', 'airworthy' ) );
-		var rescan = el( 'button', { type: 'button', class: 'button-link', onclick: function () {
+		/* translators: %s: plugin or theme name. */
+		var rescan = el( 'button', { type: 'button', class: 'button-link', 'aria-label': sprintf( __( 'Rescan %s', 'airworthy' ), c.name ), onclick: function () {
 			rescan.disabled = true;
 			apiFetch( { path: REST + '/scans/' + scan.id + '/components/' + c.id + '/rescan', method: 'POST' } ).then( function ( s ) {
 				state.scan = s;
+				/* translators: %s: plugin or theme name. */
+				announce( sprintf( __( 'Checking %s again.', 'airworthy' ), c.name ) );
 				startProgress();
 			} ).catch( function ( error ) {
 				rescan.disabled = false;
@@ -489,7 +594,39 @@
 		return [ row, details ];
 	}
 
-	function renderResults( scan ) {
+	/**
+	 * Lists every file that couldn't be checked, with its plugin and the reason.
+	 */
+	function loadUnchecked( scan, card ) {
+		apiFetch( { path: REST + '/scans/' + scan.id + '/unchecked' } ).then( function ( rows ) {
+			if ( ! rows.length ) {
+				card.hidden = true;
+				return;
+			}
+			fill( card,
+				el( 'h3', null,
+					/* translators: %d: number of files. */
+					sprintf( _n( '%d file could not be checked', '%d files could not be checked', rows.length, 'airworthy' ), rows.length ) ),
+				el( 'p', null, __( 'Airworthy gives these plugins an Unknown verdict unless it already found a Blocker. Raising your server’s PHP memory limit usually lets the large ones be checked.', 'airworthy' ) ),
+				el( 'table', { class: 'widefat striped airworthy-unchecked-table' },
+					el( 'caption', { class: 'screen-reader-text' }, __( 'Files that could not be checked', 'airworthy' ) ),
+					el( 'thead', null, el( 'tr', null,
+						el( 'th', { scope: 'col' }, __( 'Plugin or theme', 'airworthy' ) ),
+						el( 'th', { scope: 'col' }, __( 'File', 'airworthy' ) ),
+						el( 'th', { scope: 'col' }, __( 'Reason', 'airworthy' ) ) ) ),
+					el( 'tbody', null, rows.map( function ( r ) {
+						return el( 'tr', null,
+							el( 'td', { 'data-label': __( 'Plugin or theme', 'airworthy' ) }, r.component ),
+							el( 'td', { 'data-label': __( 'File', 'airworthy' ) }, fileLocation( r.file, 0 ) ),
+							el( 'td', { 'data-label': __( 'Reason', 'airworthy' ) }, UNCHECKED[ r.reason ] || r.message ) );
+					} ) ) ) );
+			card.hidden = false;
+		} ).catch( function () {
+			card.hidden = true;
+		} );
+	}
+
+	function renderResults( scan, moveFocus ) {
 		clearTimeout( state.pollTimer );
 		state.scan = scan;
 		var components = scan.components || [];
@@ -521,6 +658,8 @@
 		if ( 'offline' === scan.wporg || 'partial' === scan.wporg ) {
 			wporgNote = el( 'p', { class: 'airworthy-note' }, __( 'WordPress.org could not be reached for some plugins, so their update and maintenance details are missing. Run the scan again later to fill them in.', 'airworthy' ) );
 		}
+
+		var uncheckedCard = el( 'div', { class: 'airworthy-card airworthy-unchecked-card', hidden: true } );
 
 		fill( views.results,
 			el( 'div', { class: 'airworthy-card' },
@@ -562,17 +701,20 @@
 							sprintf( __( 'closed %s', 'airworthy' ), formatDate( c.wporg.closed_date ) ) );
 				} ) ) ) : null,
 			wporgNote,
+			uncheckedCard,
 			el( 'div', { class: 'airworthy-toolbar' },
 				el( 'label', null,
-					el( 'input', { type: 'checkbox', checked: state.blockersOnly, onchange: function ( e ) {
+					el( 'input', { type: 'checkbox', id: 'airworthy-attention-only', checked: state.blockersOnly, onchange: function ( e ) {
 						state.blockersOnly = e.target.checked;
 						renderResults( state.scan );
+						document.getElementById( 'airworthy-attention-only' ).focus(); // The table was redrawn.
 					} } ),
 					' ', __( 'Show only plugins that need attention (Blocker or Unknown)', 'airworthy' ) ),
 				el( 'span', { class: 'airworthy-muted' },
 					/* translators: 1: shown, 2: total. */
 					sprintf( __( 'Showing %1$d of %2$d', 'airworthy' ), visible.length, components.length ) ) ),
 			el( 'table', { class: 'widefat airworthy-table' },
+				el( 'caption', { class: 'screen-reader-text' }, __( 'Results by plugin or theme, most serious first', 'airworthy' ) ),
 				el( 'thead', null, el( 'tr', null,
 					el( 'th', { scope: 'col' }, __( 'Plugin or theme', 'airworthy' ) ),
 					el( 'th', { scope: 'col' }, __( 'Verdict', 'airworthy' ) ),
@@ -584,6 +726,14 @@
 				} ) : el( 'tr', null, el( 'td', { colspan: 5 }, __( 'Nothing needs attention.', 'airworthy' ) ) ) ) )
 		);
 		show( 'results' );
+		if ( components.some( function ( c ) {
+			return c.files.failed || c.files.skipped;
+		} ) ) {
+			loadUnchecked( scan, uncheckedCard );
+		}
+		if ( moveFocus ) {
+			focusHeading( views.results );
+		}
 	}
 
 	// ---------------------------------------------------------------------------------------

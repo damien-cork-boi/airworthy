@@ -248,7 +248,7 @@
 
 .airworthy-issue {
 	display: grid;
-	grid-template-columns: 11rem minmax(12rem, 22rem) 1fr;
+	grid-template-columns: 10rem minmax(14rem, 26rem) 1fr;
 	gap: 4px 12px;
 	margin: 0;
 	padding: 6px 0;
@@ -267,8 +267,12 @@
 .airworthy-ctx-guarded .airworthy-sev,
 .airworthy-ctx-suppressed .airworthy-sev { color: #646970; font-weight: 400; }
 
+.airworthy-line {
+	white-space: nowrap;
+}
+
 .airworthy-loc {
-	overflow-wrap: anywhere;
+	overflow-wrap: break-word;
 	background: none;
 	padding: 0;
 }
@@ -277,10 +281,39 @@
 	margin-top: 8px;
 }
 
+.airworthy-unchecked-card {
+	border-left: 4px solid #8c8f94;
+}
+
+.airworthy-unchecked-table {
+	margin-top: 8px;
+}
+
+/* Headings receive focus when the view changes: keep the focus visible. */
+.airworthy-wrap h2[tabindex="-1"]:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 4px;
+}
+
 /* Phones: stack the table and the findings. */
 @media screen and (max-width: 782px) {
-	.airworthy-table thead {
+	.airworthy-table thead,
+	.airworthy-unchecked-table thead {
 		display: none;
+	}
+
+	.airworthy-unchecked-table tr,
+	.airworthy-unchecked-table td {
+		display: block;
+		width: auto;
+	}
+
+	.airworthy-unchecked-table td[data-label]::before {
+		content: attr(data-label);
+		display: block;
+		font-size: 11px;
+		text-transform: uppercase;
+		color: #646970;
 	}
 
 	.airworthy-table tr.airworthy-row,
