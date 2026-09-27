@@ -25,6 +25,7 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - Done: http redirects to https; test emails to security@ and hello@ arrive at info@digitalkind.ie (Google Workspace). Email Routing forwards there, not to Gmail.
 - Lesson for future domains: remove the registrar's own email forwarding (Hosting Ireland had forwarders on for this domain) and its DNS records before or when moving to Cloudflare. Otherwise mail can still end up at the old host, and the Cloudflare Activity log stays empty.
 - Optionally set build watch paths on the Worker (site/*, plugin/readme.txt, SECURITY.md, assets/*) so plugin-only commits don't rebuild the site.
+- New screenshots in the rc.5+ design once the plugin is signed off: a fresh demo site with a neutral plugin mix (made-up Blocker/guarded plugins, one genuinely closed plugin, none of the plugins with unreported bugs); recapture 1–4 (+ legend or closed box), update readme captions, lift heldScreenshots, show more on the home page (replace the Example panel), check the banner still matches.
 - Screenshots 2–4 are held off the site (`heldScreenshots` in site/src/config.ts) until the implode() bugs are reported and fixed, or the screenshots are recaptured without those plugins.
 - Set `listed: true` in site/src/config.ts once WordPress.org approves the plugin.
 - Launch headline: the UpdraftPlus finding is in library code UpdraftPlus never calls (latent, not reachable). Reword "the 2 real bugs" (readme "Fewer false alarms", docs/ACCURACY.md) before it's used publicly.
