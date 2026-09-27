@@ -1,0 +1,167 @@
+<!doctype html>
+<!--
+  Source for the WordPress.org banners (banner-772x250.png, banner-1544x500.png) and the
+  website's social image (og.png, 1200x630). Rendered by site/scripts/render-brand.mjs:
+  the page lays itself out for the viewport it's given (?layout=banner or ?layout=og).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+	* { box-sizing: border-box; margin: 0; padding: 0; }
+	html, body { width: 100%; height: 100%; }
+	body {
+		font-family: -apple-system, "SF Pro Display", system-ui, "Segoe UI", Roboto, sans-serif;
+		color: #fff;
+		overflow: hidden;
+		background:
+			radial-gradient(60% 90% at 88% 10%, rgba(143, 227, 168, 0.18), transparent 60%),
+			radial-gradient(70% 120% at 0% 100%, rgba(47, 116, 232, 0.55), transparent 65%),
+			linear-gradient(135deg, #0b2150 0%, #123b8a 55%, #1f5fd0 100%);
+		position: relative;
+	}
+
+	/* Faint flight path sweeping across, echoing the tick in the icon. */
+	.path {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	.content {
+		position: relative;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		gap: 5%;
+		padding: 0 5.5%;
+	}
+
+	.brand {
+		flex: 1 1 auto;
+	}
+
+	.name {
+		display: flex;
+		align-items: center;
+		gap: 0.35em;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		line-height: 1;
+	}
+
+	.name img {
+		height: 1.15em;
+		width: 1.15em;
+		border-radius: 0.24em;
+		box-shadow: 0 0.08em 0.3em rgba(0, 0, 0, 0.25);
+	}
+
+	.tagline {
+		margin-top: 0.55em;
+		font-weight: 600;
+		line-height: 1.2;
+		color: #dbe7ff;
+		letter-spacing: -0.01em;
+	}
+
+	.sub {
+		margin-top: 0.6em;
+		color: #a9c1ee;
+		font-weight: 500;
+	}
+
+	/* Mini results card. */
+	.card {
+		flex: 0 0 auto;
+		background: #ffffff;
+		color: #1d2327;
+		border-radius: 0.7em;
+		box-shadow: 0 1.2em 2.4em rgba(4, 16, 45, 0.45);
+		padding: 0.9em 1em 0.4em;
+		transform: rotate(-2deg);
+	}
+
+	.card h3 {
+		font-size: 0.8em;
+		font-weight: 700;
+		padding-bottom: 0.6em;
+		border-bottom: 1px solid #e3e8ef;
+		display: flex;
+		justify-content: space-between;
+		gap: 2em;
+	}
+
+	.card h3 span {
+		color: #646970;
+		font-weight: 500;
+	}
+
+	.row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 1.6em;
+		padding: 0.55em 0;
+		border-bottom: 1px solid #eef1f5;
+		font-size: 0.72em;
+		font-weight: 600;
+	}
+
+	.row:last-child {
+		border-bottom: 0;
+	}
+
+	.badge {
+		padding: 0.18em 0.7em;
+		border-radius: 999px;
+		font-size: 0.92em;
+		white-space: nowrap;
+	}
+
+	.ready { background: #edfaef; color: #005c12; box-shadow: inset 0 0 0 1px #68de7c; }
+	.guarded { background: #f0f6fc; color: #0a4b78; box-shadow: inset 0 0 0 1px #9ec2e6; }
+	.warnings { background: #fef8ee; color: #6e4f00; box-shadow: inset 0 0 0 1px #f5e6ab; }
+	.blocker { background: #fcf0f1; color: #8a2424; box-shadow: inset 0 0 0 1px #f1adad; }
+
+	/* Banner: 772x250 (and 2x). Base font size scales with the width. */
+	body.banner { font-size: 2.2vw; }
+	body.banner .name { font-size: 3.3em; }
+	body.banner .tagline { font-size: 1.28em; }
+	body.banner .sub { font-size: 0.82em; }
+	body.banner .card { font-size: 1.12em; margin-right: 1%; }
+
+	/* Social image: 1200x630. */
+	body.og { font-size: 1.6vw; }
+	body.og .content { flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: 7% 7% 0; }
+	body.og .brand { flex: none; }
+	body.og .name { font-size: 4.2em; }
+	body.og .tagline { font-size: 2.1em; }
+	body.og .sub { font-size: 1.15em; }
+	body.og .card { position: absolute; right: 6%; bottom: 7%; font-size: 1.25em; }
+</style>
+</head>
+<body>
+	<svg class="path" viewBox="0 0 1000 320" preserveAspectRatio="none" aria-hidden="true">
+		<path d="M-20 250 C 200 300, 420 330, 560 220 S 860 40, 1040 -10" fill="none" stroke="rgba(143,227,168,0.22)" stroke-width="3" stroke-dasharray="2 14" stroke-linecap="round"/>
+	</svg>
+	<div class="content">
+		<div class="brand">
+			<div class="name"><img src="../icon.svg" alt="">Airworthy</div>
+			<p class="tagline">Know what breaks before you upgrade PHP.</p>
+			<p class="sub">PHP 8.0–8.5 compatibility checker for WordPress plugins and themes</p>
+		</div>
+		<div class="card" aria-hidden="true">
+			<h3>Results for PHP 8.4 <span>Example</span></h3>
+			<div class="row">Contact form <span class="badge ready">Ready</span></div>
+			<div class="row">SEO toolkit <span class="badge guarded">Guarded legacy code</span></div>
+			<div class="row">Gallery <span class="badge warnings">Warnings</span></div>
+			<div class="row">Old slider <span class="badge blocker">Blocker</span></div>
+		</div>
+	</div>
+	<script>
+		document.body.className = new URLSearchParams( location.search ).get( 'layout' ) || 'banner';
+	</script>
+</body>
+</html>

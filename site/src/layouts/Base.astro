@@ -14,7 +14,7 @@ interface Props {
 const { title, description = SITE.description, schema } = Astro.props;
 const fullTitle = title ? `${ title } · ${ SITE.name }` : `${ SITE.name }: ${ SITE.tagline }`;
 const canonical = new URL( Astro.url.pathname, SITE.url ).href;
-const ogImage = new URL( '/screenshots/screenshot-1.png', SITE.url ).href;
+const ogImage = new URL( '/og.png', SITE.url ).href;
 const path = Astro.url.pathname;
 const year = new Date().getFullYear();
 ---
@@ -27,8 +27,9 @@ const year = new Date().getFullYear();
 		<meta name="description" content={ description } />
 		<link rel="canonical" href={ canonical } />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<link rel="sitemap" href="/sitemap-index.xml" />
-		<meta name="theme-color" content="#1f5fd0" />
+		<meta name="theme-color" content="#1747a6" />
 
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content={ SITE.name } />
@@ -36,6 +37,9 @@ const year = new Date().getFullYear();
 		<meta property="og:description" content={ description } />
 		<meta property="og:url" content={ canonical } />
 		<meta property="og:image" content={ ogImage } />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="Airworthy: know what breaks before you upgrade PHP." />
 		<meta name="twitter:card" content="summary_large_image" />
 
 		{ schema && <script type="application/ld+json" set:html={ JSON.stringify( schema ) } /> }

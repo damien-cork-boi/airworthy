@@ -1,16 +1,24 @@
 ---
 /**
- * Airworthy mark (placeholder until the brand step): a plane climbing past a check mark.
+ * The Airworthy mark: a tick whose upstroke is a flight path, with a plane at its tip.
+ * Same artwork as ../assets/icon.svg (the WordPress.org icon and favicon).
  */
 interface Props {
 	title?: string;
 }
 const { title } = Astro.props;
 ---
-<svg viewBox="0 0 64 64" role={title ? 'img' : undefined} aria-hidden={title ? undefined : 'true'} xmlns="http://www.w3.org/2000/svg">
-	{title && <title>{title}</title>}
-	<rect width="64" height="64" rx="14" fill="#1f5fd0" />
-	<path d="M14 36l8 8 12-14" fill="none" stroke="#9fe0b0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-	<path d="M30 40L52 14 24 26l8 3z" fill="#ffffff" />
-	<path d="M32 29l3 11 17-26z" fill="#d6e4fb" />
+<svg viewBox="0 0 64 64" role={ title ? 'img' : undefined } aria-hidden={ title ? undefined : 'true' } xmlns="http://www.w3.org/2000/svg">
+	{ title && <title>{ title }</title> }
+	<defs>
+		<linearGradient id="aw-logo-bg" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#2f74e8" />
+			<stop offset="1" stop-color="#1747a6" />
+		</linearGradient>
+	</defs>
+	<rect width="64" height="64" rx="15" fill="url(#aw-logo-bg)" />
+	<path d="M12 36.5 L23 47 L37.5 29.5" fill="none" stroke="#8fe3a8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+	<g transform="translate(45.5 20) rotate(40) scale(0.5) translate(-32 -32)">
+		<path fill="#ffffff" d="M32 4c2.4 0 3.8 3 3.8 6.5V25l21.2 12.5v5.2L35.8 35.6V48l7.2 5.4V58L32 54.8 21 58v-4.6l7.2-5.4V35.6L7 42.7v-5.2L28.2 25V10.5C28.2 7 29.6 4 32 4z" />
+	</g>
 </svg>

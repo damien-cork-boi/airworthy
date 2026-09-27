@@ -44,7 +44,7 @@ Then:
 ## 6. Publish
 
 - [ ] Commit, tag `vX.Y.Z` and push the tag. Create a GitHub release with the zip and `sbom.cdx.json` attached.
-- [ ] Deploy to WordPress.org SVN: copy `build/airworthy/` to `trunk/`, copy trunk to `tags/X.Y.Z`, and put the screenshots from `assets/screenshots/` (plus banner and icon) in the SVN `assets/` folder. Commit.
+- [ ] Deploy to WordPress.org SVN: copy `build/airworthy/` to `trunk/`, copy trunk to `tags/X.Y.Z`, and put `assets/icon.svg`, `assets/icon-*.png`, `assets/banner-*.png` and the screenshots from `assets/screenshots/` in the SVN `assets/` folder (brand images are rendered from `assets/source/` with `npm run brand` in `site/`). Commit.
 - [ ] Check the WordPress.org page, and that a test site sees the update and updates cleanly.
 
 ## 7. After release
