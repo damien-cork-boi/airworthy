@@ -43,6 +43,7 @@ final class Plugin {
 			( new Admin\Page() )->register();
 			Admin\Notice::register();
 			Admin\Export::register();
+			Settings::register();
 		}
 	}
 }

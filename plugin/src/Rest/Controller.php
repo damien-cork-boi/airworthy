@@ -479,24 +479,29 @@ final class Controller {
 		}
 		$total = (int) $s->files_total;
 		return array(
-			'id'          => (int) $s->id,
-			'target_php'  => $s->target_php,
-			'host_php'    => $s->host_php,
-			'from_php'    => isset( $s->from_php ) && '' !== $s->from_php ? $s->from_php : null,
-			'status'      => $s->status,
-			'progress'    => array(
+			'id'           => (int) $s->id,
+			'target_php'   => $s->target_php,
+			'host_php'     => $s->host_php,
+			'from_php'     => isset( $s->from_php ) && '' !== $s->from_php ? $s->from_php : null,
+			'status'       => $s->status,
+			'progress'     => array(
 				'files_done'  => (int) $s->files_done,
 				'files_total' => $total,
 				'percent'     => $total ? (int) floor( 100 * (int) $s->files_done / $total ) : ( 'complete' === $s->status ? 100 : 0 ),
 				'components'  => (int) $s->components_total,
 			),
-			'counts'      => $counts,
-			'wporg'       => $s->wporg_status ? $s->wporg_status : null, // pending | done | partial | offline | off (no consent).
-			'export_url'  => \Airworthy\Admin\Export::url( (int) $s->id ),
-			'created_at'  => self::iso( $s->created_at ),
-			'started_at'  => self::iso( $s->started_at ),
-			'finished_at' => self::iso( $s->finished_at ),
-			'error'       => 'failed' === $s->status ? __( 'The scan could not be completed. Try again, or ask your host whether background tasks (WP-Cron) are working.', 'airworthy' ) : null,
+			'skipped'      => array(
+				'inactive' => isset( $s->skipped_inactive ) ? (int) $s->skipped_inactive : 0,
+				'ignored'  => isset( $s->skipped_ignored ) ? (int) $s->skipped_ignored : 0,
+			),
+			'settings_url' => add_query_arg( 'tab', 'settings', \Airworthy\Admin\Page::url() ),
+			'counts'       => $counts,
+			'wporg'        => $s->wporg_status ? $s->wporg_status : null, // pending | done | partial | offline | off (no consent).
+			'export_url'   => \Airworthy\Admin\Export::url( (int) $s->id ),
+			'created_at'   => self::iso( $s->created_at ),
+			'started_at'   => self::iso( $s->started_at ),
+			'finished_at'  => self::iso( $s->finished_at ),
+			'error'        => 'failed' === $s->status ? __( 'The scan could not be completed. Try again, or ask your host whether background tasks (WP-Cron) are working.', 'airworthy' ) : null,
 		);
 	}
 

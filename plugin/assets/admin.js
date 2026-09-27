@@ -26,6 +26,9 @@
 		progress: document.getElementById( 'airworthy-progress' ),
 		results: document.getElementById( 'airworthy-results' ),
 	};
+	if ( ! views.start ) {
+		return; // The Settings tab: a plain form, nothing for this script to do.
+	}
 	var state = {
 		scan: null,
 		pollTimer: null,
@@ -603,9 +606,9 @@
 		/* translators: %s: PHP version. */
 		parts.what.textContent = isUpgrade( scan ) ?
 			/* translators: 1: PHP version the site runs, 2: target PHP version. */
-			sprintf( __( 'Airworthy is reading every PHP file in your plugins and theme, without running any of it, and checking each line against what changes between PHP %1$s and PHP %2$s.', 'airworthy' ), scan.from_php, scan.target_php ) :
+			sprintf( __( 'Reading every PHP file in your plugins and theme (without running any of it) and checking each line against what changes between PHP %1$s and PHP %2$s.', 'airworthy' ), scan.from_php, scan.target_php ) :
 			/* translators: %s: PHP version. */
-			sprintf( __( 'Airworthy is reading every PHP file in your plugins and theme, without running any of it, and checking each line against what changed up to PHP %s.', 'airworthy' ), scan.target_php );
+			sprintf( __( 'Reading every PHP file in your plugins and theme (without running any of it) and checking each line against what changed up to PHP %s.', 'airworthy' ), scan.target_php );
 		parts.bar.style.width = Math.max( 2, p.percent ) + '%';
 		parts.barWrap.setAttribute( 'aria-valuenow', String( p.percent ) );
 		parts.percent.textContent = 'queued' === scan.status ? '…' : p.percent + '%';
@@ -1108,6 +1111,21 @@
 				scan.from_php
 			)
 		) : null;
+		// What the site's settings left out of this scan (inactive plugins, the ignore list).
+		var skipped     = scan.skipped || { inactive: 0, ignored: 0 };
+		var skippedNote = skipped.inactive || skipped.ignored ? el(
+			'p',
+			{ class: 'airworthy-note' },
+			[
+				skipped.inactive ?
+					/* translators: %d: number of plugins. */
+					sprintf( _n( '%d inactive plugin was not checked.', '%d inactive plugins were not checked.', skipped.inactive, 'airworthy' ), skipped.inactive ) : '',
+				skipped.ignored ?
+					/* translators: %d: number of plugins and themes. */
+					sprintf( _n( '%d plugin or theme on your ignore list was not checked.', '%d plugins and themes on your ignore list were not checked.', skipped.ignored, 'airworthy' ), skipped.ignored ) : '',
+			].filter( Boolean ).join( ' ' ) + ' ',
+			el( 'a', { href: scan.settings_url }, __( 'Change this in Settings', 'airworthy' ) )
+		) : null;
 		var wporgNote = null;
 		if ( 'off' === scan.wporg ) {
 			wporgNote = el( 'p', { class: 'airworthy-note' }, __( 'WordPress.org checks were off for this scan, so closed or abandoned plugins aren\'t flagged. You can turn them on when you start the next scan.', 'airworthy' ) );
@@ -1216,6 +1234,7 @@
 				)
 			) : null,
 			existingNote,
+			skippedNote,
 			wporgNote,
 			uncheckedCard,
 			el(

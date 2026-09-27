@@ -163,7 +163,11 @@ final class Page {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
-		$plugin_count = count( get_plugins() );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which tab to show.
+		$tab          = isset( $_GET['tab'] ) && 'settings' === sanitize_key( wp_unslash( $_GET['tab'] ) ) ? 'settings' : 'scan';
+		$components   = \Airworthy\Scan\Components::discover(); // With the site's settings applied.
+		$skipped      = \Airworthy\Scan\Components::$last_skipped;
+		$plugin_count = count( wp_list_filter( $components, array( 'type' => 'plugin' ) ) );
 		$theme        = wp_get_theme();
 		$current      = \Airworthy\Env::php_version();
 		$default      = Targets::default_for( $current );
@@ -177,6 +181,17 @@ final class Page {
 				</div>
 			</div>
 			<hr class="wp-header-end" />
+			<nav class="nav-tab-wrapper airworthy-tabs" aria-label="<?php esc_attr_e( 'Airworthy', 'airworthy' ); ?>">
+				<a href="<?php echo esc_url( self::url() ); ?>" class="nav-tab<?php echo 'scan' === $tab ? ' nav-tab-active' : ''; ?>"<?php echo 'scan' === $tab ? ' aria-current="page"' : ''; ?>><?php esc_html_e( 'Scan', 'airworthy' ); ?></a>
+				<a href="<?php echo esc_url( add_query_arg( 'tab', 'settings', self::url() ) ); ?>" class="nav-tab<?php echo 'settings' === $tab ? ' nav-tab-active' : ''; ?>"<?php echo 'settings' === $tab ? ' aria-current="page"' : ''; ?>><?php esc_html_e( 'Settings', 'airworthy' ); ?></a>
+			</nav>
+			<?php
+			if ( 'settings' === $tab ) {
+				self::render_settings();
+				echo '</div>';
+				return;
+			}
+			?>
 			<p id="airworthy-live" class="screen-reader-text" aria-live="polite" aria-atomic="true"></p>
 
 			<noscript><div class="notice notice-error"><p><?php esc_html_e( 'Airworthy needs JavaScript to run scans and show results.', 'airworthy' ); ?></p></div></noscript>
@@ -206,6 +221,15 @@ final class Page {
 									sprintf( _n( '%d network-enabled theme (and any parent themes)', '%d network-enabled themes (and any parent themes)', $theme_count, 'airworthy' ), $theme_count )
 								)
 							);
+						} elseif ( \Airworthy\Settings::get( 'skip_inactive' ) ) {
+							echo esc_html(
+								sprintf(
+									/* translators: 1: number of plugins, 2: theme name. */
+									_n( '%1$d active plugin and the active theme, %2$s', '%1$d active plugins and the active theme, %2$s', $plugin_count, 'airworthy' ),
+									$plugin_count,
+									$theme->get( 'Name' )
+								)
+							);
 						} else {
 							echo esc_html(
 								sprintf(
@@ -215,6 +239,11 @@ final class Page {
 									$theme->get( 'Name' )
 								)
 							);
+						}
+						if ( $skipped['inactive'] || $skipped['ignored'] ) {
+							echo '<br /><span class="airworthy-muted">';
+							echo esc_html( self::skipped_text( $skipped ) );
+							echo ' <a href="' . esc_url( add_query_arg( 'tab', 'settings', self::url() ) ) . '">' . esc_html__( 'Change', 'airworthy' ) . '</a></span>';
 						}
 						?>
 					</dd>
@@ -275,6 +304,98 @@ final class Page {
 			<div id="airworthy-progress" hidden></div>
 			<div id="airworthy-results" hidden></div>
 		</div>
+		<?php
+	}
+
+	/**
+	 * "5 inactive plugins and 2 ignored ones are left out by your settings."
+	 *
+	 * @param array{inactive:int,ignored:int} $skipped Counts.
+	 * @return string
+	 */
+	public static function skipped_text( array $skipped ) {
+		$parts = array();
+		if ( $skipped['inactive'] ) {
+			/* translators: %d: number of plugins. */
+			$parts[] = sprintf( _n( '%d inactive plugin', '%d inactive plugins', $skipped['inactive'], 'airworthy' ), $skipped['inactive'] );
+		}
+		if ( $skipped['ignored'] ) {
+			/* translators: %d: number of plugins and themes. */
+			$parts[] = sprintf( _n( '%d ignored plugin or theme', '%d ignored plugins and themes', $skipped['ignored'], 'airworthy' ), $skipped['ignored'] );
+		}
+		/* translators: %s: e.g. "5 inactive plugins and 2 ignored plugins and themes". */
+		return sprintf( __( 'Left out by your settings: %s.', 'airworthy' ), implode( __( ' and ', 'airworthy' ), $parts ) );
+	}
+
+	/**
+	 * The Settings tab: scan speed, inactive plugins, ignore list.
+	 */
+	private static function render_settings() {
+		$settings = \Airworthy\Settings::all();
+		$all      = \Airworthy\Scan\Components::discover( false );
+		usort(
+			$all,
+			static function ( $a, $b ) {
+				return strcasecmp( $a['name'], $b['name'] );
+			}
+		);
+		$speeds = array(
+			'gentle' => array( __( 'Gentle', 'airworthy' ), __( 'Short batches with pauses in between. Takes longer; easiest on cheap shared hosting.', 'airworthy' ) ),
+			'normal' => array( __( 'Normal (recommended)', 'airworthy' ), __( 'Batches of up to 20 seconds, one after another.', 'airworthy' ) ),
+			'fast'   => array( __( 'Fast', 'airworthy' ), __( 'Longer batches, for servers with room to spare. Still stops well before your server\'s time limit.', 'airworthy' ) ),
+		);
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only shows the saved message.
+		$updated = isset( $_GET['updated'] );
+		?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="airworthy-card airworthy-settings">
+			<input type="hidden" name="action" value="<?php echo esc_attr( \Airworthy\Settings::ACTION ); ?>" />
+			<?php wp_nonce_field( \Airworthy\Settings::ACTION ); ?>
+			<h2><?php esc_html_e( 'Settings', 'airworthy' ); ?></h2>
+			<?php if ( $updated ) : ?>
+				<p class="airworthy-note" role="status"><?php esc_html_e( 'Settings saved. They apply from your next scan.', 'airworthy' ); ?></p>
+			<?php endif; ?>
+
+			<fieldset class="airworthy-setting">
+				<legend><?php esc_html_e( 'Scan speed', 'airworthy' ); ?></legend>
+				<?php foreach ( $speeds as $value => $speed ) : ?>
+					<label class="airworthy-choice">
+						<input type="radio" name="airworthy[speed]" value="<?php echo esc_attr( $value ); ?>" <?php checked( $settings['speed'], $value ); ?> />
+						<span><strong><?php echo esc_html( $speed[0] ); ?></strong> <span class="airworthy-muted"><?php echo esc_html( $speed[1] ); ?></span></span>
+					</label>
+				<?php endforeach; ?>
+			</fieldset>
+
+			<fieldset class="airworthy-setting">
+				<legend><?php esc_html_e( 'Inactive plugins', 'airworthy' ); ?></legend>
+				<label class="airworthy-choice">
+					<input type="checkbox" name="airworthy[skip_inactive]" value="1" <?php checked( $settings['skip_inactive'] ); ?> />
+					<span><strong><?php esc_html_e( 'Skip inactive plugins', 'airworthy' ); ?></strong> <span class="airworthy-muted"><?php esc_html_e( 'Inactive plugins don\'t run, so they can\'t break your site today. They would if you turned them back on, though, and their files stay on your server. If you don\'t use a plugin, deleting it is better than skipping it.', 'airworthy' ); ?></span></span>
+				</label>
+			</fieldset>
+
+			<fieldset class="airworthy-setting">
+				<legend><?php esc_html_e( 'Never check these', 'airworthy' ); ?></legend>
+				<p class="description"><?php esc_html_e( 'For code you look after yourself, or are about to remove. Ignored plugins and themes aren\'t checked, and aren\'t looked up on WordPress.org.', 'airworthy' ); ?></p>
+				<div class="airworthy-ignore-list">
+					<?php foreach ( $all as $c ) : ?>
+						<?php $key = $c['type'] . ':' . $c['slug']; ?>
+						<label class="airworthy-choice">
+							<input type="checkbox" name="airworthy[ignore][]" value="<?php echo esc_attr( $key ); ?>" <?php checked( in_array( $key, $settings['ignore'], true ) ); ?> />
+							<span>
+								<?php echo esc_html( $c['name'] ); ?>
+								<?php if ( 'theme' === $c['type'] ) : ?>
+									<span class="airworthy-muted"><?php esc_html_e( '· theme', 'airworthy' ); ?></span>
+								<?php elseif ( ! $c['is_active'] ) : ?>
+									<span class="airworthy-muted"><?php esc_html_e( '· inactive', 'airworthy' ); ?></span>
+								<?php endif; ?>
+							</span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+			</fieldset>
+
+			<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'airworthy' ); ?></button></p>
+		</form>
 		<?php
 	}
 }

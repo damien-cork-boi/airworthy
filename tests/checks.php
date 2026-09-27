@@ -60,6 +60,23 @@ $check( 'Already applies: removed in 8.0, compared from 8.3', \Airworthy\Scan\Qu
 $check( 'Not yet: removed in 8.4, compared from 8.3', ! \Airworthy\Scan\Queue::already_applies( 'removed since PHP 8.4', '8.3' ) );
 $check( 'Unknown version counts as new', ! \Airworthy\Scan\Queue::already_applies( 'no version here', '8.3' ) );
 
+// --- Settings: skip inactive plugins, ignore list, scan speed.
+$saved = get_site_option( 'airworthy_settings', null );
+update_site_option( 'airworthy_settings', array( 'skip_inactive' => true, 'ignore' => array( 'plugin:fx-ready', 'plugin:no such thing' ), 'speed' => 'bogus' ) );
+$found  = wp_list_pluck( \Airworthy\Scan\Components::discover(), 'slug' );
+$active = array_filter( \Airworthy\Scan\Components::discover( false ), function ( $c ) { return 'plugin' === $c['type'] && $c['is_active']; } );
+$check( 'Settings: ignored plugins are left out', ! in_array( 'fx-ready', $found, true ) && \Airworthy\Scan\Components::$last_skipped['ignored'] >= 0 );
+$check( 'Settings: inactive plugins are left out, active ones kept', ! in_array( 'fx-implode', $found, true ) && in_array( 'airworthy', $found, true ) );
+$check( 'Settings: invalid values fall back safely', 'normal' === \Airworthy\Settings::get( 'speed' ) && array( 'plugin:fx-ready' ) === \Airworthy\Settings::get( 'ignore' ) );
+$check( 'Settings: discover( false ) ignores the settings', in_array( 'fx-ready', wp_list_pluck( \Airworthy\Scan\Components::discover( false ), 'slug' ), true ) );
+update_site_option( 'airworthy_settings', array( 'speed' => 'gentle' ) );
+$check( 'Settings: gentle speed means short batches with pauses', 8 === \Airworthy\Settings::batch_seconds() && 30 === \Airworthy\Settings::batch_pause() );
+if ( null === $saved ) {
+	delete_site_option( 'airworthy_settings' );
+} else {
+	update_site_option( 'airworthy_settings', $saved );
+}
+
 // --- WordPress.org name matching and signals.
 $check( 'Names: same plugin, extra words', Signals::names_match( 'Akismet', 'Akismet Anti-spam: Spam Protection' ) );
 $check( 'Names: different plugin, same folder', ! Signals::names_match( 'FX Acme Events', 'Calendar' ) );

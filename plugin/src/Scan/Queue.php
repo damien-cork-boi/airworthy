@@ -166,7 +166,7 @@ final class Queue {
 		}
 
 		$installed = array();
-		foreach ( Components::discover() as $row ) {
+		foreach ( Components::discover( false ) as $row ) { // Rescans may name an ignored plugin.
 			$installed[ $row['type'] . '|' . $row['slug'] ] = $row;
 		}
 		$any_plugin = false;
@@ -367,7 +367,12 @@ final class Queue {
 		as_unschedule_all_actions( self::HOOK, array( $scan_id ), Installer::JOB_GROUP );
 		self::unlock( $scan_id );
 		if ( $more ) {
-			self::enqueue_now( $scan_id );
+			$pause = \Airworthy\Settings::batch_pause(); // Scan speed "gentle" spaces batches out.
+			if ( $pause > 0 && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+				as_schedule_single_action( time() + $pause, self::HOOK, array( $scan_id ), Installer::JOB_GROUP, false, self::JOB_PRIORITY );
+			} else {
+				self::enqueue_now( $scan_id );
+			}
 		}
 
 		// This batch used most of the request. Stop Action Scheduler starting more jobs in it
@@ -440,6 +445,8 @@ final class Queue {
 			'started_at'       => self::now(),
 			'components_total' => $count,
 			'files_total'      => $total,
+			'skipped_inactive' => Components::$last_skipped['inactive'],
+			'skipped_ignored'  => Components::$last_skipped['ignored'],
 		);
 		// WordPress.org signals are fetched alongside the file scan, when the site agreed to it.
 		if ( 'off' !== $scan->wporg_status ) {

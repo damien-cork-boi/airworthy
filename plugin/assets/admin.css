@@ -130,7 +130,6 @@
 .airworthy-progress-what {
 	margin: 4px 0 0;
 	color: #50575e;
-	max-width: 50rem;
 }
 
 .airworthy-checks ul {
@@ -928,4 +927,95 @@
 	margin: 0;
 	color: #50575e;
 	font-size: 12px;
+}
+
+/* Scan | Settings tabs. */
+
+.airworthy-wrap .airworthy-tabs {
+	margin: 16px 0 0;
+	padding: 0;
+	border-bottom: 1px solid var(--aw-line);
+}
+
+.airworthy-wrap .airworthy-tabs .nav-tab {
+	margin: 0 4px -1px 0;
+	padding: 8px 18px;
+	font-size: 14px;
+	font-weight: 500;
+	border: 1px solid transparent;
+	border-radius: 8px 8px 0 0;
+	background: transparent;
+	color: var(--aw-muted);
+}
+
+.airworthy-wrap .airworthy-tabs .nav-tab:hover {
+	color: var(--aw-ink);
+	background: #fff;
+}
+
+.airworthy-wrap .airworthy-tabs .nav-tab-active,
+.airworthy-wrap .airworthy-tabs .nav-tab-active:hover {
+	color: var(--aw-blue);
+	background: #fff;
+	border-color: var(--aw-line);
+	border-bottom-color: #fff;
+}
+
+/* Settings tab. */
+
+.airworthy-settings .airworthy-setting {
+	margin: 0 0 24px;
+	padding: 0 0 20px;
+	border: 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.airworthy-settings .airworthy-setting legend {
+	margin-bottom: 10px;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.airworthy-choice {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0 0 10px;
+}
+
+.airworthy-choice input {
+	margin-top: 3px;
+}
+
+.airworthy-choice .airworthy-muted {
+	display: block;
+	margin-top: 2px;
+	font-size: 13px;
+}
+
+.airworthy-ignore-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+	gap: 2px 24px;
+	max-height: 26rem;
+	overflow-y: auto;
+	padding: 12px 14px;
+	margin-top: 8px;
+	background: var(--aw-soft);
+	border: 1px solid var(--aw-line);
+	border-radius: 10px;
+}
+
+.airworthy-ignore-list .airworthy-choice {
+	margin: 0;
+	padding: 4px 0;
+}
+
+.airworthy-ignore-list .airworthy-muted {
+	display: inline;
+	font-size: 12px;
+}
+
+.airworthy-settings > .airworthy-note {
+	margin: 0 0 20px;
 }

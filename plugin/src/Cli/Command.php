@@ -9,6 +9,7 @@ namespace Airworthy\Cli;
 
 use Airworthy\Admin\Export;
 use Airworthy\Installer;
+use Airworthy\Scan\Components;
 use Airworthy\Scan\Queue;
 use Airworthy\Scan\Verdict;
 use Airworthy\Targets;
@@ -116,6 +117,7 @@ final class Command {
 
 		$only = isset( $assoc_args['only'] ) ? array_filter( array_map( 'trim', explode( ',', (string) $assoc_args['only'] ) ) ) : array();
 		if ( $only ) {
+			Components::$bypass_settings = true; // --only scans exactly what it names.
 			add_filter(
 				'airworthy_scan_components',
 				static function ( $components ) use ( $only ) {
