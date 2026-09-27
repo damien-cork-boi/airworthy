@@ -128,14 +128,23 @@ final class Classifier {
 	private $own_functions;
 
 	/**
+	 * Cross-file analysis for the component, when available.
+	 *
+	 * @var LoadGraph|null
+	 */
+	private $graph;
+
+	/**
 	 * Prepares a classifier for one file.
 	 *
 	 * @param string   $source        File contents.
 	 * @param string   $relative      Path relative to the component.
 	 * @param string   $target        Exact target PHP version, e.g. "8.4".
 	 * @param string[] $own_functions The component's own functions with removed-extension prefixes.
+	 * @param LoadGraph|null $graph   Cross-file analysis for the component (optional).
 	 */
-	public function __construct( $source, $relative, $target, array $own_functions = array() ) {
+	public function __construct( $source, $relative, $target, array $own_functions = array(), $graph = null ) {
+		$this->graph          = $graph;
 		$this->source         = $source;
 		$this->relative       = $relative;
 		$this->own_functions  = array_fill_keys( array_map( 'strtolower', $own_functions ), true );
@@ -162,6 +171,11 @@ final class Classifier {
 		}
 		if ( $this->is_suppressed( (int) $issue['line'], (string) $issue['rule'] ) ) {
 			return self::SUPPRESSED;
+		}
+		// Last, and only for errors (the costly part): is the whole file dead on the target
+		// because its code only runs when something in another file does?
+		if ( $this->graph && 'error' === $issue['severity'] && $this->graph->file_is_dead( $this->relative, self::subjects( $issue ), true ) ) {
+			return self::GUARDED;
 		}
 		return self::PLAIN;
 	}
@@ -213,11 +227,21 @@ final class Classifier {
 	 * @return bool
 	 */
 	private function is_guarded( array $issue ) {
-		$this->parse();
-		$line     = (int) $issue['line'];
-		$subjects = self::subjects( $issue );
-		$removed  = 'error' === $issue['severity'];
+		return $this->dead_at( (int) $issue['line'], self::subjects( $issue ), 'error' === $issue['severity'] );
+	}
 
+	/**
+	 * Whether a line of this file sits in code that won't run on the target, for a finding
+	 * about these subjects. Also used by LoadGraph for lines in other files that use a class
+	 * or include a file.
+	 *
+	 * @param int      $line     Line.
+	 * @param string[] $subjects Names the finding is about (lowercase).
+	 * @param bool     $removed  Whether the flagged thing is removed on the target.
+	 * @return bool
+	 */
+	public function dead_at( $line, array $subjects, $removed ) {
+		$this->parse();
 		foreach ( $this->regions as $region ) {
 			list( $start, $end, $cond, $branch ) = $region;
 			if ( $line < $start || $line > $end ) {

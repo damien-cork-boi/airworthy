@@ -8,6 +8,7 @@
 define( 'ABSPATH', __DIR__ . '/' );
 require dirname( __DIR__ ) . '/plugin/src/Scan/Classifier.php';
 require dirname( __DIR__ ) . '/plugin/src/Scan/FileLister.php';
+require dirname( __DIR__ ) . '/plugin/src/Scan/LoadGraph.php';
 
 $opts    = getopt( '', array( 'target:', 'summary', 'show:', 'json:' ), $rest );
 $target  = $opts['target'] ?? '8.4';
@@ -33,9 +34,11 @@ foreach ( $scan['files'] as $f ) {
 	static $prepass = array();
 	if ( ! isset( $prepass[ $slug ] ) ) {
 		$croot            = implode( '/', array_slice( $parts, 0, $idx + 2 ) );
-		$prepass[ $slug ] = Airworthy\Scan\FileLister::prepass( $croot, Airworthy\Scan\FileLister::list_files( $croot )['files'] );
+		$listed           = Airworthy\Scan\FileLister::list_files( $croot )['files'];
+		$prepass[ $slug ] = Airworthy\Scan\FileLister::prepass( $croot, $listed );
+		$prepass[ $slug ]['graph'] = Airworthy\Scan\LoadGraph::for_component( $croot, $listed, $target, $prepass[ $slug ]['functions'] );
 	}
-	$cls      = new Airworthy\Scan\Classifier( file_get_contents( $f['path'] ), $relative, $target, $prepass[ $slug ]['functions'] );
+	$cls      = new Airworthy\Scan\Classifier( file_get_contents( $f['path'] ), $relative, $target, $prepass[ $slug ]['functions'], $prepass[ $slug ]['graph'] );
 	foreach ( $f['issues'] as $i ) {
 		$i['rule'] = $i['source']; // scan.php calls it "source"; the plugin stores "rule".
 		if ( '.Changed' === substr( $i['rule'], -8 ) ) {

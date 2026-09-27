@@ -285,6 +285,7 @@ final class Queue {
 				'phase'    => $c->phase,
 				'target'   => $scan->target_php,
 			);
+			$state['root'] = Components::root( $c->type, $c->rel_path, $c->slug );
 			$root = Components::root( $c->type, $c->rel_path, $c->slug );
 
 			// Facts that span files (interfaces extending Serializable; the component's own
@@ -419,7 +420,8 @@ final class Queue {
 				continue;
 			}
 			if ( ! $classifier ) {
-				$classifier = new Classifier( (string) file_get_contents( $path ), $state['files'][ $index ], $state['target'], $state['functions'] );
+				$graph      = LoadGraph::for_component( $state['root'], $state['files'], $state['target'], $state['functions'] );
+				$classifier = new Classifier( (string) file_get_contents( $path ), $state['files'][ $index ], $state['target'], $state['functions'], $graph );
 			}
 			$issues[ $k ]['context'] = $classifier->classify( $issue );
 			if ( Classifier::OWN_CODE === $issues[ $k ]['context'] ) {
