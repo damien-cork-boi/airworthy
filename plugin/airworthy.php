@@ -1,6 +1,7 @@
 <?php
 /**
  * Plugin Name:       Airworthy – PHP Compatibility & Upgrade Checker
+ * Plugin URI:        https://airworthywp.com
  * Description:       Find out which plugins and themes will break on a newer PHP version, and which look abandoned, before you upgrade.
  * Version:           0.1.0-dev
  * Requires at least: 6.5

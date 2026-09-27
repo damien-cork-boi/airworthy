@@ -35,6 +35,13 @@ final class Queue {
 	/** Job hook. Registered in Plugin::boot() by name, so this class loads only when needed. */
 	const HOOK = 'airworthy_scan_batch';
 
+	/**
+	 * Action Scheduler priority for our jobs (0 = highest; everyone else defaults to 10). Lower
+	 * priority means other plugins' due jobs always run before our batch in a request, instead
+	 * of waiting behind it until the next one.
+	 */
+	const JOB_PRIORITY = 20;
+
 	/** Scans kept (older ones are deleted when a new scan starts), so tables can't grow without limit. */
 	const KEEP_SCANS = 3;
 
@@ -162,7 +169,7 @@ final class Queue {
 		}
 
 		// If this request dies, the watchdog resumes the scan once the lock has expired.
-		as_schedule_single_action( time() + (int) ceil( $budget->seconds() ) + 2 * self::recovery_delay(), self::HOOK, array( $scan_id ), Installer::JOB_GROUP );
+		as_schedule_single_action( time() + (int) ceil( $budget->seconds() ) + 2 * self::recovery_delay(), self::HOOK, array( $scan_id ), Installer::JOB_GROUP, false, self::JOB_PRIORITY );
 
 		$t    = Installer::tables();
 		$more = true;
@@ -667,7 +674,7 @@ final class Queue {
 	 * @param int $scan_id Scan ID.
 	 */
 	private static function enqueue_now( $scan_id ) {
-		as_enqueue_async_action( self::HOOK, array( (int) $scan_id ), Installer::JOB_GROUP );
+		as_enqueue_async_action( self::HOOK, array( (int) $scan_id ), Installer::JOB_GROUP, false, self::JOB_PRIORITY );
 	}
 
 	/**

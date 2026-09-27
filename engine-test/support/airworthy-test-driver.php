@@ -28,6 +28,32 @@ if ( ! empty( $airworthy_knobs['recovery'] ) ) {
 	} );
 }
 
+// Log every scheduled action this request runs (hook + group), in order.
+$GLOBALS['airworthy_test_ran'] = array();
+add_action(
+	'action_scheduler_after_execute',
+	static function ( $action_id, $action ) {
+		$GLOBALS['airworthy_test_ran'][] = $action->get_hook() . ' [' . $action->get_group() . ']';
+	},
+	10,
+	2
+);
+add_action(
+	'action_scheduler_failed_execution',
+	static function ( $action_id, $e ) {
+		$GLOBALS['airworthy_test_ran'][] = 'FAILED #' . $action_id . ': ' . $e->getMessage();
+	},
+	10,
+	2
+);
+// Test action standing in for WooCommerce background work.
+add_action(
+	'airworthy_test_woo_job',
+	static function ( $n ) {
+		update_option( 'airworthy_test_woo_done_' . (int) $n, gmdate( 'H:i:s' ), false );
+	}
+);
+
 add_action(
 	'init',
 	static function () {
@@ -46,6 +72,8 @@ add_action(
 				'req_ms'       => round( ( microtime( true ) - $t0 ) * 1000 ),
 				'peak_mb'      => round( memory_get_peak_usage( true ) / 1048576, 1 ),
 				'memory_limit' => ini_get( 'memory_limit' ),
+				'ran'          => $GLOBALS['airworthy_test_ran'],
+				'as_version'   => class_exists( 'ActionScheduler_Versions' ) ? \ActionScheduler_Versions::instance()->latest_version() : null,
 			)
 		);
 	},
