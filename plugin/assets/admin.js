@@ -1053,6 +1053,10 @@
 
 	apiFetch( { path: REST + '/scans/current?seen=1' } ).then(
 		function ( scan ) {
+			if ( ! scan ) {
+				showStart( false ); // No scan yet.
+				return;
+			}
 			state.scan = scan;
 			if ( 'queued' === scan.status || 'running' === scan.status ) {
 					startProgress();

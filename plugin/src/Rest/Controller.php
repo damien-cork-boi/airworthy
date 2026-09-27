@@ -188,7 +188,8 @@ final class Controller {
 	}
 
 	/**
-	 * GET /scans/current: the unfinished scan, or else the latest one, with per-component progress.
+	 * GET /scans/current: the unfinished scan, or else the latest one, with per-component progress
+	 * (null when no scan has been run yet).
 	 *
 	 * @param \WP_REST_Request|null $request Request (seen=1 marks a finished scan's notice as seen).
 	 * @return \WP_REST_Response|\WP_Error
@@ -202,7 +203,7 @@ final class Controller {
 			$id = (int) $wpdb->get_var( "SELECT id FROM {$t['scans']} ORDER BY id DESC LIMIT 1" );
 		}
 		if ( ! $id ) {
-			return new \WP_Error( 'airworthy_no_scan', __( 'No scan has been run yet.', 'airworthy' ), array( 'status' => 404 ) );
+			return new \WP_REST_Response( null, 200 ); // No scan yet: a normal state, not an error.
 		}
 		$response = self::get_scan( array( 'id' => $id ) );
 		// The results screen passes seen=1 once it shows a finished scan: no "finished" notice needed.
