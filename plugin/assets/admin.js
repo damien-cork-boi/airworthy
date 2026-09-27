@@ -112,7 +112,7 @@
 		lastDone: -1,
 		lastChange: Date.now(),
 		nudging: false,
-		blockersOnly: false,
+		groupOpen: {}, // Results groups the user opened or closed, by key.
 		lastAnnounced: -1,
 	};
 	var live  = document.getElementById( 'airworthy-live' );
@@ -862,7 +862,7 @@
 					/* translators: %s: WordPress version. */
 				sprintf( __( 'Tested up to WordPress %s', 'airworthy' ), w.tested )
 			) : null,
-			w.update ? el(
+			w.update && ! c.update ? el(
 				'div',
 				{ class : 'airworthy-small airworthy-update' },
 				c.counts.errors || c.counts.warnings || c.counts.suppressed ?
@@ -872,6 +872,116 @@
 				sprintf( __( 'Update available: %s.', 'airworthy' ), w.update )
 			) : null
 		);
+	}
+
+	/**
+	 * "Update available" under a plugin's name, with a one-click update link for users who
+	 * can update. Airworthy checks the plugin again by itself once WordPress has updated it.
+	 */
+	function updateLine( c ) {
+		if ( ! c.update ) {
+			return null;
+		}
+		var fixable = c.counts.errors || c.counts.warnings || c.counts.suppressed;
+		return el(
+			'div',
+			{ class: 'airworthy-update-line' },
+			el(
+				'span',
+				{ class: 'airworthy-update-pill' },
+				/* translators: %s: version number. */
+				sprintf( __( 'Update available: %s', 'airworthy' ), c.update.version )
+			),
+			c.update.url ? el(
+				'a',
+				{ href: c.update.url, 'aria-label': sprintf( /* translators: %s: plugin or theme name. */ __( 'Update %s now', 'airworthy' ), c.name ) },
+				__( 'Update now', 'airworthy' )
+			) : null,
+			fixable ? el( 'span', { class : 'airworthy-muted' }, __( 'The update may clear these findings; Airworthy checks again after you update.', 'airworthy' ) ) : null
+		);
+	}
+
+	/**
+	 * Results groups, by what to do next. Components without a verdict yet (a stopped scan)
+	 * get their own group.
+	 */
+	function resultGroups( scan, components ) {
+		var groups = [
+			{
+				key: 'fix',
+				verdicts: [ 'blocker', 'unknown' ],
+				title: __( 'Fix before you upgrade', 'airworthy' ),
+				/* translators: %s: PHP version. */
+				note: sprintf( __( 'These will not work on PHP %s, or could not be fully checked.', 'airworthy' ), scan.target_php ),
+				open: true,
+		},
+			{
+				key: 'watch',
+				verdicts: [ 'suppressed', 'warnings' ],
+				title: __( 'Keep an eye on', 'airworthy' ),
+				/* translators: %s: PHP version. */
+				note: sprintf( __( 'These work on PHP %s. Keep them updated so they keep working on later versions.', 'airworthy' ), scan.target_php ),
+				open: true,
+		},
+			{
+				key: 'good',
+				verdicts: [ 'guarded', 'ready' ],
+				title: __( 'All good', 'airworthy' ),
+				note: __( 'Nothing to do for these.', 'airworthy' ),
+				open: false,
+		},
+			{
+				key: 'pending',
+				verdicts: [ null ],
+				title: __( 'Not checked yet', 'airworthy' ),
+				note: __( 'The scan stopped before it reached these.', 'airworthy' ),
+				open: false,
+		},
+		];
+		return groups.map(
+			function ( g ) {
+				g.items = components.filter(
+					function ( c ) {
+						return g.verdicts.indexOf( c.verdict || null ) !== -1;
+					}
+				);
+				if ( undefined !== state.groupOpen[ g.key ] ) {
+					g.open = state.groupOpen[ g.key ];
+				}
+				return g;
+			}
+		).filter(
+			function ( g ) {
+				return g.items.length;
+			}
+		);
+	}
+
+	function groupBody( scan, g ) {
+		var body   = el( 'tbody', { class: 'airworthy-group airworthy-group-' + g.key + ( g.open ? '' : ' airworthy-group-closed' ) } );
+		var toggle = el(
+			'button',
+			{ type: 'button', class: 'airworthy-group-toggle', 'aria-expanded': g.open ? 'true' : 'false', onclick : function () {
+				var open = 'true' !== toggle.getAttribute( 'aria-expanded' );
+				toggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+				body.classList.toggle( 'airworthy-group-closed', ! open );
+				state.groupOpen[ g.key ] = open;
+			} },
+			el( 'span', { class: 'airworthy-group-arrow', 'aria-hidden': 'true' } ),
+			el( 'span', { class: 'airworthy-group-title' }, g.title ),
+			el( 'span', { class: 'airworthy-group-count' }, String( g.items.length ) )
+		);
+		body.appendChild( el( 'tr', { class: 'airworthy-group-head' }, el( 'th', { colspan: 5, scope: 'rowgroup' }, toggle, el( 'span', { class: 'airworthy-group-note' }, g.note ) ) ) );
+		g.items.forEach(
+			function ( c ) {
+				componentRows( scan, c ).forEach(
+					function ( tr ) {
+						body.appendChild( tr );
+					}
+				);
+			}
+		);
+		return body;
 	}
 
 	function findingsSummary( c ) {
@@ -1016,7 +1126,8 @@
 					{ class: 'airworthy-small airworthy-muted' },
 					c.version ? sprintf( /* translators: %s: plugin or theme version number. */ __( 'Version %s', 'airworthy' ), c.version ) : '',
 					'theme' === c.type ? ' · ' + __( 'theme', 'airworthy' ) : ( c.active ? '' : ' · ' + __( 'inactive', 'airworthy' ) )
-				)
+				),
+				updateLine( c )
 			),
 			el(
 				'td',
@@ -1104,11 +1215,6 @@
 		clearTimeout( state.wporgTimer );
 		state.scan     = scan;
 		var components = scan.components || [];
-		var visible    = state.blockersOnly ? components.filter(
-			function ( c ) {
-				return 'blocker' === c.verdict || 'unknown' === c.verdict;
-			}
-		) : components;
 		var closed     = components.filter(
 			function ( c ) {
 				return c.wporg && 'closed' === c.wporg.status;
@@ -1171,6 +1277,23 @@
 			);
 		}
 
+		// Updates waiting for plugins with findings: often the quickest fix.
+		var withUpdates = components.filter(
+			function ( c ) {
+				return c.update && ( c.counts.errors || c.counts.warnings || c.counts.suppressed || 'unknown' === c.verdict );
+			}
+		).length;
+		var updatesNote = withUpdates ? el(
+			'p',
+			{ class: 'airworthy-note airworthy-updates-note' },
+			sprintf(
+				/* translators: %d: number of plugins/themes. */
+				_n( '%d plugin or theme with findings has an update waiting. Updating often clears findings, and Airworthy checks each one again by itself after it is updated.', '%d plugins or themes with findings have updates waiting. Updating often clears findings, and Airworthy checks each one again by itself after it is updated.', withUpdates, 'airworthy' ),
+				withUpdates
+			),
+			scan.updates_url ? [ ' ', el( 'a', { href : scan.updates_url }, __( 'Go to Updates', 'airworthy' ) ) ] : null
+		) : null;
+
 		// A stopped scan: a banner where the headline goes, with Continue scan right in it.
 		var newScanClass = scan.resumable ? 'button' : 'button button-primary';
 		var status       = null;
@@ -1213,8 +1336,10 @@
 					el(
 						'strong',
 						null,
-						/* translators: 1: percent, 2: plugins/themes checked, 3: total. */
-						sprintf( __( 'Scan stopped at %1$d%%: %2$d of %3$d plugins and themes checked.', 'airworthy' ), ( scan.progress && scan.progress.percent ) || 0, checked, total )
+						total ?
+							/* translators: 1: percent, 2: plugins/themes checked, 3: total. */
+							sprintf( __( 'Scan stopped at %1$d%%: %2$d of %3$d plugins and themes checked.', 'airworthy' ), ( scan.progress && scan.progress.percent ) || 0, checked, total ) :
+							__( 'Scan stopped before it started checking.', 'airworthy' )
 					),
 					el(
 						'p',
@@ -1307,7 +1432,8 @@
 								) + ( scan.from_php ? ' · ' + sprintf( /* translators: %s: PHP version. */ __( 'compared from PHP %s', 'airworthy' ), scan.from_php ) : '' ) :
 								/* translators: %s: server PHP version. */
 							sprintf( __( 'Server runs PHP %s', 'airworthy' ), scan.host_php )
-						)
+						),
+						scan.host_support ? el( 'p', { class : 'airworthy-support airworthy-support-' + scan.host_support.level }, scan.host_support.text ) : null
 					),
 					el(
 						'div',
@@ -1324,6 +1450,7 @@
 				),
 				headline,
 				summary,
+				updatesNote,
 				el(
 					'section',
 					{ class: 'airworthy-legend-box' },
@@ -1378,33 +1505,9 @@
 			wporgNote,
 			uncheckedCard,
 			el(
-				'div',
-				{ class: 'airworthy-toolbar' },
-				el(
-					'label',
-					null,
-					el(
-						'input',
-						{ type: 'checkbox', id: 'airworthy-attention-only', checked: state.blockersOnly, onchange: function ( e ) {
-							state.blockersOnly = e.target.checked;
-							renderResults( state.scan );
-							document.getElementById( 'airworthy-attention-only' ).focus(); // The table was redrawn.
-						} }
-					),
-					' ',
-					__( 'Show only plugins that need attention (Blocker or Unknown)', 'airworthy' )
-				),
-				el(
-					'span',
-					{ class: 'airworthy-muted' },
-					/* translators: 1: shown, 2: total. */
-					sprintf( __( 'Showing %1$d of %2$d', 'airworthy' ), visible.length, components.length )
-				)
-			),
-			el(
 				'table',
 				{ class: 'widefat airworthy-table' },
-				el( 'caption', { class: 'screen-reader-text' }, __( 'Results by plugin or theme, most serious first', 'airworthy' ) ),
+				el( 'caption', { class: 'screen-reader-text' }, __( 'Results by plugin or theme, grouped by what to do next', 'airworthy' ) ),
 				el(
 					'thead',
 					null,
@@ -1418,19 +1521,11 @@
 						el( 'th', { scope: 'col' }, el( 'span', { class: 'screen-reader-text' }, __( 'Actions', 'airworthy' ) ) )
 					)
 				),
-				el(
-					'tbody',
-					null,
-					visible.length ? visible.map(
-						function ( c ) {
-							return componentRows( scan, c );
-						}
-					) : el(
-						'tr',
-						null,
-						el( 'td', { colspan: 5 }, __( 'Nothing needs attention.', 'airworthy' ) )
-					)
-				)
+				components.length ? resultGroups( scan, components ).map(
+					function ( g ) {
+						return groupBody( scan, g );
+					}
+				) : el( 'tbody', null, el( 'tr', null, el( 'td', { colspan: 5 }, __( 'No plugins or themes were checked in this scan.', 'airworthy' ) ) ) )
 			)
 		);
 		show( 'results' );

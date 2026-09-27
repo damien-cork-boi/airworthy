@@ -202,8 +202,9 @@ final class Page {
 					<dt><?php esc_html_e( 'Server PHP version', 'airworthy' ); ?></dt>
 					<dd>
 						<strong><?php echo esc_html( $current ); ?></strong>
-						<?php if ( ! Targets::is_supported( $current ) ) : ?>
-							<span class="airworthy-muted"><?php esc_html_e( '(no longer receives security fixes)', 'airworthy' ); ?></span>
+						<?php $airworthy_support = Targets::support_status( $current ); ?>
+						<?php if ( $airworthy_support ) : ?>
+							<span class="airworthy-support airworthy-support-<?php echo esc_attr( $airworthy_support['level'] ); ?>"><?php echo esc_html( $airworthy_support['text'] ); ?></span>
 						<?php endif; ?>
 					</dd>
 					<dt><?php esc_html_e( 'Will be scanned', 'airworthy' ); ?></dt>

@@ -1070,3 +1070,114 @@
 .airworthy-settings .airworthy-autosave-note {
 	margin: 0 0 16px;
 }
+
+/* Results grouped by what to do next. */
+
+.airworthy-wrap .airworthy-table tr.airworthy-group-head th {
+	padding: 14px;
+	text-align: left;
+	background: var(--aw-soft, #f6f7f7);
+	border-top: 1px solid var(--aw-line, #e2e4e7);
+}
+
+.airworthy-wrap .airworthy-table tbody.airworthy-group:first-of-type tr.airworthy-group-head th {
+	border-top: 0;
+}
+
+.airworthy-group-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+	cursor: pointer;
+}
+
+.airworthy-group-arrow {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-top: 6px solid currentColor;
+	transition: transform 0.15s;
+}
+
+.airworthy-group-closed .airworthy-group-arrow {
+	transform: rotate(-90deg);
+}
+
+.airworthy-group-count {
+	min-width: 20px;
+	padding: 0 7px;
+	border-radius: 10px;
+	font-size: 12px;
+	line-height: 20px;
+	text-align: center;
+	color: #fff;
+	background: #8c8f94;
+}
+
+.airworthy-group-fix .airworthy-group-count { background: #d63638; }
+.airworthy-group-watch .airworthy-group-count { background: #dba617; }
+.airworthy-group-good .airworthy-group-count { background: #00a32a; }
+
+.airworthy-group-note {
+	display: block;
+	margin: 4px 0 0 18px;
+	font-weight: 400;
+	font-size: 13px;
+	color: #50575e;
+}
+
+.airworthy-group-closed tr:not(.airworthy-group-head) {
+	display: none !important;
+}
+
+/* An update waiting, under the plugin's name. */
+
+.airworthy-update-line {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px 10px;
+	margin-top: 6px;
+	font-size: 12px;
+}
+
+.airworthy-update-pill {
+	padding: 1px 8px;
+	border-radius: 10px;
+	font-weight: 600;
+	color: #1d4ed8;
+	background: #eef4ff;
+	border: 1px solid #c7d7fe;
+}
+
+.airworthy-wrap .airworthy-updates-note {
+	margin: 16px 0;
+}
+
+/* PHP support countdown (start and results screens). */
+
+.airworthy-support {
+	display: inline-block;
+	margin: 6px 0 0;
+	padding: 3px 10px;
+	border-radius: 10px;
+	font-size: 12px;
+	border: 1px solid;
+}
+
+.airworthy-facts .airworthy-support {
+	display: table;
+}
+
+.airworthy-support-ok { color: #005c12; background: #edfaef; border-color: #a7e3b5; }
+.airworthy-support-soon { color: #614a00; background: #fcf9e8; border-color: #f0d887; }
+.airworthy-support-ended { color: #8a2424; background: #fcf0f1; border-color: #f1adad; }

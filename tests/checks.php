@@ -206,6 +206,14 @@ if ( 201 === $status ) {
 list( $status ) = $call( 'GET', '/scans/999999' );
 $check( 'REST: unknown scan is 404', 404 === $status, (string) $status );
 
+// PHP support countdown.
+$support = Targets::support_status( '8.3.12', $day( '2026-09-27' ) );
+$check( 'Support: PHP 8.3 on 2026-09-27 has 15 months left', 'ok' === $support['level'] && 15 === $support['months'], wp_json_encode( $support ) );
+$support = Targets::support_status( '8.2.1', $day( '2026-09-27' ) );
+$check( 'Support: PHP 8.2 on 2026-09-27 ends soon', 'soon' === $support['level'] && 3 === $support['months'], wp_json_encode( $support ) );
+$support = Targets::support_status( '8.0.30', $day( '2026-09-27' ) );
+$check( 'Support: PHP 8.0 has ended', 'ended' === $support['level'], wp_json_encode( $support ) );
+
 // Continue scan: only a stopped scan, and only the latest one.
 $check( 'Resume: a finished scan cannot be continued', ! \Airworthy\Scan\Queue::can_resume( (object) array( 'id' => PHP_INT_MAX, 'status' => 'complete' ) ) );
 $check( 'Resume: an older stopped scan cannot be continued', ! \Airworthy\Scan\Queue::can_resume( (object) array( 'id' => -1, 'status' => 'cancelled' ) ) );

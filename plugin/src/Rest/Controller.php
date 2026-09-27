@@ -259,6 +259,7 @@ final class Controller {
 		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, type, slug, name, version, is_active, status, phase, verdict, errors, guarded, suppressed, existing, warnings, files_total, files_done, files_failed, files_skipped, files_ignored, wporg FROM {$t['components']} WHERE scan_id = %d ORDER BY id", $scan->id ) );
 
 		$order      = array_flip( Verdict::ALL );
+		$updates    = \Airworthy\Scan\Updates::all();
 		$components = array();
 		foreach ( $rows as $r ) {
 			$components[] = array(
@@ -286,6 +287,7 @@ final class Controller {
 					'ignored' => (int) $r->files_ignored,
 				),
 				'wporg'   => $r->wporg ? json_decode( $r->wporg, true ) : null,
+				'update'  => isset( $updates[ $r->type . '|' . $r->slug ] ) ? $updates[ $r->type . '|' . $r->slug ] : null,
 			);
 		}
 		// Most serious first, then by name.
@@ -510,6 +512,7 @@ final class Controller {
 			'id'           => (int) $s->id,
 			'target_php'   => $s->target_php,
 			'host_php'     => $s->host_php,
+			'host_support' => Targets::support_status( \Airworthy\Env::php_version() ), // The server now, not when scanned.
 			'from_php'     => isset( $s->from_php ) && '' !== $s->from_php ? $s->from_php : null,
 			'status'       => $s->status,
 			'resumable'    => Queue::can_resume( $s ),
@@ -524,6 +527,7 @@ final class Controller {
 				'ignored'  => isset( $s->skipped_ignored ) ? (int) $s->skipped_ignored : 0,
 			),
 			'settings_url' => add_query_arg( 'tab', 'settings', \Airworthy\Admin\Page::url() ),
+			'updates_url'  => current_user_can( 'update_plugins' ) ? self_admin_url( 'update-core.php' ) : null,
 			'counts'       => $counts,
 			'wporg'        => $s->wporg_status ? $s->wporg_status : null, // pending | done | partial | offline | off (no consent).
 			'export_url'   => \Airworthy\Admin\Export::url( (int) $s->id ),
