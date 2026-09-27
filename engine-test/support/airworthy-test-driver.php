@@ -7,7 +7,7 @@
  *
  * Knobs, set with WP-CLI: wp option update airworthy_test_knobs '{"nobudget":1,"seconds":10,"recovery":5}'  (memory cap: echo 64M > .aw-mem)
  */
-if ( ! in_array( $_SERVER['REMOTE_ADDR'] ?? '', array( '127.0.0.1', '::1' ), true ) ) {
+if ( ! in_array( $_SERVER['REMOTE_ADDR'] ?? '', array( '127.0.0.1', '::1', '' ), true ) || ( '' === ( $_SERVER['REMOTE_ADDR'] ?? '' ) && ! defined( 'WP_CLI' ) ) ) {
 	return;
 }
 
@@ -22,12 +22,21 @@ if ( ! empty( $airworthy_knobs['seconds'] ) ) {
 		return (float) $airworthy_knobs['seconds'];
 	} );
 }
+if ( ! empty( $airworthy_knobs['only'] ) ) {
+	// Limit scans to components whose slug starts with this prefix (e.g. "fx-").
+	add_filter( 'airworthy_scan_components', static function ( $components ) use ( $airworthy_knobs ) {
+		return array_filter( $components, static function ( $c ) use ( $airworthy_knobs ) {
+			return 0 === strpos( $c['slug'], $airworthy_knobs['only'] );
+		} );
+	} );
+}
 if ( ! empty( $airworthy_knobs['recovery'] ) ) {
 	add_filter( 'airworthy_recovery_delay', static function () use ( $airworthy_knobs ) {
 		return (int) $airworthy_knobs['recovery'];
 	} );
 }
 
+// NOTE: the 'only' knob must also apply in WP-CLI, where REMOTE_ADDR is empty; see below.
 // Log every scheduled action this request runs (hook + group), in order.
 $GLOBALS['airworthy_test_ran'] = array();
 add_action(

@@ -28,7 +28,8 @@ defined( 'ABSPATH' ) || exit;
  *   a request dies before it can queue the next batch.
  * - A lock stops two runners working on the same scan at once.
  *
- * A component with any failed file is marked Unknown. Other verdicts are worked out in Step 4.
+ * Every finding is classified (plain, guarded or suppressed; see Classifier) as it is saved, and
+ * each component gets its verdict (see Verdict) when its last file is done.
  */
 final class Queue {
 
@@ -273,6 +274,8 @@ final class Queue {
 				'cursor'   => (int) $c->file_cursor,
 				'counts'   => array(
 					'errors'        => (int) $c->errors,
+					'guarded'       => (int) $c->guarded,
+					'suppressed'    => (int) $c->suppressed,
 					'warnings'      => (int) $c->warnings,
 					'files_done'    => (int) $c->files_done,
 					'files_failed'  => (int) $c->files_failed,
@@ -280,8 +283,20 @@ final class Queue {
 					'attempts'      => (int) $c->attempts,
 				),
 				'phase'    => $c->phase,
+				'target'   => $scan->target_php,
 			);
 			$root = Components::root( $c->type, $c->rel_path, $c->slug );
+
+			// Facts that span files (interfaces extending Serializable; the component's own
+			// functions with removed-extension prefixes), read once before its first file.
+			if ( null === $c->prepass ) {
+				$c->prepass = wp_json_encode( FileLister::prepass( $root, $state['files'] ) );
+				global $wpdb;
+				$wpdb->update( Installer::tables()['components'], array( 'prepass' => $c->prepass ), array( 'id' => (int) $c->id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			}
+			$prepass               = (array) json_decode( (string) $c->prepass, true );
+			$state['serializable'] = isset( $prepass['serializable'] ) ? (array) $prepass['serializable'] : array();
+			$state['functions']    = isset( $prepass['functions'] ) ? (array) $prepass['functions'] : array();
 
 			if ( null !== $c->inflight_file ) {
 				self::recover_crash( $c, $state );
@@ -384,17 +399,85 @@ final class Queue {
 		}
 
 		try {
+			$engine->set_serializable_interfaces( $state['serializable'] );
 			$issues = $engine->scan_file( $path );
 		} catch ( \Throwable $e ) {
 			self::record_problem( $c, $state, $index, self::RULE_ENGINE, $e->getMessage(), 'files_failed' );
 			return;
 		}
 
-		foreach ( $issues as $issue ) {
-			$state['counts'][ 'error' === $issue['severity'] ? 'errors' : 'warnings' ]++;
+		$issues = self::normalise( $issues );
+		if ( isset( $issues['failed'] ) ) {
+			// PHP_CodeSniffer couldn't parse the file, so its results can't be trusted.
+			self::record_problem( $c, $state, $index, self::RULE_ENGINE, $issues['failed'], 'files_failed' );
+			return;
+		}
+
+		$classifier = null;
+		foreach ( $issues as $k => $issue ) {
+			if ( 'notice' === $issue['severity'] ) {
+				continue;
+			}
+			if ( ! $classifier ) {
+				$classifier = new Classifier( (string) file_get_contents( $path ), $state['files'][ $index ], $state['target'], $state['functions'] );
+			}
+			$issues[ $k ]['context'] = $classifier->classify( $issue );
+			if ( Classifier::OWN_CODE === $issues[ $k ]['context'] ) {
+				// Not a PHP problem: keep it visible as a notice explaining why it doesn't count.
+				$issues[ $k ]['severity'] = 'notice';
+				$issues[ $k ]['context']  = Classifier::PLAIN;
+				$issues[ $k ]['message']  = sprintf(
+					/* translators: %s: original PHP_CodeSniffer message. */
+					__( 'Not a problem: the flagged call is this plugin\'s own function, not the removed PHP extension. (%s)', 'airworthy' ),
+					$issue['message']
+				);
+				continue;
+			}
+			if ( 'warning' === $issue['severity'] ) {
+				$state['counts']['warnings']++;
+			} elseif ( Classifier::GUARDED === $issues[ $k ]['context'] ) {
+				$state['counts']['guarded']++;
+			} elseif ( Classifier::SUPPRESSED === $issues[ $k ]['context'] ) {
+				$state['counts']['suppressed']++;
+			} else {
+				$state['counts']['errors']++;
+			}
 		}
 		self::insert_issues( $c, $state['files'][ $index ], $issues );
 		$state['counts']['files_done']++;
+	}
+
+	/**
+	 * Tidies raw engine findings before they are classified and saved:
+	 * - PHP_CodeSniffer's own notices: mixed line endings are dropped (they don't affect the
+	 *   result); "no PHP code found" (short open tags) becomes an informational notice; any
+	 *   other internal error means the file couldn't be parsed.
+	 * - Rules ending in ".Changed" report behaviour changes, not removals: warnings, not errors.
+	 *
+	 * @param array $issues Findings from Engine::scan_file().
+	 * @return array Findings, or ['failed' => reason] when the file couldn't be parsed.
+	 */
+	private static function normalise( array $issues ) {
+		$out = array();
+		foreach ( $issues as $issue ) {
+			$rule = $issue['rule'];
+			if ( 0 === strpos( $rule, 'Internal.' ) ) {
+				if ( 0 === strpos( $rule, 'Internal.LineEndings' ) ) {
+					continue;
+				}
+				if ( 'Internal.NoCodeFound' === $rule ) {
+					$issue['severity'] = 'notice';
+					$out[]             = $issue;
+					continue;
+				}
+				return array( 'failed' => $issue['message'] );
+			}
+			if ( 'error' === $issue['severity'] && '.Changed' === substr( $rule, -8 ) ) {
+				$issue['severity'] = 'warning';
+			}
+			$out[] = $issue;
+		}
+		return $out;
 	}
 
 	/**
@@ -504,7 +587,7 @@ final class Queue {
 	}
 
 	/**
-	 * Marks a component finished. Any failed file makes it Unknown; other verdicts come in Step 4.
+	 * Marks a component finished, with its verdict.
 	 *
 	 * @param object $c     Component row.
 	 * @param array  $state Component state.
@@ -518,7 +601,7 @@ final class Queue {
 				'status'        => 'done',
 				'phase'         => 'done',
 				'inflight_file' => null,
-				'verdict'       => $state['counts']['files_failed'] > 0 ? 'unknown' : null,
+				'verdict'       => Verdict::from_counts( $state['counts'] ),
 				'finished_at'   => self::now(),
 			),
 			array( 'id' => (int) $c->id )
@@ -534,16 +617,20 @@ final class Queue {
 		global $wpdb;
 		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
-		$unknown = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t['components']} WHERE scan_id = %d AND verdict = 'unknown'", $scan_id ) );
-		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$t['scans'],
-			array(
-				'status'        => 'complete',
-				'finished_at'   => self::now(),
-				'count_unknown' => $unknown,
-			),
-			array( 'id' => $scan_id )
+		$data = array(
+			'status'      => 'complete',
+			'finished_at' => self::now(),
 		);
+		foreach ( Verdict::ALL as $verdict ) {
+			$data[ 'count_' . $verdict ] = 0;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		foreach ( (array) $wpdb->get_results( $wpdb->prepare( "SELECT verdict, COUNT(*) AS n FROM {$t['components']} WHERE scan_id = %d GROUP BY verdict", $scan_id ) ) as $row ) {
+			if ( in_array( $row->verdict, Verdict::ALL, true ) ) {
+				$data[ 'count_' . $row->verdict ] = (int) $row->n;
+			}
+		}
+		$wpdb->update( $t['scans'], $data, array( 'id' => $scan_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 
 	/**
@@ -618,7 +705,7 @@ final class Queue {
 			$values = array();
 			foreach ( $chunk as $issue ) {
 				$rows[] = '(%d,%d,%s,%d,%s,%s,%s,%s)';
-				array_push( $values, (int) $c->scan_id, (int) $c->id, $file, $issue['line'], $issue['severity'], 'plain', substr( $issue['rule'], 0, 191 ), $issue['message'] );
+				array_push( $values, (int) $c->scan_id, (int) $c->id, $file, $issue['line'], $issue['severity'], isset( $issue['context'] ) ? $issue['context'] : Classifier::PLAIN, substr( $issue['rule'], 0, 191 ), self::without_server_paths( $issue['message'] ) );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Own table; placeholders built above.
 			$wpdb->query( $wpdb->prepare( "INSERT INTO {$t['issues']} (scan_id, component_id, file, line, severity, context, rule, message) VALUES " . implode( ',', $rows ), $values ) );
@@ -720,6 +807,27 @@ final class Queue {
 			return false;
 		}
 		return $real_path === $real_root || 0 === strpos( $real_path, trailingslashit( $real_root ) );
+	}
+
+	/**
+	 * Removes absolute server paths from a message, so results never reveal them.
+	 *
+	 * @param string $message Message.
+	 * @return string
+	 */
+	private static function without_server_paths( $message ) {
+		$paths = array_unique( array_filter( array( WP_PLUGIN_DIR, get_theme_root(), WP_CONTENT_DIR, untrailingslashit( ABSPATH ) ) ) );
+		usort(
+			$paths,
+			static function ( $a, $b ) {
+				return strlen( $b ) - strlen( $a );
+			}
+		);
+		foreach ( $paths as $path ) {
+			$message = str_replace( trailingslashit( $path ), '', $message );
+			$message = str_replace( $path, '', $message );
+		}
+		return $message;
 	}
 
 	/**

@@ -45,7 +45,12 @@ final class Components {
 			$out[] = self::theme_row( $theme->parent() );
 		}
 
-		return $out;
+		/**
+		 * Filters the plugins and themes a new scan covers.
+		 *
+		 * @param array $components Component rows (type, slug, name, version, rel_path, is_active).
+		 */
+		return array_values( (array) apply_filters( 'airworthy_scan_components', $out ) );
 	}
 
 	/**

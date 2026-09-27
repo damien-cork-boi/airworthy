@@ -17,7 +17,8 @@ defined( 'ABSPATH' ) || exit;
  *   plain      — no mitigating signal; an error here makes the component a Blocker
  *   guarded    — inside a real version/extension check or a known engine-switching library
  *   suppressed — silenced only by the author's phpcs:ignore comment; lower-confidence warning
- * Issues with severity "scan" record files that weren't checked (rule Airworthy.Scan.*).
+ * Issues with severity "scan" record files that weren't checked (rule Airworthy.Scan.*);
+ * severity "notice" is informational only (e.g. no PHP code found: short open tags).
  *
  * Components hold their own sorted file list (files, JSON) so a plugin updating mid-scan
  * can't shift the cursor. phase: main (first pass) -> retry (deferred files, one per
@@ -30,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
 final class Installer {
 
 	/** Bump when the schema changes; maybe_upgrade() then re-runs dbDelta. */
-	const DB_VERSION = 2;
+	const DB_VERSION = 4;
 
 	/** Stored as a network option on multisite (plain option on single site). */
 	const OPTION_DB_VERSION = 'airworthy_db_version';
@@ -147,6 +148,7 @@ final class Installer {
 				guarded int(10) unsigned NOT NULL DEFAULT 0,
 				suppressed int(10) unsigned NOT NULL DEFAULT 0,
 				files_skipped int(10) unsigned NOT NULL DEFAULT 0,
+				prepass longtext DEFAULT NULL,
 				wporg longtext DEFAULT NULL,
 				started_at datetime DEFAULT NULL,
 				finished_at datetime DEFAULT NULL,

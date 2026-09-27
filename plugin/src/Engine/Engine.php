@@ -114,6 +114,38 @@ final class Engine {
 	}
 
 	/**
+	 * Interfaces passed to the RemovedSerializable rule for the current component.
+	 *
+	 * @var string[]|null
+	 */
+	private $serializable;
+
+	/**
+	 * Tells the RemovedSerializable rule which of this component's interfaces extend
+	 * Serializable, so it can spot classes that implement Serializable indirectly.
+	 *
+	 * @param string[] $interfaces Interface names.
+	 */
+	public function set_serializable_interfaces( array $interfaces ) {
+		sort( $interfaces );
+		if ( $interfaces === $this->serializable ) {
+			return;
+		}
+		$sniff = self::NS . 'PHPCompatibility\\Sniffs\\Interfaces\\RemovedSerializableSniff';
+		if ( isset( $this->runner->ruleset->sniffs[ $sniff ] ) ) {
+			$this->runner->ruleset->setSniffProperty(
+				$sniff,
+				'serializableInterfaces',
+				array(
+					'scope' => 'sniff',
+					'value' => $interfaces,
+				)
+			);
+		}
+		$this->serializable = $interfaces;
+	}
+
+	/**
 	 * Scans one file. The file is only read as text, never run.
 	 *
 	 * @param string $path Absolute path.
