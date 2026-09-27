@@ -63,15 +63,16 @@ Also:
 
 ## Top 30 WordPress.org plugins, target 8.4
 
-195 error-level findings (a naive scan counts 198 and calls them all Blockers):
+195 error-level findings (a naive scan counts 198 and calls them all Blockers). Re-run on 1.0.0 (27 Sep 2026):
 
 | | Count |
 |---|---|
-| Guarded (132, including 22 via the cross-file check) | 132 |
+| Guarded (including 22 via the cross-file check) | 128 |
 | Suppressed by author | 61 |
 | Plain | 2 |
+| Not a PHP problem: the plugin provides the name itself (own code or polyfill; shown as notices) | 4 |
 
-Plugin verdicts: **2 Blocker** (both real bugs), 2 Suppressed (Jetpack, Wordfence), 4 Guarded (All-in-One WP Migration, Google Site Kit, WP Mail SMTP, WPForms Lite), 12 Warnings, 10 Ready. A naive scan would call Wordfence, UpdraftPlus, Site Kit and All-in-One WP Migration Blockers (three of those four wrongly) and would miss Essential Addons among the other errors.
+Plugin verdicts: **2 Blocker** (both real bugs), 2 Suppressed (Jetpack, Wordfence), 3 Guarded (All-in-One WP Migration, Google Site Kit, WPForms Lite), 13 Warnings, 10 Ready. Re-run 27 Sep 2026 on 1.0.0: WP Mail SMTP moved from Guarded to Warnings because of the own-code rule (its bundled Symfony polyfill defines `INTL_IDNA_VARIANT_2003` itself, so those two findings are notices, not PHP problems). A naive scan would call Wordfence, UpdraftPlus, Site Kit and All-in-One WP Migration Blockers (three of those four wrongly) and would miss Essential Addons among the other errors.
 
 ### The plain findings, each marked
 
