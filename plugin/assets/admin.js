@@ -1095,16 +1095,60 @@
 			);
 		}
 
-		// Continue scan is the main action on a stopped scan; otherwise New scan is.
+		// A stopped scan: a banner where the headline goes, with Continue scan right in it.
 		var newScanClass = scan.resumable ? 'button' : 'button button-primary';
 		var status       = null;
 		if ( 'cancelled' === scan.status ) {
-			status = el(
-				'p',
-				{ class: 'airworthy-note airworthy-note-warning' },
-				scan.resumable ?
-				__( 'This scan was stopped before it finished, so the results below are incomplete. Continue scan picks up where it stopped; plugins and themes already checked keep their results.', 'airworthy' ) :
-				__( 'This scan was stopped before it finished. The results below are incomplete.', 'airworthy' )
+			var checked = components.filter(
+				function ( c ) {
+					return 'done' === c.status;
+				}
+			).length;
+			var total   = ( scan.progress && scan.progress.components ) || components.length;
+			var resume  = null;
+			if ( scan.resumable ) {
+				resume = el(
+					'button',
+					{ type: 'button', class: 'button button-primary airworthy-headline-action', onclick: function ( event ) {
+						event.target.disabled = true;
+						apiFetch( { path: REST + '/scans/' + scan.id + '/resume', method: 'POST' } ).then(
+							function ( s ) {
+								state.scan = s;
+								announce( __( 'Continuing the scan.', 'airworthy' ) );
+								startProgress(); // Fresh progress screen and time estimate.
+							}
+						).catch(
+							function ( error ) {
+								event.target.disabled = false;
+								window.alert( errorMessage( error ) );
+							}
+						);
+					} },
+					__( 'Continue scan', 'airworthy' )
+				);
+			}
+			headline = el(
+				'div',
+				{ class: 'airworthy-headline airworthy-headline-stopped' },
+				el( 'span', { class: 'airworthy-headline-icon', 'aria-hidden': 'true' }, '❚❚' ),
+				el(
+					'div',
+					{ class: 'airworthy-headline-text' },
+					el(
+						'strong',
+						null,
+						/* translators: 1: percent, 2: plugins/themes checked, 3: total. */
+						sprintf( __( 'Scan stopped at %1$d%%: %2$d of %3$d plugins and themes checked.', 'airworthy' ), ( scan.progress && scan.progress.percent ) || 0, checked, total )
+					),
+					el(
+						'p',
+						null,
+						scan.resumable ?
+						__( 'The results below are incomplete. Continue scan picks up where it stopped, and what has been checked keeps its results.', 'airworthy' ) :
+						__( 'The results below are incomplete. Start a new scan to check everything.', 'airworthy' )
+					)
+				),
+				resume
 			);
 		} else if ( 'failed' === scan.status ) {
 			status = el( 'p', { class: 'airworthy-note airworthy-note-error' }, scan.error || __( 'The scan could not be completed.', 'airworthy' ) );
@@ -1193,25 +1237,6 @@
 						'div',
 						{ class: 'airworthy-head-actions' },
 						el( 'a', { class: 'button', href: scan.export_url }, __( 'Export CSV', 'airworthy' ) ),
-						scan.resumable ? el(
-							'button',
-							{ type: 'button', class: 'button button-primary', onclick: function ( event ) {
-								event.target.disabled = true;
-								apiFetch( { path: REST + '/scans/' + scan.id + '/resume', method: 'POST' } ).then(
-									function ( s ) {
-										state.scan = s;
-										announce( __( 'Continuing the scan.', 'airworthy' ) );
-										startProgress(); // Fresh progress screen and time estimate.
-									}
-								).catch(
-									function ( error ) {
-										event.target.disabled = false;
-										window.alert( errorMessage( error ) );
-									}
-								);
-							} },
-							__( 'Continue scan', 'airworthy' )
-						) : null,
 						el(
 							'button',
 							{ type: 'button', class: newScanClass, onclick: function () {

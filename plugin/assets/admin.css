@@ -876,6 +876,11 @@
 .airworthy-headline-bad { background: #fcf0f1; border-color: #f1adad; }
 .airworthy-headline-bad strong { color: #8a2424; }
 .airworthy-headline-bad .airworthy-headline-icon { background: #d63638; }
+.airworthy-headline-stopped { background: #fcf9e8; border-color: #f0d887; align-items: center; }
+.airworthy-headline-stopped strong { color: #614a00; }
+.airworthy-headline-stopped .airworthy-headline-icon { background: #dba617; font-size: 10px; letter-spacing: -1px; }
+.airworthy-headline-text { flex: 1; min-width: 0; }
+.airworthy-wrap .airworthy-headline-action { flex: none; margin-left: auto; }
 .airworthy-headline-unknown { background: #f6f7f7; border-color: #c3c4c7; }
 .airworthy-headline-unknown strong { color: #3c434a; }
 .airworthy-headline-unknown .airworthy-headline-icon { background: #8c8f94; }
@@ -1022,4 +1027,18 @@
 
 .airworthy-settings > .airworthy-note {
 	margin: 0 0 20px;
+}
+
+@media screen and (max-width: 600px) {
+	.airworthy-headline-stopped {
+		flex-wrap: wrap;
+	}
+
+	.airworthy-headline-stopped .airworthy-headline-text {
+		flex-basis: calc(100% - 44px);
+	}
+
+	.airworthy-wrap .airworthy-headline-action {
+		margin-left: 44px;
+	}
 }
