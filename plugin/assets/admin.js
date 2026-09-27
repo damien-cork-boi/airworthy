@@ -1185,9 +1185,9 @@
 				headline,
 				summary,
 				el(
-					'details',
-					{ class: 'airworthy-legend-toggle' },
-					el( 'summary', null, __( 'What do the verdicts mean?', 'airworthy' ) ),
+					'section',
+					{ class: 'airworthy-legend-box' },
+					el( 'h3', null, __( 'What the verdicts mean', 'airworthy' ) ),
 					verdictLegend( scan )
 				),
 				status,
