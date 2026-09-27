@@ -10,7 +10,7 @@ const features = boldList( sub( 'description', 'What you get' )?.markdown || '' 
 const verdicts = boldList( sub( 'frequently-asked-questions', 'What does each verdict mean?' )?.markdown || '' );
 const cli = sub( 'description', 'WP-CLI' );
 const faq = r.sections[ 'frequently-asked-questions' ].subsections.filter( ( q ) =>
-	[ 'does-airworthy-change-my-php-version-or-my-site', 'what-can-a-static-scan-catch-and-what-can-t-it', 'what-is-sent-to-wordpress-org', 'will-a-scan-slow-down-my-site' ].includes( q.slug )
+	[ 'does-airworthy-change-my-php-version-or-my-site', 'what-can-a-static-scan-catch-and-what-can-t-it', 'is-a-ready-result-a-guarantee-that-my-site-will-work', 'what-is-sent-to-wordpress-org', 'will-a-scan-slow-down-my-site' ].includes( q.slug )
 );
 const verdictClass = ( title: string ) => 'v-' + title.toLowerCase().split( ' ' )[ 0 ];
 const shotOne = r.screenshots.find( ( s ) => s.n === 1 );

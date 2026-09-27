@@ -830,3 +830,102 @@
 .airworthy-wrap h2[tabindex="-1"]:focus:not(:focus-visible) {
 	outline: none;
 }
+
+/* Whole-site headline above the tiles. */
+
+.airworthy-headline {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	margin: 20px 0 4px;
+	padding: 16px 18px;
+	border-radius: 10px;
+	border: 1px solid;
+}
+
+.airworthy-headline strong {
+	display: block;
+	font-size: 16px;
+	line-height: 1.4;
+}
+
+.airworthy-headline p {
+	margin: 4px 0 0;
+	color: #3c434a;
+}
+
+.airworthy-headline-icon {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	font-size: 17px;
+	font-weight: 700;
+	color: #fff;
+}
+
+.airworthy-headline-good { background: #edfaef; border-color: #a7e3b5; }
+.airworthy-headline-good strong { color: #005c12; }
+.airworthy-headline-good .airworthy-headline-icon { background: #00a32a; }
+.airworthy-headline-bad { background: #fcf0f1; border-color: #f1adad; }
+.airworthy-headline-bad strong { color: #8a2424; }
+.airworthy-headline-bad .airworthy-headline-icon { background: #d63638; }
+.airworthy-headline-unknown { background: #f6f7f7; border-color: #c3c4c7; }
+.airworthy-headline-unknown strong { color: #3c434a; }
+.airworthy-headline-unknown .airworthy-headline-icon { background: #8c8f94; }
+
+/* Colour-coded tiles: tinted when they hold results, faded at zero. */
+
+.airworthy-wrap .airworthy-summary li:not(.airworthy-has-items) .airworthy-summary-count,
+.airworthy-wrap .airworthy-summary li:not(.airworthy-has-items) .airworthy-summary-label {
+	color: #a7aaad;
+}
+
+.airworthy-wrap .airworthy-summary-blocker.airworthy-has-items { background: #fcf0f1; border-color: #f1adad; border-left-color: #d63638; }
+.airworthy-wrap .airworthy-summary-blocker.airworthy-has-items .airworthy-summary-count { color: #b32d2e; }
+.airworthy-wrap .airworthy-summary-unknown.airworthy-has-items { background: #f6f7f7; border-color: #c3c4c7; border-left-color: #8c8f94; }
+.airworthy-wrap .airworthy-summary-unknown.airworthy-has-items .airworthy-summary-count { color: #3c434a; }
+.airworthy-wrap .airworthy-summary-suppressed.airworthy-has-items { background: #fcf9e8; border-color: #f2d675; border-left-color: #dba617; }
+.airworthy-wrap .airworthy-summary-suppressed.airworthy-has-items .airworthy-summary-count { color: #6e4f00; }
+.airworthy-wrap .airworthy-summary-guarded.airworthy-has-items { background: #f0f6fc; border-color: #9ec2e6; border-left-color: #2271b1; }
+.airworthy-wrap .airworthy-summary-guarded.airworthy-has-items .airworthy-summary-count { color: #0a4b78; }
+.airworthy-wrap .airworthy-summary-warnings.airworthy-has-items { background: #fef8ee; border-color: #f5e6ab; border-left-color: #dba617; }
+.airworthy-wrap .airworthy-summary-warnings.airworthy-has-items .airworthy-summary-count { color: #6e4f00; }
+.airworthy-wrap .airworthy-summary-ready.airworthy-has-items { background: #edfaef; border-color: #a7e3b5; border-left-color: #00a32a; }
+.airworthy-wrap .airworthy-summary-ready.airworthy-has-items .airworthy-summary-count { color: #005c12; }
+
+/* Before-you-upgrade reminder (results view). */
+
+.airworthy-before {
+	margin-top: 18px;
+	padding: 14px 18px;
+	border: 1px solid #e2e4e7;
+	border-left: 4px solid #dba617;
+	border-radius: 10px;
+	background: #fffdf5;
+}
+
+.airworthy-before strong {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 14px;
+}
+
+.airworthy-before ul {
+	margin: 0 0 8px;
+	padding-left: 18px;
+	list-style: disc;
+}
+
+.airworthy-before li {
+	margin-bottom: 4px;
+}
+
+.airworthy-before p {
+	margin: 0;
+	color: #50575e;
+	font-size: 12px;
+}

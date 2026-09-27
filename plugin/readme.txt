@@ -16,6 +16,8 @@ Your host wants you on a newer PHP version. Will your site survive the switch?
 
 Airworthy reads the code of every installed plugin and of your theme (on multisite: every network-enabled theme) and checks it against the PHP version you pick, from PHP 8.0 to PHP 8.5. It also looks each plugin up on WordPress.org to see whether it is still maintained. You get one clear verdict per plugin and theme, before you touch your server settings.
 
+**Important:** Airworthy helps you plan a PHP upgrade; it doesn't guarantee one. Always back up your site and test the new PHP version on a staging copy before changing your live site.
+
 = What you get =
 
 * **A verdict for every plugin and theme.** Blocker, Unknown, Suppressed, Guarded, Warnings or Ready, each with one plain sentence explaining what it means for you.
@@ -91,6 +93,10 @@ No. It only reads files and reports. You change the PHP version yourself, usuall
 Airworthy reads the code without running it. That catches most PHP upgrade problems: functions, classes and constants that were removed, changed syntax, removed extensions, and new reserved words. It sees every file, including code paths your visitors rarely trigger.
 
 It can't see what only happens when code runs. For example: code that builds function names at run time, behaviour that depends on your data or settings, and problems in files a plugin downloads or generates later. Some newer PHP changes (such as a few PHP 8.1 and 8.5 deprecations) can't be detected reliably by reading code yet. So a "Ready" verdict means no problems were found, not a guarantee. Test on a staging copy of your site, and keep a backup, before you switch.
+
+= Is a "Ready" result a guarantee that my site will work? =
+
+No. Airworthy reads code without running it, so some problems can't be seen this way: code that only fails when it runs with your data or settings, your server's configuration, or other software on your site. Treat the results as guidance for planning. Before changing PHP on your live site, back up your files and database, try the new version on a staging copy and check the pages that matter most (checkout, forms, logins), and make sure you know how to switch back. Airworthy is free software provided without any warranty (see the licence), and DigitalKind isn't liable for the results of changing your PHP version.
 
 = Why are some problems marked "already on your PHP"? =
 

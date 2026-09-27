@@ -34,6 +34,7 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - Create the WordPress.org account "digitalkind" (readme Contributors must be a real username); confirm the "airworthy" slug on submission.
 - Launch headline, once the bugs are fixed: "We scanned the 30 most popular WordPress plugins for PHP 8.4. A basic scan flags 4 as broken, and 3 of those are false alarms. Airworthy finds the 2 real bugs." Evidence: airworthy/docs/ACCURACY.md.
 - Quick legal check that bundling LGPL-3.0 and BSD code in a commercially sold GPL plugin is fine.
+- Before selling Pro: a solicitor to draft terms of sale (warranty, limitation of liability, refunds, EU consumer rights) and review the website's legal notice. The free plugin relies on the GPL's no-warranty terms plus the in-plugin and website disclaimers (added 27 Sep 2026).
 - Update Targets::SECURITY_UNTIL (PHP support dates) against php.net at every release.
 
 **Post-launch:**

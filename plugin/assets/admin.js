@@ -1051,6 +1051,35 @@
 			)
 		);
 
+		// One coloured sentence for the whole site, above the tiles (finished scans only).
+		var headline = null;
+		if ( 'complete' === scan.status ) {
+			var needs = counts.blocker || 0;
+			var kind  = needs ? 'bad' : ( counts.unknown ? 'unknown' : 'good' );
+			var title = needs ?
+				/* translators: 1: number of plugins/themes, 2: PHP version. */
+				sprintf( _n( '%1$d plugin or theme needs attention before you upgrade to PHP %2$s.', '%1$d plugins or themes need attention before you upgrade to PHP %2$s.', needs, 'airworthy' ), needs, scan.target_php ) :
+				( counts.unknown ?
+					/* translators: %s: PHP version. */
+					sprintf( __( 'Nothing found that would break on PHP %s, but some files could not be checked.', 'airworthy' ), scan.target_php ) :
+					/* translators: %s: PHP version. */
+					sprintf( __( 'Good news: nothing Airworthy found will break when you upgrade to PHP %s.', 'airworthy' ), scan.target_php ) );
+			var sub = needs ?
+				__( 'Open their details below to see what would break, and whether an update fixes it.', 'airworthy' ) :
+				( counts.unknown ?
+					/* translators: %d: number of plugins/themes. */
+					sprintf( _n( '%d plugin or theme has no verdict yet: the files that could not be checked are listed below.', '%d plugins or themes have no verdict yet: the files that could not be checked are listed below.', counts.unknown, 'airworthy' ), counts.unknown ) :
+					( counts.warnings ?
+						__( 'Some plugins use features PHP is phasing out. Nothing breaks now; keep them updated. As always, test on a staging copy before you switch.', 'airworthy' ) :
+						__( 'Test on a staging copy before you switch all the same: some problems only show up when code runs.', 'airworthy' ) ) );
+			headline = el(
+				'div',
+				{ class: 'airworthy-headline airworthy-headline-' + kind },
+				el( 'span', { class: 'airworthy-headline-icon', 'aria-hidden': 'true' }, 'good' === kind ? '✓' : ( 'bad' === kind ? '!' : '?' ) ),
+				el( 'div', null, el( 'strong', null, title ), el( 'p', null, sub ) )
+			);
+		}
+
 		var status = null;
 		if ( 'cancelled' === scan.status ) {
 			status = el( 'p', { class: 'airworthy-note airworthy-note-warning' }, __( 'This scan was stopped before it finished. The results below are incomplete.', 'airworthy' ) );
@@ -1135,6 +1164,7 @@
 						)
 					)
 				),
+				headline,
 				summary,
 				el(
 					'details',
@@ -1143,7 +1173,19 @@
 					verdictLegend( scan )
 				),
 				status,
-				el( 'p', { class: 'airworthy-honest' }, __( 'Airworthy reads your plugins’ code without running it. A check like this can’t catch everything: some problems only show up when code runs, and a future version will add runtime checking to confirm these results.', 'airworthy' ) )
+				el(
+					'div',
+					{ class: 'airworthy-before' },
+					el( 'strong', null, __( 'Before you change your PHP version', 'airworthy' ) ),
+					el(
+						'ul',
+						null,
+						el( 'li', null, __( 'Back up your whole site first: files and database.', 'airworthy' ) ),
+						el( 'li', null, __( 'Try the new PHP version on a staging copy of your site before your live site, and click through what matters: checkout, forms, logins, bookings.', 'airworthy' ) ),
+						el( 'li', null, __( 'Know how to switch back: most hosts let you change the PHP version back in their control panel.', 'airworthy' ) )
+					),
+					el( 'p', null, __( 'Airworthy reads your plugins’ code without running it, so it can’t catch everything: some problems only show up when code runs, or come from your server’s set-up. Its results are guidance to help you plan, not a guarantee that your site will work.', 'airworthy' ) )
+				)
 			),
 			closed.length ? el(
 				'div',
