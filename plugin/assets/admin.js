@@ -1080,7 +1080,12 @@
 					/* translators: %d: number of plugins/themes. */
 					sprintf( _n( '%d plugin or theme has no verdict yet: the files that could not be checked are listed below.', '%d plugins or themes have no verdict yet: the files that could not be checked are listed below.', counts.unknown, 'airworthy' ), counts.unknown ) :
 					( counts.warnings ?
-						__( 'Some plugins use features PHP is phasing out. Nothing breaks now; keep them updated. As always, test on a staging copy before you switch.', 'airworthy' ) :
+						sprintf(
+							/* translators: 1: number of plugins/themes, 2: PHP version. */
+							_n( '%1$d plugin or theme uses PHP features that still work on PHP %2$s but will be removed in a later PHP version. Your site won\'t break because of them now, and keeping it updated usually fixes them before that happens.', '%1$d plugins or themes use PHP features that still work on PHP %2$s but will be removed in a later PHP version. Your site won\'t break because of them now, and keeping them updated usually fixes them before that happens.', counts.warnings, 'airworthy' ),
+							counts.warnings,
+							scan.target_php
+						) :
 						__( 'Test on a staging copy before you switch all the same: some problems only show up when code runs.', 'airworthy' ) ) );
 			headline = el(
 				'div',
@@ -1209,7 +1214,7 @@
 						el( 'li', null, __( 'Try the new PHP version on a staging copy of your site before your live site, and click through what matters: checkout, forms, logins, bookings.', 'airworthy' ) ),
 						el( 'li', null, __( 'Know how to switch back: most hosts let you change the PHP version back in their control panel.', 'airworthy' ) )
 					),
-					el( 'p', null, __( 'Airworthy reads your plugins’ code without running it, so it can’t catch everything: some problems only show up when code runs, or come from your server’s set-up. Its results are guidance to help you plan, not a guarantee that your site will work.', 'airworthy' ) )
+					el( 'p', null, __( 'Airworthy reads your plugins’ code without running it, so it can’t catch everything: some problems only show up when code runs, or come from your server’s set-up. Use the results to plan your upgrade, not as a guarantee that your site will work.', 'airworthy' ) )
 				)
 			),
 			closed.length ? el(

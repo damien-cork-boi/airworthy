@@ -251,7 +251,7 @@ final class Page {
 					<dd id="airworthy-estimate" class="airworthy-muted"><?php esc_html_e( 'Working it out…', 'airworthy' ); ?></dd>
 				</dl>
 
-				<p class="airworthy-small airworthy-muted"><?php esc_html_e( 'Airworthy only reads files. It never changes your site, your plugins or your server. Its results are guidance, not a guarantee: always back up your site and test on a staging copy before you change your PHP version.', 'airworthy' ); ?></p>
+				<p class="airworthy-small airworthy-muted"><?php esc_html_e( 'Airworthy only reads files. It never changes your site, your plugins or your server. The results help you plan but are not a guarantee: always back up your site and test on a staging copy before you change your PHP version.', 'airworthy' ); ?></p>
 
 				<form class="airworthy-start" id="airworthy-start-form">
 					<?php $airworthy_consent = \Airworthy\Wporg\Consent::get(); ?>
