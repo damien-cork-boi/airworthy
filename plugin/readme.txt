@@ -92,6 +92,10 @@ Airworthy reads the code without running it. That catches most PHP upgrade probl
 
 It can't see what only happens when code runs. For example: code that builds function names at run time, behaviour that depends on your data or settings, and problems in files a plugin downloads or generates later. Some newer PHP changes (such as a few PHP 8.1 and 8.5 deprecations) can't be detected reliably by reading code yet. So a "Ready" verdict means no problems were found, not a guarantee. Test on a staging copy of your site, and keep a backup, before you switch.
 
+= Why are some problems marked "already on your PHP"? =
+
+Airworthy compares the PHP version your site runs now with the one you're moving to. Only PHP changes in between can break something when you upgrade. Code hit by an older change (for example a function removed in PHP 7.0, on a site that already runs PHP 8.3) either never runs on your site or is already failing today, and upgrading doesn't change that. Those findings are still listed in each plugin's details, but they aren't counted as Blockers. If you're checking a copy of a site that runs on another server, choose its PHP version under "Compare from another PHP version".
+
 = What does each verdict mean? =
 
 * **Blocker:** needs attention before you upgrade. Some of its code will not work on the PHP version you picked, or it needs a newer PHP version than that.

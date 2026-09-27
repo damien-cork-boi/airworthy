@@ -62,6 +62,11 @@ final class Controller {
 						'enum'        => Targets::ALL,
 						'description' => __( 'Exact PHP version to check against.', 'airworthy' ),
 					),
+					'from'   => array(
+						'type'        => 'string',
+						'pattern'     => '^[5-9]\\.[0-9]$',
+						'description' => __( 'PHP version the site upgrades from, e.g. 8.3. Default: this server\'s.', 'airworthy' ),
+					),
 					'wporg'  => array(
 						'type'        => 'boolean',
 						'description' => __( 'Whether to look plugins up on WordPress.org (sends their folder names). Saved as the site\'s choice. Default: the saved choice, off if none.', 'airworthy' ),
@@ -109,7 +114,7 @@ final class Controller {
 						'type'  => 'array',
 						'items' => array(
 							'type' => 'string',
-							'enum' => array( 'plain', 'guarded', 'suppressed' ),
+							'enum' => array( 'plain', 'guarded', 'suppressed', 'existing' ),
 						),
 					),
 					'page'      => array(
@@ -192,7 +197,8 @@ final class Controller {
 			$wporg = (bool) $request['wporg'];
 			Consent::set( $wporg ); // The administrator's explicit answer, remembered for next time.
 		}
-		$id = Queue::start( (string) $request['target'], get_current_user_id(), $wporg );
+		$from = null !== $request['from'] && '' !== $request['from'] ? (string) $request['from'] : null;
+		$id   = Queue::start( (string) $request['target'], get_current_user_id(), $wporg, $from );
 		if ( is_wp_error( $id ) ) {
 			$id->add_data( array( 'status' => 'airworthy_scan_running' === $id->get_error_code() ? 409 : 400 ) );
 			return $id;
@@ -240,7 +246,7 @@ final class Controller {
 		}
 		$t = Installer::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table.
-		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, type, slug, name, version, is_active, status, phase, verdict, errors, guarded, suppressed, warnings, files_total, files_done, files_failed, files_skipped, files_ignored, wporg FROM {$t['components']} WHERE scan_id = %d ORDER BY id", $scan->id ) );
+		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT id, type, slug, name, version, is_active, status, phase, verdict, errors, guarded, suppressed, existing, warnings, files_total, files_done, files_failed, files_skipped, files_ignored, wporg FROM {$t['components']} WHERE scan_id = %d ORDER BY id", $scan->id ) );
 
 		$order      = array_flip( Verdict::ALL );
 		$components = array();
@@ -259,6 +265,7 @@ final class Controller {
 					'errors'     => (int) $r->errors,
 					'suppressed' => (int) $r->suppressed,
 					'guarded'    => (int) $r->guarded,
+					'existing'   => (int) $r->existing,
 					'warnings'   => (int) $r->warnings,
 				),
 				'files'   => array(
@@ -319,7 +326,7 @@ final class Controller {
 		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t['issues']} WHERE $sql_where", $args ) );
 		// Scan problems first, then errors, then warnings; within each by file and line.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Own table; filter values plus LIMIT/OFFSET are passed as one merged array.
-		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT file, line, severity, context, rule, message FROM {$t['issues']} WHERE $sql_where ORDER BY CASE severity WHEN 'scan' THEN 0 WHEN 'error' THEN 1 WHEN 'warning' THEN 2 ELSE 3 END, CASE context WHEN 'plain' THEN 0 WHEN 'suppressed' THEN 1 ELSE 2 END, file, line LIMIT %d OFFSET %d", array_merge( $args, array( $per_page, $offset ) ) ) );
+		$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT file, line, severity, context, rule, message FROM {$t['issues']} WHERE $sql_where ORDER BY CASE severity WHEN 'scan' THEN 0 WHEN 'error' THEN 1 WHEN 'warning' THEN 2 ELSE 3 END, CASE context WHEN 'plain' THEN 0 WHEN 'suppressed' THEN 1 WHEN 'guarded' THEN 2 ELSE 3 END, file, line LIMIT %d OFFSET %d", array_merge( $args, array( $per_page, $offset ) ) ) );
 
 		$items = array();
 		foreach ( $rows as $r ) {
@@ -475,6 +482,7 @@ final class Controller {
 			'id'          => (int) $s->id,
 			'target_php'  => $s->target_php,
 			'host_php'    => $s->host_php,
+			'from_php'    => isset( $s->from_php ) && '' !== $s->from_php ? $s->from_php : null,
 			'status'      => $s->status,
 			'progress'    => array(
 				'files_done'  => (int) $s->files_done,

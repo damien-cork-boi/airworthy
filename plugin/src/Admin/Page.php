@@ -234,6 +234,31 @@ final class Page {
 					<button type="submit" class="button button-primary" id="airworthy-start-button"><?php esc_html_e( 'Start scan', 'airworthy' ); ?></button>
 					<button type="button" class="button-link" id="airworthy-start-cancel" hidden><?php esc_html_e( 'Back to results', 'airworthy' ); ?></button>
 					<p id="airworthy-target-why" class="description"><?php echo esc_html( self::default_explanation( $current, $default ) ); ?></p>
+					<?php $airworthy_from = \Airworthy\Targets::minor( $current ); ?>
+					<details class="airworthy-from">
+						<summary><?php esc_html_e( 'Compare from another PHP version', 'airworthy' ); ?></summary>
+						<label for="airworthy-from"><?php esc_html_e( 'Your site runs PHP', 'airworthy' ); ?></label>
+						<select id="airworthy-from">
+							<?php
+							$airworthy_versions = array_unique( array_merge( array( '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ), array( $airworthy_from ) ) );
+							usort( $airworthy_versions, 'version_compare' );
+							foreach ( $airworthy_versions as $airworthy_version ) :
+								?>
+								<option value="<?php echo esc_attr( $airworthy_version ); ?>" <?php selected( $airworthy_version, $airworthy_from ); ?>>
+									<?php
+									echo esc_html(
+										$airworthy_version === $airworthy_from ?
+										/* translators: %s: PHP version. */
+										sprintf( __( 'PHP %s (this server)', 'airworthy' ), $airworthy_version ) :
+										/* translators: %s: PHP version. */
+										sprintf( __( 'PHP %s', 'airworthy' ), $airworthy_version )
+									);
+									?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+						<p class="description"><?php esc_html_e( 'Problems from PHP changes up to this version already apply to your site today, so they aren\'t counted as Blockers. Change it when you check a copy of a site that runs on another server.', 'airworthy' ); ?></p>
+					</details>
 					<p id="airworthy-ended-note" class="airworthy-note airworthy-note-warning" hidden
 						data-template="<?php /* translators: 1: chosen PHP version, 2: recommended PHP version. */ echo esc_attr( sprintf( __( 'PHP %1$s no longer gets security fixes, and results for unsupported versions are less precise. We recommend PHP %2$s instead.', 'airworthy' ), '%1$s', $default ) ); ?>"></p>
 					<p id="airworthy-start-error" class="airworthy-note airworthy-note-error" role="alert" hidden></p>

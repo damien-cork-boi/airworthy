@@ -45,6 +45,21 @@ $check( 'Verdict: Suppressed beats Guarded', Verdict::SUPPRESSED === Verdict::fr
 $check( 'Verdict: Guarded beats Warnings', Verdict::GUARDED === Verdict::from_counts( array( 'guarded' => 1, 'warnings' => 5 ) ) );
 $check( 'Verdict: nothing found is Ready', Verdict::READY === Verdict::from_counts( array() ) );
 
+// --- The PHP version each finding's change took effect in.
+$versions = array(
+	'Function create_function() is deprecated since PHP 7.2 and removed since PHP 8.0; Use an anonymous function' => '8.0',
+	"Extension 'mysql_' is deprecated since PHP 5.5 and removed since PHP 7.0; Use mysqli instead" => '7.0',
+	'Indirect access to variables, properties and methods will be evaluated strictly in left-to-right order since PHP 7.0.' => '7.0',
+	'Passing E_USER_ERROR to trigger_error() is deprecated since 8.4.' => null,
+	'Something with no version' => null,
+);
+foreach ( $versions as $message => $want ) {
+	$check( 'Change version: ' . substr( $message, 0, 40 ), $want === \Airworthy\Scan\Queue::change_version( $message ), wp_json_encode( \Airworthy\Scan\Queue::change_version( $message ) ) );
+}
+$check( 'Already applies: removed in 8.0, compared from 8.3', \Airworthy\Scan\Queue::already_applies( 'removed since PHP 8.0', '8.3' ) );
+$check( 'Not yet: removed in 8.4, compared from 8.3', ! \Airworthy\Scan\Queue::already_applies( 'removed since PHP 8.4', '8.3' ) );
+$check( 'Unknown version counts as new', ! \Airworthy\Scan\Queue::already_applies( 'no version here', '8.3' ) );
+
 // --- WordPress.org name matching and signals.
 $check( 'Names: same plugin, extra words', Signals::names_match( 'Akismet', 'Akismet Anti-spam: Spam Protection' ) );
 $check( 'Names: different plugin, same folder', ! Signals::names_match( 'FX Acme Events', 'Calendar' ) );

@@ -61,6 +61,18 @@ Also:
 | fx-large (2 MB) | Ready or Unknown, never a hang | ✓ Ready with 1 GB, Unknown when memory is low |
 | fx-warnings | Ready on 8.0, Warnings on 8.1+ | ✓ |
 
+## New with this upgrade (27 Sep 2026, first real-site test)
+
+The first real site (a museum on PHP 8.3, target 8.4) showed 4 Blockers, and none was caused by the upgrade: every finding came from a PHP change at or before 8.3 (mcrypt removed in 7.2, variable syntax changed in 7.0, track_errors removed in 8.0). That code either never runs or already fails on the site today. Since then:
+
+- Each scan records the PHP version it compares from (default: the server's; start screen "Compare from another PHP version"; WP-CLI `--from`). An error whose change took effect at or before that version (read from PHPCompatibility's "removed since PHP x.y" / "since PHP x.y") gets context `existing`: listed, not a Blocker. Unknown versions count as new.
+- Removed extensions: a check for any mcrypt_* / mysql_* function covers the extension's other functions and constants, and code that only runs when the replacement (openssl, mysqli) is missing is guarded (fixtures fx-ext-fallback / fx-ext-fake).
+- `ForbiddenStripTagsSelfClosingXHTML` (harmless: the tag is ignored) is a warning.
+
+Fixture tests compare from PHP 5.6 (everything counts as new), so the matrix below is unchanged; `tests/run.sh` also checks create_function is a Blocker from 7.4 and `existing` from 8.0.
+
+Top 30 at target 8.4, compared from PHP 7.4: **2 Blocker** (the same two real bugs, both from PHP 8.0), 1 Suppressed (Jetpack), 4 Guarded (All-in-One WP Migration, Site Kit, WPForms Lite, and now Wordfence: its suppressed mysql_ code was removed in PHP 7.0, so it's `existing`), 13 Warnings, 10 Ready; 56 findings already apply on PHP 7.4.
+
 ## Top 30 WordPress.org plugins, target 8.4
 
 195 error-level findings (a naive scan counts 198 and calls them all Blockers). Re-run on 1.0.0 (27 Sep 2026):

@@ -75,6 +75,9 @@ final class Command {
 	 *   - warnings
 	 * ---
 	 *
+	 * [--from=<version>]
+	 * : PHP version the site upgrades from, e.g. 7.4. Problems from PHP changes up to that version already apply today, so they aren't Blockers. Default: this server's PHP version.
+	 *
 	 * [--[no-]wporg]
 	 * : Also look plugins up on WordPress.org (closed, abandoned, Requires PHP), which sends their folder names to api.wordpress.org. Default: the choice saved on the admin screen; off if nobody has chosen yet.
 	 *
@@ -132,7 +135,12 @@ final class Command {
 			WP_CLI::log( 'WordPress.org checks are off for this scan (add --wporg to include them).' );
 		}
 
-		$scan_id = Queue::start( $target, 0, $wporg );
+		$from = isset( $assoc_args['from'] ) ? (string) $assoc_args['from'] : null;
+		if ( null !== $from && ! Targets::is_valid_from( $from ) ) {
+			WP_CLI::error( sprintf( 'Unsupported --from "%s". Use a PHP version such as 7.4 or 8.3.', $from ) );
+		}
+
+		$scan_id = Queue::start( $target, 0, $wporg, $from );
 		if ( is_wp_error( $scan_id ) ) {
 			WP_CLI::error( $scan_id->get_error_message() );
 		}
@@ -145,7 +153,7 @@ final class Command {
 			return;
 		}
 
-		WP_CLI::log( sprintf( 'Checking against PHP %s…', $target ) );
+		WP_CLI::log( sprintf( 'Checking against PHP %1$s, upgrading from PHP %2$s…', $target, null !== $from ? $from : Targets::minor( \Airworthy\Env::php_version() ) ) );
 		$this->run_to_completion( $scan_id );
 		if ( $only && ! $this->components( $scan_id ) ) {
 			WP_CLI::warning( sprintf( 'None of these are installed: %s.', implode( ', ', $only ) ) );
@@ -166,7 +174,7 @@ final class Command {
 	 * : Only these verdicts, comma-separated: blocker, unknown, suppressed, guarded, warnings, ready.
 	 *
 	 * [--fields=<fields>]
-	 * : Columns to show. Default: name,slug,version,verdict,errors,suppressed,guarded,warnings,wporg. Also available: type, active, files, last_updated, tested, requires_php, update, closed.
+	 * : Columns to show. Default: name,slug,version,verdict,errors,suppressed,guarded,warnings,wporg. Also available: type, active, existing (problems that already apply on the PHP version compared from), files, last_updated, tested, requires_php, update, closed.
 	 *
 	 * [--format=<format>]
 	 * : Output format.
@@ -490,6 +498,10 @@ final class Command {
 				WP_CLI::warning( sprintf( '%1$s was removed from WordPress.org (%2$s). No more updates will come.', $r['name'], $r['closed'] ) );
 			}
 			WP_CLI::log( $summary );
+			$existing = array_sum( wp_list_pluck( $this->components( $scan_id ), 'existing' ) );
+			if ( $existing && ! empty( $scan->from_php ) ) {
+				WP_CLI::log( sprintf( '%1$d problems already apply on PHP %2$s, so they are not caused by this upgrade (see the "existing" column).', $existing, $scan->from_php ) );
+			}
 			if ( in_array( $scan->wporg_status, array( 'offline', 'partial' ), true ) ) {
 				WP_CLI::warning( 'WordPress.org could not be reached for some plugins; their maintenance details are missing.' );
 			}
@@ -537,6 +549,7 @@ final class Command {
 				'errors'       => (int) $c->errors,
 				'suppressed'   => (int) $c->suppressed,
 				'guarded'      => (int) $c->guarded,
+				'existing'     => (int) $c->existing,
 				'warnings'     => (int) $c->warnings,
 				'files'        => sprintf( '%d/%d', (int) $c->files_done, (int) $c->files_total ),
 				'wporg'        => $w ? ( $flags ? implode( ', ', $flags ) : 'ok' ) : '-',

@@ -106,6 +106,25 @@
 	margin: 4px 0;
 }
 
+/* Compare-from option (start view). */
+
+.airworthy-from {
+	flex-basis: 100%;
+}
+
+.airworthy-from summary {
+	cursor: pointer;
+	color: #2271b1;
+}
+
+.airworthy-from label {
+	margin-right: 8px;
+}
+
+.airworthy-from .description {
+	margin: 6px 0 0;
+}
+
 /* Progress view. */
 
 .airworthy-progress-what {
@@ -319,7 +338,8 @@
 .airworthy-sev-warning .airworthy-sev { color: #996800; }
 .airworthy-sev-notice .airworthy-sev,
 .airworthy-ctx-guarded .airworthy-sev,
-.airworthy-ctx-suppressed .airworthy-sev { color: #646970; font-weight: 400; }
+.airworthy-ctx-suppressed .airworthy-sev,
+.airworthy-ctx-existing .airworthy-sev { color: #646970; font-weight: 400; }
 
 .airworthy-line {
 	white-space: nowrap;

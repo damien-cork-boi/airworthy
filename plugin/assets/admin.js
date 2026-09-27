@@ -112,6 +112,7 @@
 	var CONTEXT   = {
 		guarded: __( 'guarded', 'airworthy' ),
 		suppressed: __( 'suppressed by author', 'airworthy' ),
+		existing: __( 'already so before this upgrade', 'airworthy' ),
 	};
 
 	// ---------------------------------------------------------------------------------------
@@ -294,7 +295,8 @@
 			startButton.disabled = true;
 			startError.hidden    = true;
 			var wporg            = form.querySelector( 'input[name="wporg"]:checked' );
-			apiFetch( { path: REST + '/scans', method: 'POST', data: { target: select.value, wporg: ! ! wporg && 'yes' === wporg.value } } ).then(
+			var from             = document.getElementById( 'airworthy-from' );
+			apiFetch( { path: REST + '/scans', method: 'POST', data: { target: select.value, wporg: ! ! wporg && 'yes' === wporg.value, from: from ? from.value : '' } } ).then(
 				function ( scan ) {
 					state.scan = scan;
 					/* translators: %s: PHP version. */
@@ -488,6 +490,11 @@
 					/* translators: %s: PHP version. */
 					sprintf( __( 'Whether old code only runs on old PHP versions, behind a version check. If it can never run on PHP %s, it is marked as guarded legacy code, not as a problem.', 'airworthy' ), scan.target_php )
 				),
+				scan.from_php ? item(
+					__( 'What is new with this upgrade.', 'airworthy' ),
+					/* translators: 1: PHP version the site runs, 2: target PHP version. */
+					sprintf( __( 'Only changes after PHP %1$s, the version your site runs now, can be Blockers: code hit by older changes already fails or never runs today, and PHP %2$s doesn\'t change that. Those are still listed, marked as already on your PHP.', 'airworthy' ), scan.from_php, scan.target_php )
+				) : null,
 				'off' === scan.wporg ? null : item(
 					__( 'WordPress.org details.', 'airworthy' ),
 					/* translators: %s: PHP version. */
@@ -513,8 +520,12 @@
 		/* translators: %s: PHP version. */
 		parts.heading.textContent = sprintf( __( 'Checking your site for PHP %s', 'airworthy' ), scan.target_php );
 		/* translators: %s: PHP version. */
-		parts.what.textContent = sprintf( __( 'Airworthy is reading every PHP file in your plugins and theme, without running any of it, and checking each line against what changed up to PHP %s.', 'airworthy' ), scan.target_php );
-		parts.bar.style.width  = Math.max( 2, p.percent ) + '%';
+		parts.what.textContent = scan.from_php ?
+			/* translators: 1: PHP version the site runs, 2: target PHP version. */
+			sprintf( __( 'Airworthy is reading every PHP file in your plugins and theme, without running any of it, and checking each line against what changes between PHP %1$s and PHP %2$s.', 'airworthy' ), scan.from_php, scan.target_php ) :
+			/* translators: %s: PHP version. */
+			sprintf( __( 'Airworthy is reading every PHP file in your plugins and theme, without running any of it, and checking each line against what changed up to PHP %s.', 'airworthy' ), scan.target_php );
+		parts.bar.style.width = Math.max( 2, p.percent ) + '%';
 		parts.barWrap.setAttribute( 'aria-valuenow', String( p.percent ) );
 		fill(
 			parts.text,
@@ -686,6 +697,10 @@
 			/* translators: %d: number. */
 			parts.push( sprintf( _n( '%d guarded', '%d guarded', c.counts.guarded, 'airworthy' ), c.counts.guarded ) );
 		}
+		if ( c.counts.existing ) {
+			/* translators: %d: number. */
+			parts.push( sprintf( _n( '%d already on your PHP', '%d already on your PHP', c.counts.existing, 'airworthy' ), c.counts.existing ) );
+		}
 		if ( c.counts.warnings ) {
 			/* translators: %d: number. */
 			parts.push( sprintf( _n( '%d deprecation', '%d deprecations', c.counts.warnings, 'airworthy' ), c.counts.warnings ) );
@@ -812,7 +827,15 @@
 				'td',
 				{ 'data-label': __( 'Verdict', 'airworthy' ) },
 				verdictBadge( c.verdict, isRunning( scan ) ),
-				v ? el( 'div', { class : 'airworthy-small' }, 'blocker' === c.verdict ? sprintf( v.line, scan.target_php ) : v.line ) : null
+				v ? el(
+					'div',
+					{ class : 'airworthy-small' },
+					'blocker' === c.verdict ? sprintf( v.line, scan.target_php ) :
+					( c.counts.existing && ( 'ready' === c.verdict || 'warnings' === c.verdict ) ?
+						/* translators: %s: PHP version. */
+						sprintf( __( 'Nothing new breaks on PHP %s. Some old code already can\'t run on your current PHP: see the details.', 'airworthy' ), scan.target_php ) :
+						v.line )
+				) : null
 			),
 			el( 'td', { 'data-label': __( 'Findings', 'airworthy' ) }, el( 'span', { class: 'airworthy-small' }, findingsSummary( c ) ) ),
 			el( 'td', { 'data-label': __( 'WordPress.org', 'airworthy' ) }, wporgCell( c, 'off' !== scan.wporg && ( isRunning( scan ) || wporgPending( scan ) ) ) ),
@@ -925,6 +948,28 @@
 		} else if ( 'failed' === scan.status ) {
 			status = el( 'p', { class: 'airworthy-note airworthy-note-error' }, scan.error || __( 'The scan could not be completed.', 'airworthy' ) );
 		}
+		// Problems that already apply on the PHP version the site runs now: shown, not Blockers.
+		var existingTotal = components.reduce(
+			function ( sum, c ) {
+				return sum + ( c.counts.existing || 0 );
+			},
+			0
+		);
+		// Whether the version compared from is this server's own (it can be another, for a copied site).
+		var fromIsServer = scan.from_php && scan.host_php && 0 === String( scan.host_php ).indexOf( scan.from_php + '.' );
+		var existingNote = existingTotal && scan.from_php ? el(
+			'p',
+			{ class: 'airworthy-note' },
+			sprintf(
+				fromIsServer ?
+					/* translators: 1: number of problems, 2: PHP version. */
+					_n( '%1$d problem already applies on PHP %2$s, the version your site runs now, so it isn\'t caused by this upgrade: that code either never runs on your site today or is already failing. It isn\'t counted as a Blocker, and is listed in its plugin\'s details.', '%1$d problems already apply on PHP %2$s, the version your site runs now, so they aren\'t caused by this upgrade: that code either never runs on your site today or is already failing. They aren\'t counted as Blockers, and are listed in each plugin\'s details.', existingTotal, 'airworthy' ) :
+					/* translators: 1: number of problems, 2: PHP version. */
+					_n( '%1$d problem already applies on PHP %2$s, the version you are comparing from, so it isn\'t caused by this upgrade. It isn\'t counted as a Blocker, and is listed in its plugin\'s details.', '%1$d problems already apply on PHP %2$s, the version you are comparing from, so they aren\'t caused by this upgrade. They aren\'t counted as Blockers, and are listed in each plugin\'s details.', existingTotal, 'airworthy' ),
+				existingTotal,
+				scan.from_php
+			)
+		) : null;
 		var wporgNote = null;
 		if ( 'off' === scan.wporg ) {
 			wporgNote = el( 'p', { class: 'airworthy-note' }, __( 'WordPress.org checks were off for this scan, so closed or abandoned plugins aren\'t flagged. You can turn them on when you start the next scan.', 'airworthy' ) );
@@ -963,7 +1008,7 @@
 										__( 'Checked %1$s · server runs PHP %2$s', 'airworthy' ),
 									formatDateTime( scan.finished_at ),
 									scan.host_php
-								) :
+								) + ( scan.from_php ? ' · ' + sprintf( /* translators: %s: PHP version. */ __( 'compared from PHP %s', 'airworthy' ), scan.from_php ) : '' ) :
 								/* translators: %s: server PHP version. */
 							sprintf( __( 'Server runs PHP %s', 'airworthy' ), scan.host_php )
 						)
@@ -1013,6 +1058,7 @@
 					)
 				)
 			) : null,
+			existingNote,
 			wporgNote,
 			uncheckedCard,
 			el(

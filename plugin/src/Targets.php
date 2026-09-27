@@ -40,6 +40,22 @@ final class Targets {
 	 * @param string $target e.g. "8.4".
 	 * @return bool
 	 */
+	/**
+	 * Whether a PHP version is usable as the version a scan compares from ("5.6"–"9.9").
+	 *
+	 * @param string $version e.g. "8.3".
+	 * @return bool
+	 */
+	public static function is_valid_from( $version ) {
+		return (bool) preg_match( '/^[5-9]\.\d$/', (string) $version );
+	}
+
+	/**
+	 * Whether a target is a supported check version ("8.0"–"8.5").
+	 *
+	 * @param string $target e.g. "8.4".
+	 * @return bool
+	 */
 	public static function is_valid( $target ) {
 		return in_array( $target, self::ALL, true );
 	}
@@ -103,7 +119,7 @@ final class Targets {
 	 * @param string $version Version.
 	 * @return string
 	 */
-	private static function minor( $version ) {
+	public static function minor( $version ) {
 		return implode( '.', array_slice( explode( '.', (string) $version ), 0, 2 ) );
 	}
 }

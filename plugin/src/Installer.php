@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
 final class Installer {
 
 	/** Bump when the schema changes; maybe_upgrade() then re-runs dbDelta. */
-	const DB_VERSION = 4;
+	const DB_VERSION = 5;
 
 	/** Stored as a network option on multisite (plain option on single site). */
 	const OPTION_DB_VERSION = 'airworthy_db_version';
@@ -101,6 +101,7 @@ final class Installer {
 				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				target_php varchar(10) NOT NULL,
 				host_php varchar(20) NOT NULL DEFAULT '',
+				from_php varchar(10) NOT NULL DEFAULT '',
 				status varchar(20) NOT NULL DEFAULT 'queued',
 				components_total int(10) unsigned NOT NULL DEFAULT 0,
 				files_total int(10) unsigned NOT NULL DEFAULT 0,
@@ -147,6 +148,7 @@ final class Installer {
 				warnings int(10) unsigned NOT NULL DEFAULT 0,
 				guarded int(10) unsigned NOT NULL DEFAULT 0,
 				suppressed int(10) unsigned NOT NULL DEFAULT 0,
+				existing int(10) unsigned NOT NULL DEFAULT 0,
 				files_skipped int(10) unsigned NOT NULL DEFAULT 0,
 				prepass longtext DEFAULT NULL,
 				wporg longtext DEFAULT NULL,
