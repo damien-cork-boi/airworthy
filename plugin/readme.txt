@@ -27,6 +27,7 @@ Airworthy reads the code of every installed plugin and of your theme (on multisi
 * **Sensible default.** Airworthy recommends the oldest PHP version that still gets security fixes: the smallest upgrade that keeps your site protected. It shows every version's support dates.
 * **Safe on any host.** Scans run in the background in short batches, so they never time out, and they watch memory use. You can leave the page while a scan runs. Nothing is changed on your site.
 * **Settings that fit your site.** Skip inactive plugins, keep a list of plugins and themes never to check, and choose a gentler scan speed for cheap shared hosting.
+* **In Site Health too.** Tools > Site Health shows whether your plugins and themes are ready for the next PHP version, with a link to the full results.
 * **Multisite ready.** On a network, Airworthy is activated network-wide and lives under Network Admin > Settings.
 
 = WP-CLI =
@@ -153,6 +154,7 @@ Email security@airworthywp.com. Please don't post it in the public support forum
 * Optional WordPress.org check (you choose): plugins removed from WordPress.org, not updated in two years, or needing a newer PHP version.
 * Runs in the background with live progress, so a large site never times out.
 * Settings: skip inactive plugins, never scan chosen plugins or themes, and choose how hard scans work your server.
+* A PHP upgrade readiness check in Tools > Site Health.
 * CSV export and WP-CLI commands.
 
 == Upgrade Notice ==

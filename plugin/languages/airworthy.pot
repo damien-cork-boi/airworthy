@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-27T19:16:12+00:00\n"
+"POT-Creation-Date: 2026-09-27T19:46:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: airworthy\n"
@@ -81,6 +81,8 @@ msgid "Airworthy finished checking your site for PHP %s: nothing found that woul
 msgstr ""
 
 #: src/Admin/Notice.php:91
+#: src/Admin/SiteHealth.php:126
+#: src/Admin/SiteHealth.php:139
 msgid "See the results"
 msgstr ""
 
@@ -220,12 +222,12 @@ msgid "Time needed"
 msgstr ""
 
 #: src/Admin/Page.php:251
-#: assets/admin.js:581
+#: assets/admin.js:587
 msgid "Working it out…"
 msgstr ""
 
 #: src/Admin/Page.php:254
-msgid "Airworthy only reads files. It never changes your site, your plugins or your server. Its results are guidance, not a guarantee: always back up your site and test on a staging copy before you change your PHP version."
+msgid "Airworthy only reads files. It never changes your site, your plugins or your server. The results help you plan but are not a guarantee: always back up your site and test on a staging copy before you change your PHP version."
 msgstr ""
 
 #: src/Admin/Page.php:259
@@ -371,6 +373,88 @@ msgstr ""
 msgid "Save settings"
 msgstr ""
 
+#: src/Admin/SiteHealth.php:45
+msgid "PHP upgrade readiness"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Admin/SiteHealth.php:70
+#, php-format
+msgid "Your site runs PHP %s, the newest version Airworthy checks"
+msgstr ""
+
+#: src/Admin/SiteHealth.php:71
+msgid "There is no newer PHP version to prepare for yet. Airworthy will check against the next one once it is released."
+msgstr ""
+
+#: src/Admin/SiteHealth.php:72
+msgid "Open Airworthy"
+msgstr ""
+
+#: src/Admin/SiteHealth.php:79
+msgid "Check your plugins and themes before your next PHP upgrade"
+msgstr ""
+
+#. translators: 1: PHP version the site runs, 2: suggested PHP version.
+#: src/Admin/SiteHealth.php:82
+#, php-format
+msgid "Your site runs PHP %1$s. Before you or your host move it to PHP %2$s, Airworthy can check every plugin and theme and tell you which ones would break. It only reads the files; nothing on your site changes."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Admin/SiteHealth.php:87
+#, php-format
+msgid "Check for PHP %s"
+msgstr ""
+
+#. translators: 1: number of plugins/themes, 2: PHP version.
+#: src/Admin/SiteHealth.php:99
+#, php-format
+msgid "%1$d plugin or theme will not work on PHP %2$s"
+msgid_plural "%1$d plugins or themes will not work on PHP %2$s"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: date, 2: PHP version.
+#: src/Admin/SiteHealth.php:105
+#, php-format
+msgid "Airworthy checked your site on %1$s. Fix, update or replace these before you upgrade to PHP %2$s, or parts of your site may stop working."
+msgstr ""
+
+#: src/Admin/SiteHealth.php:109
+msgid "See what needs attention"
+msgstr ""
+
+#. translators: 1: number of plugins/themes, 2: PHP version.
+#: src/Admin/SiteHealth.php:117
+#, php-format
+msgid "%1$d plugin or theme could not be fully checked for PHP %2$s"
+msgid_plural "%1$d plugins or themes could not be fully checked for PHP %2$s"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: date.
+#: src/Admin/SiteHealth.php:123
+#, php-format
+msgid "Airworthy checked your site on %s, but some files could not be read. The results list which ones, so you can check them another way."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Admin/SiteHealth.php:132
+#, php-format
+msgid "Your plugins and themes are ready for PHP %s"
+msgstr ""
+
+#. translators: 1: date, 2: PHP version.
+#: src/Admin/SiteHealth.php:135
+#, php-format
+msgid "Airworthy checked your site on %1$s and found nothing that would break on PHP %2$s. Back up your site and try the new version on a staging copy before you switch."
+msgstr ""
+
+#: src/Admin/SiteHealth.php:174
+msgid "Compatibility"
+msgstr ""
+
 #: src/Rest/Controller.php:63
 msgid "Exact PHP version to check against."
 msgstr ""
@@ -461,7 +545,7 @@ msgid "Unknown"
 msgstr ""
 
 #: assets/admin.js:81
-msgid "Some files could not be checked, so there is no verdict yet. Open the details to see which."
+msgid "Some of its files could not be checked, so there is no verdict. Click Details on its row in the results to see which files, and why."
 msgstr ""
 
 #: assets/admin.js:84
@@ -498,7 +582,7 @@ msgstr ""
 
 #: assets/admin.js:132
 #: assets/admin.js:259
-#: assets/admin.js:727
+#: assets/admin.js:734
 msgid "Not checked"
 msgstr ""
 
@@ -551,7 +635,7 @@ msgid "Something went wrong. Please try again."
 msgstr ""
 
 #: assets/admin.js:259
-#: assets/admin.js:727
+#: assets/admin.js:734
 msgid "Checking…"
 msgstr ""
 
@@ -626,89 +710,94 @@ msgid "Checking now"
 msgstr ""
 
 #: assets/admin.js:485
+#: assets/admin.js:1202
+msgid "What the verdicts mean"
+msgstr ""
+
+#: assets/admin.js:491
 msgid "Plugins and themes"
 msgstr ""
 
-#: assets/admin.js:486
-msgid "Each plugin and theme gets a verdict as soon as its files are checked. What the verdicts mean:"
+#: assets/admin.js:492
+msgid "Each plugin and theme gets a verdict as soon as its files are checked."
 msgstr ""
 
-#: assets/admin.js:507
+#: assets/admin.js:512
 msgid "Stop this scan? Results so far are kept."
 msgstr ""
 
-#: assets/admin.js:511
+#: assets/admin.js:516
 msgid "Stop scan"
 msgstr ""
 
-#: assets/admin.js:534
+#: assets/admin.js:540
 msgid "What each file is checked for"
 msgstr ""
 
-#: assets/admin.js:539
+#: assets/admin.js:545
 msgid "Removed features."
 msgstr ""
 
-#: assets/admin.js:540
+#: assets/admin.js:546
 msgid "Functions, classes and settings PHP no longer has, such as create_function() and each(), both removed in PHP 8.0. Code that uses them stops the page with a fatal error."
 msgstr ""
 
-#: assets/admin.js:543
+#: assets/admin.js:549
 msgid "Stricter rules."
 msgstr ""
 
-#: assets/admin.js:544
+#: assets/admin.js:550
 msgid "Code that older PHP let slide with a warning but PHP 8 stops with an error, such as giving implode() its arguments in the wrong order."
 msgstr ""
 
-#: assets/admin.js:547
+#: assets/admin.js:553
 msgid "Features being phased out."
 msgstr ""
 
-#: assets/admin.js:548
+#: assets/admin.js:554
 msgid "They still work, but will be removed in a later version, such as adding undeclared properties to objects (deprecated in PHP 8.2). These show as Warnings, not Blockers."
 msgstr ""
 
-#: assets/admin.js:551
+#: assets/admin.js:557
 msgid "Safety checks in the code."
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:553
+#: assets/admin.js:559
 #, js-format
 msgid "Whether old code only runs on old PHP versions, behind a version check. If it can never run on PHP %s, it is marked as guarded legacy code, not as a problem."
 msgstr ""
 
-#: assets/admin.js:556
+#: assets/admin.js:562
 msgid "What is new with this upgrade."
 msgstr ""
 
 #. translators: 1: PHP version the site runs, 2: target PHP version.
-#: assets/admin.js:558
+#: assets/admin.js:564
 #, js-format
 msgid "Only changes after PHP %1$s, the version your site runs now, can be Blockers: code hit by older changes already fails or never runs today, and PHP %2$s doesn't change that. Those are still listed, marked as already on your PHP."
 msgstr ""
 
-#: assets/admin.js:561
+#: assets/admin.js:567
 msgid "WordPress.org details."
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:563
+#: assets/admin.js:569
 #, js-format
 msgid "Whether each plugin was removed from WordPress.org, looks abandoned, is tested with recent WordPress, or needs a newer PHP version than PHP %s."
 msgstr ""
 
-#: assets/admin.js:566
+#: assets/admin.js:572
 msgid "Nothing is run or changed: Airworthy only reads the files."
 msgstr ""
 
-#: assets/admin.js:585
+#: assets/admin.js:591
 msgid "Less than a minute"
 msgstr ""
 
 #. translators: %d: minutes.
-#: assets/admin.js:589
+#: assets/admin.js:595
 #, js-format
 msgid "About %d minute"
 msgid_plural "About %d minutes"
@@ -716,57 +805,57 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:605
+#: assets/admin.js:611
 #, js-format
 msgid "Checking your site for PHP %s"
 msgstr ""
 
 #. translators: 1: PHP version the site runs, 2: target PHP version.
-#: assets/admin.js:609
+#: assets/admin.js:615
 #, js-format
 msgid "Reading every PHP file in your plugins and theme (without running any of it) and checking each line against what changes between PHP %1$s and PHP %2$s."
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:611
+#: assets/admin.js:617
 #, js-format
 msgid "Reading every PHP file in your plugins and theme (without running any of it) and checking each line against what changed up to PHP %s."
 msgstr ""
 
-#: assets/admin.js:616
+#: assets/admin.js:622
 msgid "Getting ready…"
 msgstr ""
 
 #. translators: 1: files checked, 2: total files.
-#: assets/admin.js:618
+#: assets/admin.js:624
 #, js-format
 msgid "%1$s of %2$s files checked"
 msgstr ""
 
 #. translators: 1: plugins and themes done, 2: total.
-#: assets/admin.js:626
+#: assets/admin.js:632
 #, js-format
 msgid "%1$d of %2$d"
 msgstr ""
 
-#: assets/admin.js:628
+#: assets/admin.js:634
 msgid "Large files, one at a time"
 msgstr ""
 
-#: assets/admin.js:640
+#: assets/admin.js:646
 msgid "So far:"
 msgstr ""
 
-#: assets/admin.js:652
+#: assets/admin.js:658
 msgid "Your site runs background tasks only when it has visitors, so keep this page open to speed things up."
 msgstr ""
 
-#: assets/admin.js:653
+#: assets/admin.js:659
 msgid "This runs in the background. You can leave this page; you will see a notice when it is done."
 msgstr ""
 
 #. translators: %d: number of files.
-#: assets/admin.js:670
+#: assets/admin.js:677
 #, js-format
 msgid "%d large file left for the end"
 msgid_plural "%d large files left for the end"
@@ -774,113 +863,113 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: files checked, 2: total files.
-#: assets/admin.js:673
+#: assets/admin.js:680
 #, js-format
 msgid "checking %1$s / %2$s"
 msgstr ""
 
-#: assets/admin.js:675
+#: assets/admin.js:682
 msgid "waiting"
 msgstr ""
 
-#: assets/admin.js:694
+#: assets/admin.js:701
 msgid "because of a security problem"
 msgstr ""
 
-#: assets/admin.js:695
+#: assets/admin.js:702
 msgid "the author withdrew it"
 msgstr ""
 
-#: assets/admin.js:696
+#: assets/admin.js:703
 msgid "for breaking WordPress.org's rules"
 msgstr ""
 
-#: assets/admin.js:697
+#: assets/admin.js:704
 msgid "over a licence or trademark problem"
 msgstr ""
 
-#: assets/admin.js:698
+#: assets/admin.js:705
 msgid "its features are now part of WordPress itself"
 msgstr ""
 
-#: assets/admin.js:699
+#: assets/admin.js:706
 msgid "because it was no longer used"
 msgstr ""
 
-#: assets/admin.js:701
+#: assets/admin.js:708
 msgid "no reason given"
 msgstr ""
 
-#: assets/admin.js:710
+#: assets/admin.js:717
 msgid "It isn't active on your site, so the simplest fix is to delete it. Inactive plugins still leave their files on the server."
 msgstr ""
 
-#: assets/admin.js:713
+#: assets/admin.js:720
 msgid "It is active on your site: replace it as soon as you can."
 msgstr ""
 
-#: assets/admin.js:716
+#: assets/admin.js:723
 msgid "It is active on your site, but WordPress now does this itself: you can probably remove it."
 msgstr ""
 
-#: assets/admin.js:718
+#: assets/admin.js:725
 msgid "It is active on your site: find a maintained replacement before you upgrade PHP."
 msgstr ""
 
-#: assets/admin.js:733
+#: assets/admin.js:740
 msgid "Removed from WordPress.org"
 msgstr ""
 
 #. translators: 1: date, 2: reason in plain words, e.g. "the author withdrew it".
-#: assets/admin.js:738
+#: assets/admin.js:745
 #, js-format
 msgid "Closed %1$s: %2$s. No more updates will come."
 msgstr ""
 
 #. translators: %s: date.
-#: assets/admin.js:740
+#: assets/admin.js:747
 #, js-format
 msgid "Closed %s. No more updates will come."
 msgstr ""
 
-#: assets/admin.js:746
+#: assets/admin.js:753
 msgid "Premium or custom (updated elsewhere)."
 msgstr ""
 
-#: assets/admin.js:747
+#: assets/admin.js:754
 msgid "Premium or custom code."
 msgstr ""
 
-#: assets/admin.js:748
+#: assets/admin.js:755
 msgid "Premium or custom code (a different plugin uses this name on WordPress.org)."
 msgstr ""
 
-#: assets/admin.js:750
+#: assets/admin.js:757
 msgid "Not listed"
 msgstr ""
 
-#: assets/admin.js:753
+#: assets/admin.js:760
 msgid "Could not reach WordPress.org"
 msgstr ""
 
-#: assets/admin.js:757
+#: assets/admin.js:764
 msgid "Abandoned"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:761
+#: assets/admin.js:768
 #, js-format
 msgid "Requires PHP %s"
 msgstr ""
 
 #. translators: %s: date.
-#: assets/admin.js:771
+#: assets/admin.js:778
 #, js-format
 msgid "Updated %s"
 msgstr ""
 
 #. translators: 1: WordPress version, 2: number of releases.
-#: assets/admin.js:778
+#: assets/admin.js:785
 #, js-format
 msgid "Tested up to WordPress %1$s (%2$d release behind)"
 msgid_plural "Tested up to WordPress %1$s (%2$d releases behind)"
@@ -888,25 +977,25 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: WordPress version.
-#: assets/admin.js:780
+#: assets/admin.js:787
 #, js-format
 msgid "Tested up to WordPress %s"
 msgstr ""
 
 #. translators: %s: version.
-#: assets/admin.js:787
+#: assets/admin.js:794
 #, js-format
 msgid "Update available: %s. Update it, then rescan: the update may fix these findings."
 msgstr ""
 
 #. translators: %s: version.
-#: assets/admin.js:789
+#: assets/admin.js:796
 #, js-format
 msgid "Update available: %s."
 msgstr ""
 
 #. translators: %d: number.
-#: assets/admin.js:798
+#: assets/admin.js:805
 #, js-format
 msgid "%d error"
 msgid_plural "%d errors"
@@ -914,7 +1003,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number.
-#: assets/admin.js:802
+#: assets/admin.js:809
 #, js-format
 msgid "%d file not checked"
 msgid_plural "%d files not checked"
@@ -922,7 +1011,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number.
-#: assets/admin.js:806
+#: assets/admin.js:813
 #, js-format
 msgid "%d suppressed"
 msgid_plural "%d suppressed"
@@ -930,7 +1019,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number.
-#: assets/admin.js:810
+#: assets/admin.js:817
 #, js-format
 msgid "%d guarded"
 msgid_plural "%d guarded"
@@ -938,7 +1027,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number.
-#: assets/admin.js:814
+#: assets/admin.js:821
 #, js-format
 msgid "%d already on your PHP"
 msgid_plural "%d already on your PHP"
@@ -946,132 +1035,132 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number.
-#: assets/admin.js:818
+#: assets/admin.js:825
 #, js-format
 msgid "%d deprecation"
 msgid_plural "%d deprecations"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:820
+#: assets/admin.js:827
 msgid "None"
 msgstr ""
 
-#: assets/admin.js:836
+#: assets/admin.js:843
 msgid "No findings."
 msgstr ""
 
 #. translators: 1: shown, 2: total.
-#: assets/admin.js:867
+#: assets/admin.js:874
 #, js-format
 msgid "Show more (%1$d of %2$d shown)"
 msgstr ""
 
 #. translators: %s: plugin or theme name.
-#: assets/admin.js:887
+#: assets/admin.js:894
 #, js-format
 msgid "Details for %s"
 msgstr ""
 
-#: assets/admin.js:890
+#: assets/admin.js:897
 msgid "Hide details"
 msgstr ""
 
-#: assets/admin.js:890
-#: assets/admin.js:899
+#: assets/admin.js:897
+#: assets/admin.js:906
 msgid "Details"
 msgstr ""
 
-#: assets/admin.js:895
+#: assets/admin.js:902
 msgid "Loading…"
 msgstr ""
 
 #. translators: %s: plugin or theme name.
-#: assets/admin.js:904
+#: assets/admin.js:911
 #, js-format
 msgid "Rescan %s"
 msgstr ""
 
 #. translators: %s: plugin or theme name.
-#: assets/admin.js:910
+#: assets/admin.js:917
 #, js-format
 msgid "Checking %s again."
 msgstr ""
 
-#: assets/admin.js:920
+#: assets/admin.js:927
 msgid "Rescan"
 msgstr ""
 
-#: assets/admin.js:929
-#: assets/admin.js:988
-#: assets/admin.js:1001
-#: assets/admin.js:1274
+#: assets/admin.js:936
+#: assets/admin.js:995
+#: assets/admin.js:1008
+#: assets/admin.js:1286
 msgid "Plugin or theme"
 msgstr ""
 
 #. translators: %s: plugin or theme version number.
-#: assets/admin.js:934
+#: assets/admin.js:941
 #, js-format
 msgid "Version %s"
 msgstr ""
 
-#: assets/admin.js:935
+#: assets/admin.js:942
 msgid "theme"
 msgstr ""
 
-#: assets/admin.js:935
+#: assets/admin.js:942
 msgid "inactive"
 msgstr ""
 
-#: assets/admin.js:940
-#: assets/admin.js:1275
+#: assets/admin.js:947
+#: assets/admin.js:1287
 msgid "Verdict"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:948
+#: assets/admin.js:955
 #, js-format
 msgid "Nothing new breaks on PHP %s. Some old code already can't run on your current PHP: see the details."
 msgstr ""
 
-#: assets/admin.js:952
-#: assets/admin.js:1276
+#: assets/admin.js:959
+#: assets/admin.js:1288
 msgid "Findings"
 msgstr ""
 
-#: assets/admin.js:953
-#: assets/admin.js:1277
+#: assets/admin.js:960
+#: assets/admin.js:1289
 msgid "WordPress.org"
 msgstr ""
 
 #. translators: %d: number of files.
-#: assets/admin.js:975
+#: assets/admin.js:982
 #, js-format
 msgid "%d file could not be checked"
 msgid_plural "%d files could not be checked"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:977
+#: assets/admin.js:984
 msgid "Airworthy gives these plugins an Unknown verdict unless it already found a Blocker. Raising your server’s PHP memory limit usually lets the large ones be checked."
 msgstr ""
 
-#: assets/admin.js:981
+#: assets/admin.js:988
 msgid "Files that could not be checked"
 msgstr ""
 
-#: assets/admin.js:989
-#: assets/admin.js:1002
+#: assets/admin.js:996
+#: assets/admin.js:1009
 msgid "File"
 msgstr ""
 
-#: assets/admin.js:990
-#: assets/admin.js:1003
+#: assets/admin.js:997
+#: assets/admin.js:1010
 msgid "Reason"
 msgstr ""
 
 #. translators: 1: number of plugins/themes, 2: PHP version.
-#: assets/admin.js:1064
+#: assets/admin.js:1071
 #, js-format
 msgid "%1$d plugin or theme needs attention before you upgrade to PHP %2$s."
 msgid_plural "%1$d plugins or themes need attention before you upgrade to PHP %2$s."
@@ -1079,47 +1168,51 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1067
+#: assets/admin.js:1074
 #, js-format
 msgid "Nothing found that would break on PHP %s, but some files could not be checked."
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1069
+#: assets/admin.js:1076
 #, js-format
 msgid "Good news: nothing Airworthy found will break when you upgrade to PHP %s."
 msgstr ""
 
-#: assets/admin.js:1071
+#: assets/admin.js:1078
 msgid "Open their details below to see what would break, and whether an update fixes it."
 msgstr ""
 
 #. translators: %d: number of plugins/themes.
-#: assets/admin.js:1074
+#: assets/admin.js:1081
 #, js-format
 msgid "%d plugin or theme has no verdict yet: the files that could not be checked are listed below."
 msgid_plural "%d plugins or themes have no verdict yet: the files that could not be checked are listed below."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1076
-msgid "Some plugins use features PHP is phasing out. Nothing breaks now; keep them updated. As always, test on a staging copy before you switch."
-msgstr ""
+#. translators: 1: number of plugins/themes, 2: PHP version.
+#: assets/admin.js:1085
+#, js-format
+msgid "%1$d plugin or theme uses PHP features that still work on PHP %2$s but will be removed in a later PHP version. Your site won't break because of them now, and keeping it updated usually fixes them before that happens."
+msgid_plural "%1$d plugins or themes use PHP features that still work on PHP %2$s but will be removed in a later PHP version. Your site won't break because of them now, and keeping them updated usually fixes them before that happens."
+msgstr[0] ""
+msgstr[1] ""
 
-#: assets/admin.js:1077
+#: assets/admin.js:1089
 msgid "Test on a staging copy before you switch all the same: some problems only show up when code runs."
 msgstr ""
 
-#: assets/admin.js:1088
+#: assets/admin.js:1100
 msgid "This scan was stopped before it finished. The results below are incomplete."
 msgstr ""
 
-#: assets/admin.js:1090
+#: assets/admin.js:1102
 msgid "The scan could not be completed."
 msgstr ""
 
 #. translators: 1: number of problems, 2: PHP version.
-#: assets/admin.js:1107
+#: assets/admin.js:1119
 #, js-format
 msgid "%1$d problem already applies on PHP %2$s, the version your site runs now, so it isn't caused by this upgrade: that code either never runs on your site today or is already failing. It isn't counted as a Blocker, and is listed in its plugin's details."
 msgid_plural "%1$d problems already apply on PHP %2$s, the version your site runs now, so they aren't caused by this upgrade: that code either never runs on your site today or is already failing. They aren't counted as Blockers, and are listed in each plugin's details."
@@ -1127,7 +1220,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of problems, 2: PHP version.
-#: assets/admin.js:1109
+#: assets/admin.js:1121
 #, js-format
 msgid "%1$d problem already applies on PHP %2$s, the version you are comparing from, so it isn't caused by this upgrade. It isn't counted as a Blocker, and is listed in its plugin's details."
 msgid_plural "%1$d problems already apply on PHP %2$s, the version you are comparing from, so they aren't caused by this upgrade. They aren't counted as Blockers, and are listed in each plugin's details."
@@ -1135,7 +1228,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of plugins.
-#: assets/admin.js:1122
+#: assets/admin.js:1134
 #, js-format
 msgid "%d inactive plugin was not checked."
 msgid_plural "%d inactive plugins were not checked."
@@ -1143,127 +1236,123 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of plugins and themes.
-#: assets/admin.js:1125
+#: assets/admin.js:1137
 #, js-format
 msgid "%d plugin or theme on your ignore list was not checked."
 msgid_plural "%d plugins and themes on your ignore list were not checked."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1127
+#: assets/admin.js:1139
 msgid "Change this in Settings"
 msgstr ""
 
-#: assets/admin.js:1131
+#: assets/admin.js:1143
 msgid "WordPress.org checks were off for this scan, so closed or abandoned plugins aren't flagged. You can turn them on when you start the next scan."
 msgstr ""
 
-#: assets/admin.js:1133
+#: assets/admin.js:1145
 msgid "WordPress.org could not be reached for some plugins, so their update and maintenance details are missing. Run the scan again later to fill them in."
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1153
+#: assets/admin.js:1165
 #, js-format
 msgid "Results for PHP %s"
 msgstr ""
 
 #. translators: 1: date and time, 2: server PHP version.
-#: assets/admin.js:1162
+#: assets/admin.js:1174
 #, js-format
 msgid "Stopped %1$s · server runs PHP %2$s"
 msgstr ""
 
 #. translators: 1: date and time, 2: server PHP version.
-#: assets/admin.js:1164
+#: assets/admin.js:1176
 #, js-format
 msgid "Checked %1$s · server runs PHP %2$s"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1167
+#: assets/admin.js:1179
 #, js-format
 msgid "compared from PHP %s"
 msgstr ""
 
 #. translators: %s: server PHP version.
-#: assets/admin.js:1169
+#: assets/admin.js:1181
 #, js-format
 msgid "Server runs PHP %s"
 msgstr ""
 
-#: assets/admin.js:1175
+#: assets/admin.js:1187
 msgid "Export CSV"
 msgstr ""
 
-#: assets/admin.js:1181
+#: assets/admin.js:1193
 msgid "New scan"
 msgstr ""
 
-#: assets/admin.js:1190
-msgid "What do the verdicts mean?"
-msgstr ""
-
-#: assets/admin.js:1197
+#: assets/admin.js:1209
 msgid "Before you change your PHP version"
 msgstr ""
 
-#: assets/admin.js:1201
+#: assets/admin.js:1213
 msgid "Back up your whole site first: files and database."
 msgstr ""
 
-#: assets/admin.js:1202
+#: assets/admin.js:1214
 msgid "Try the new PHP version on a staging copy of your site before your live site, and click through what matters: checkout, forms, logins, bookings."
 msgstr ""
 
-#: assets/admin.js:1203
+#: assets/admin.js:1215
 msgid "Know how to switch back: most hosts let you change the PHP version back in their control panel."
 msgstr ""
 
-#: assets/admin.js:1205
-msgid "Airworthy reads your plugins’ code without running it, so it can’t catch everything: some problems only show up when code runs, or come from your server’s set-up. Its results are guidance to help you plan, not a guarantee that your site will work."
+#: assets/admin.js:1217
+msgid "Airworthy reads your plugins’ code without running it, so it can’t catch everything: some problems only show up when code runs, or come from your server’s set-up. Use the results to plan your upgrade, not as a guarantee that your site will work."
 msgstr ""
 
 #. translators: %d: number of plugins.
-#: assets/admin.js:1215
+#: assets/admin.js:1227
 #, js-format
 msgid "%d plugin has been removed from WordPress.org"
 msgid_plural "%d plugins have been removed from WordPress.org"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1217
+#: assets/admin.js:1229
 msgid "Nobody can download these from WordPress.org any more, and no more updates will come for them, including security fixes."
 msgstr ""
 
 #. translators: 1: date, 2: reason in plain words, e.g. "the author withdrew it".
-#: assets/admin.js:1229
+#: assets/admin.js:1241
 #, js-format
 msgid "closed %1$s: %2$s."
 msgstr ""
 
-#: assets/admin.js:1255
+#: assets/admin.js:1267
 msgid "Show only plugins that need attention (Blocker or Unknown)"
 msgstr ""
 
 #. translators: 1: shown, 2: total.
-#: assets/admin.js:1261
+#: assets/admin.js:1273
 #, js-format
 msgid "Showing %1$d of %2$d"
 msgstr ""
 
-#: assets/admin.js:1267
+#: assets/admin.js:1279
 msgid "Results by plugin or theme, most serious first"
 msgstr ""
 
-#: assets/admin.js:1278
+#: assets/admin.js:1290
 msgid "Actions"
 msgstr ""
 
-#: assets/admin.js:1291
+#: assets/admin.js:1303
 msgid "Nothing needs attention."
 msgstr ""
 
-#: assets/admin.js:1345
+#: assets/admin.js:1357
 msgid "WordPress.org details added."
 msgstr ""

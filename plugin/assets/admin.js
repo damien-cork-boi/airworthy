@@ -78,7 +78,7 @@
 		},
 		unknown: {
 			label: __( 'Unknown', 'airworthy' ),
-			line: __( 'Some files could not be checked, so there is no verdict yet. Open the details to see which.', 'airworthy' ),
+			line: __( 'Some of its files could not be checked, so there is no verdict. Click Details on its row in the results to see which files, and why.', 'airworthy' ),
 		},
 		suppressed: {
 			label: __( 'Suppressed by author', 'airworthy' ),

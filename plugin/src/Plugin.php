@@ -39,6 +39,9 @@ final class Plugin {
 		// Re-check plugins and themes in the latest results after WordPress updates them.
 		add_action( 'upgrader_process_complete', array( Scan\Queue::class, 'after_upgrade' ), 20, 2 );
 
+		// Tools > Site Health (also run by WordPress's weekly background check, so not admin-only).
+		Admin\SiteHealth::register();
+
 		if ( is_admin() ) {
 			( new Admin\Page() )->register();
 			Admin\Notice::register();

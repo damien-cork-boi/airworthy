@@ -206,6 +206,14 @@ if ( 201 === $status ) {
 list( $status ) = $call( 'GET', '/scans/999999' );
 $check( 'REST: unknown scan is 404', 404 === $status, (string) $status );
 
+// Site Health: the test is registered and answers for the site's PHP version.
+$tests = apply_filters( 'site_status_tests', array( 'direct' => array(), 'async' => array() ) );
+$check( 'Site Health: test is registered', isset( $tests['direct'][ \Airworthy\Admin\SiteHealth::TEST ] ) );
+$health = \Airworthy\Admin\SiteHealth::run( '8.5.1' );
+$check( 'Site Health: passes on the newest PHP version', 'good' === $health['status'], $health['label'] );
+$health = \Airworthy\Admin\SiteHealth::run( '7.2.34' );
+$check( 'Site Health: gives a result for an older PHP version', in_array( $health['status'], array( 'good', 'recommended' ), true ) && '' !== $health['label'], $health['label'] );
+
 wp_delete_user( (int) $editor_id );
 if ( isset( $site_admin ) ) {
 	wp_delete_user( (int) $site_admin );
