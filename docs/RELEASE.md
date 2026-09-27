@@ -30,7 +30,7 @@ Then:
 
 ## Test builds (before a release)
 
-Zips for real-site testing are release candidates: `RC=3 bin/build.sh` numbers the build `X.Y.Z-rc.3` (the source keeps `X.Y.Z`). Count up with every test zip you hand out, so sites can tell builds apart and browsers reload the admin screen. rc.1 and rc.2 of 1.0.0 went out on 27 Sep 2026.
+Zips for real-site testing are release candidates: `RC=3 bin/build.sh` numbers the build `X.Y.Z-rc.3` (the source keeps `X.Y.Z`). Count up with every test zip you hand out, so sites can tell builds apart and browsers reload the admin screen. rc.1 to rc.3 of 1.0.0 went out on 27 Sep 2026 (next: rc.4).
 
 ## 4. Build and check
 
