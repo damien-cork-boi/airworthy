@@ -8,6 +8,7 @@
 namespace Airworthy\Admin;
 
 use Airworthy\Capabilities;
+use Airworthy\Targets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,9 +19,6 @@ defined( 'ABSPATH' ) || exit;
 final class Page {
 
 	const SLUG = 'airworthy';
-
-	/** PHP versions the scanner can check against, oldest first. */
-	const TARGETS = array( '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' );
 
 	/**
 	 * Hook suffix returned when the page is registered; used to load assets only here.
@@ -64,22 +62,6 @@ final class Page {
 	}
 
 	/**
-	 * The default target: the next minor version above the server's, within the supported range.
-	 *
-	 * @param string $current PHP version string, e.g. "8.1.27".
-	 * @return string
-	 */
-	public static function default_target( $current ) {
-		$current_minor = implode( '.', array_slice( explode( '.', $current ), 0, 2 ) );
-		foreach ( self::TARGETS as $target ) {
-			if ( version_compare( $target, $current_minor, '>' ) ) {
-				return $target;
-			}
-		}
-		return self::TARGETS[ count( self::TARGETS ) - 1 ];
-	}
-
-	/**
 	 * Renders the screen. Step 2 shows the Start view only; progress and results follow later.
 	 */
 	public function render() {
@@ -93,7 +75,7 @@ final class Page {
 		$plugin_count = count( get_plugins() );
 		$theme        = wp_get_theme();
 		$current      = PHP_VERSION;
-		$default      = self::default_target( $current );
+		$default      = Targets::default_for( $current );
 		?>
 		<div class="wrap airworthy-wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
@@ -124,7 +106,7 @@ final class Page {
 					<?php wp_nonce_field( 'airworthy_start_scan', 'airworthy_nonce' ); ?>
 					<label for="airworthy-target"><?php esc_html_e( 'Check against PHP', 'airworthy' ); ?></label>
 					<select id="airworthy-target" name="target">
-						<?php foreach ( self::TARGETS as $target ) : ?>
+						<?php foreach ( Targets::ALL as $target ) : ?>
 							<option value="<?php echo esc_attr( $target ); ?>" <?php selected( $target, $default ); ?>><?php echo esc_html( $target ); ?></option>
 						<?php endforeach; ?>
 					</select>

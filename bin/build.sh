@@ -3,9 +3,11 @@
 #   1. installs the scan engine (production deps only) from plugin/composer.json
 #   2. prefixes it with PHP-Scoper (scoper.inc.php) into the plugin's vendor/ folder
 #   3. regenerates the scoped Composer autoloader
+#   3b. bundles Action Scheduler (unscoped) in lib/
 #   4. copies the plugin source and zips it to dist/airworthy.zip
 #
-# Usage: bin/build.sh
+# Usage: bin/build.sh            build from the committed composer.lock
+#        bin/build.sh --update   re-resolve dependencies after editing plugin/composer.json
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -26,7 +28,16 @@ mkdir -p "$STAGE" "$OUT" "$ROOT/dist"
 echo "==> Installing scan engine"
 cp "$ROOT/plugin/composer.json" "$STAGE/"
 [ -f "$ROOT/plugin/composer.lock" ] && cp "$ROOT/plugin/composer.lock" "$STAGE/"
-composer install --working-dir="$STAGE" --no-dev --no-interaction --no-progress --prefer-dist --quiet
+if [ "${1:-}" = "--update" ]; then
+	composer update --working-dir="$STAGE" --no-dev --no-interaction --no-progress --prefer-dist --quiet
+else
+	# Fails if composer.json and composer.lock disagree: engine versions only change on purpose.
+	if ! composer validate --working-dir="$STAGE" --no-check-all --no-check-publish --quiet 2>/dev/null; then
+		echo "ERROR: plugin/composer.lock is out of date with composer.json. Run: bin/build.sh --update" >&2
+		exit 1
+	fi
+	composer install --working-dir="$STAGE" --no-dev --no-interaction --no-progress --prefer-dist --quiet
+fi
 # Keep the lock file with the source so every build uses identical engine versions.
 cp "$STAGE/composer.lock" "$ROOT/plugin/composer.lock"
 
@@ -53,6 +64,11 @@ cp "$STAGE/composer.json" "$OUT/composer.json"
 echo "==> Regenerating scoped autoloader"
 composer dump-autoload --working-dir="$OUT" --classmap-authoritative --no-dev --quiet
 rm "$OUT/composer.json"
+
+echo "==> Bundling Action Scheduler (unscoped: it picks the newest copy loaded by any plugin)"
+mkdir -p "$OUT/lib"
+rsync -a --exclude tests --exclude docs --exclude '*.md' --exclude phpunit.xml.dist --exclude phpcs.xml \
+	"$STAGE/vendor/woocommerce/action-scheduler/" "$OUT/lib/action-scheduler/"
 
 echo "==> Copying plugin source"
 rsync -a --exclude composer.json --exclude composer.lock --exclude vendor "$ROOT/plugin/" "$OUT/"

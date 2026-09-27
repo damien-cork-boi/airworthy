@@ -3,9 +3,10 @@
  * Plugin Name:       Airworthy – PHP Compatibility & Upgrade Checker
  * Description:       Find out which plugins and themes will break on a newer PHP version, and which look abandoned, before you upgrade.
  * Version:           0.1.0-dev
- * Requires at least: 6.0
+ * Requires at least: 6.5
  * Requires PHP:      7.2
  * Author:            digitalkind.ie
+ * Author URI:        https://digitalkind.ie
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       airworthy
@@ -54,6 +55,12 @@ if ( version_compare( PHP_VERSION, AIRWORTHY_MIN_PHP, '<' ) ) {
 }
 
 require_once AIRWORTHY_DIR . 'src/autoload.php';
+
+// Background jobs. Action Scheduler must load with the plugin (before plugins_loaded); when
+// several plugins bundle it, the newest copy is the one that runs.
+if ( is_readable( AIRWORTHY_DIR . 'lib/action-scheduler/action-scheduler.php' ) ) {
+	require_once AIRWORTHY_DIR . 'lib/action-scheduler/action-scheduler.php';
+}
 
 register_activation_hook( __FILE__, array( 'Airworthy\\Installer', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Airworthy\\Installer', 'deactivate' ) );

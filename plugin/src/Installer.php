@@ -17,6 +17,12 @@ defined( 'ABSPATH' ) || exit;
  *   plain      — no mitigating signal; an error here makes the component a Blocker
  *   guarded    — inside a real version/extension check or a known engine-switching library
  *   suppressed — silenced only by the author's phpcs:ignore comment; lower-confidence warning
+ * Issues with severity "scan" record files that weren't checked (rule Airworthy.Scan.*).
+ *
+ * Components hold their own sorted file list (files, JSON) so a plugin updating mid-scan
+ * can't shift the cursor. phase: main (first pass) -> retry (deferred files, one per
+ * request) -> done. inflight_file is the index being scanned right now; if a batch finds it
+ * set, the previous request died on that file.
  *
  * Tables use the network-wide base prefix, so a multisite network has one set of tables:
  * plugins are shared across the network and are scanned once.
@@ -24,7 +30,7 @@ defined( 'ABSPATH' ) || exit;
 final class Installer {
 
 	/** Bump when the schema changes; maybe_upgrade() then re-runs dbDelta. */
-	const DB_VERSION = 1;
+	const DB_VERSION = 2;
 
 	/** Stored as a network option on multisite (plain option on single site). */
 	const OPTION_DB_VERSION = 'airworthy_db_version';
@@ -61,8 +67,10 @@ final class Installer {
 
 	/**
 	 * Deactivation hook: stop background work but keep data, in case of reactivation.
+	 * Unfinished scans are cancelled so none is left "running" with no jobs to finish it.
 	 */
 	public static function deactivate() {
+		Scan\Queue::cancel_all();
 		self::unschedule_jobs();
 	}
 
@@ -103,6 +111,9 @@ final class Installer {
 				count_ready smallint(5) unsigned NOT NULL DEFAULT 0,
 				count_unknown smallint(5) unsigned NOT NULL DEFAULT 0,
 				wporg_status varchar(20) NOT NULL DEFAULT '',
+				attempts tinyint(3) unsigned NOT NULL DEFAULT 0,
+				error text DEFAULT NULL,
+				locked_until datetime DEFAULT NULL,
 				created_by bigint(20) unsigned NOT NULL DEFAULT 0,
 				created_at datetime NOT NULL,
 				started_at datetime DEFAULT NULL,
@@ -120,8 +131,13 @@ final class Installer {
 				rel_path varchar(255) NOT NULL DEFAULT '',
 				is_active tinyint(1) NOT NULL DEFAULT 0,
 				status varchar(20) NOT NULL DEFAULT 'queued',
+				phase varchar(10) NOT NULL DEFAULT 'main',
+				files longtext DEFAULT NULL,
+				deferred longtext DEFAULT NULL,
 				files_total int(10) unsigned NOT NULL DEFAULT 0,
 				files_done int(10) unsigned NOT NULL DEFAULT 0,
+				files_ignored int(10) unsigned NOT NULL DEFAULT 0,
+				files_failed int(10) unsigned NOT NULL DEFAULT 0,
 				file_cursor int(10) unsigned NOT NULL DEFAULT 0,
 				inflight_file int(10) DEFAULT NULL,
 				attempts tinyint(3) unsigned NOT NULL DEFAULT 0,
@@ -136,7 +152,8 @@ final class Installer {
 				finished_at datetime DEFAULT NULL,
 				PRIMARY KEY  (id),
 				KEY scan_id (scan_id),
-				KEY scan_verdict (scan_id,verdict)
+				KEY scan_verdict (scan_id,verdict),
+				KEY scan_phase (scan_id,phase)
 			) $collate;",
 			"CREATE TABLE {$t['issues']} (
 				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -187,8 +204,7 @@ final class Installer {
 	}
 
 	/**
-	 * Cancels all queued background jobs. Action Scheduler arrives in Step 3; until then
-	 * this is a no-op when the library isn't loaded.
+	 * Cancels all queued background jobs (no-op if Action Scheduler isn't loaded).
 	 */
 	private static function unschedule_jobs() {
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {

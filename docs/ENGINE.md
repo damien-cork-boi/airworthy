@@ -13,8 +13,19 @@ Exact versions in `plugin/composer.json`, and locked in `plugin/composer.lock`. 
 | phpcompatibility/php-compatibility | 10.0.0-alpha2 | LGPL-3.0-or-later |
 | phpcompatibility/phpcompatibility-paragonie | 2.0.0-alpha2 | LGPL-3.0-or-later |
 | phpcompatibility/phpcompatibility-wp | 3.0.0-alpha2 | LGPL-3.0-or-later |
+| woocommerce/action-scheduler (background jobs, bundled **unscoped** in `lib/`) | 3.9.3 | GPL-3.0-or-later |
 
 PHP_CodeSniffer 4 sets the plugin's minimum PHP version: **7.2**.
+
+Action Scheduler sets the minimum WordPress version. Decided 27 Sep 2026 against WordPress.org version stats:
+
+| Action Scheduler | Minimum WordPress | Share of sites |
+|---|---|---|
+| 4.2.0 (latest) | 6.9 | 76.8% |
+| **3.9.3 (chosen)** | **6.5** | **87.8%** |
+| 3.8.2 | 6.4 | 89.0% |
+
+Our users run older, neglected sites, so we give up 4.x to reach 11 points more of the market. Scanned with our own engine, 3.9.3 and 4.2.0 give the same result on PHP 8.5: no errors, and 4 warnings in fallback code. Action Scheduler is deliberately *not* scoped: when several plugins bundle it, it loads only the newest copy, so a site with WooCommerce runs WooCommerce's newer version. Revisit if WordPress 6.9+ passes about 90% of sites.
 
 Because the engine is bundled, upstream changes can never break a released version of the plugin. The risks are all about *future* releases: new PHP versions, and what we can upgrade to.
 

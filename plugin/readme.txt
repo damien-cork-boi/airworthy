@@ -1,7 +1,7 @@
 === Airworthy – PHP Compatibility & Upgrade Checker ===
 Contributors: digitalkind
 Tags: php, compatibility, upgrade, php 8, health check
-Requires at least: 6.0
+Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.2
 Stable tag: 0.1.0
