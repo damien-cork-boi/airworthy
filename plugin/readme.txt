@@ -157,7 +157,7 @@ Email security@airworthywp.com. Please don't post it in the public support forum
 * Marks problems that already apply on the PHP version your site runs now, so they aren't counted as new with this upgrade.
 * Optional WordPress.org check (you choose): plugins removed from WordPress.org, not updated in two years, or needing a newer PHP version.
 * Results grouped by what to do next: fix before you upgrade, keep an eye on, all good.
-* Shows which plugins and themes have an update waiting, with a one-click update; Airworthy checks them again after they're updated.
+* Shows which plugins and themes have an update waiting, with a one-click update; Airworthy checks them again after they're updated, including when a plugin is replaced by uploading a zip.
 * Shows how long your server's PHP version keeps getting security fixes.
 * Runs in the background with live progress, so a large site never times out. A stopped scan can be continued where it left off.
 * Settings: skip inactive plugins, never scan chosen plugins or themes, and choose how hard scans work your server.

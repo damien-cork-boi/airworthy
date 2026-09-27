@@ -249,7 +249,20 @@ final class Queue {
 	 */
 	public static function after_upgrade( $upgrader, $extra ) {
 		global $wpdb;
-		if ( empty( $extra['action'] ) || 'update' !== $extra['action'] || empty( $extra['type'] ) ) {
+		if ( empty( $extra['action'] ) || empty( $extra['type'] ) ) {
+			return;
+		}
+		// "Replace current with uploaded" (how many paid plugins are updated) is reported as an
+		// install: treat it as an update when that plugin or theme is already in the results.
+		if ( 'install' === $extra['action'] && is_object( $upgrader ) ) {
+			if ( 'plugin' === $extra['type'] && method_exists( $upgrader, 'plugin_info' ) && $upgrader->plugin_info() ) {
+				$extra['plugins'] = array( $upgrader->plugin_info() );
+			} elseif ( 'theme' === $extra['type'] && method_exists( $upgrader, 'theme_info' ) && $upgrader->theme_info() ) {
+				$extra['themes'] = array( $upgrader->theme_info()->get_stylesheet() );
+			} else {
+				return;
+			}
+		} elseif ( 'update' !== $extra['action'] ) {
 			return;
 		}
 		$t = Installer::tables();
