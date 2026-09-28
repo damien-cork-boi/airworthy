@@ -93,13 +93,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Pro isn't in the WordPress.org directory; its readme and code should still pass.
-      # "Requires Plugins: airworthy" can't be found there until the free plugin is listed.
+      # Checked as built (folder airworthy-pro). The check's WordPress doesn't have the free
+      # plugin, so the copy drops "Requires Plugins: airworthy" (it also can't be found in the
+      # directory until the free plugin is listed).
+      - name: Build Airworthy Pro
+        run: |
+          bin/build-pro.sh
+          sed -i '/Requires Plugins:/d' build/airworthy-pro/airworthy-pro.php build/airworthy-pro/readme.txt
       - uses: wordpress/plugin-check-action@v1
         with:
-          build-dir: pro
+          build-dir: build/airworthy-pro
           slug: airworthy-pro
-          ignore-codes: |
-            plugin_header_requires_plugins_not_in_directory
 
   test:
     name: PHP ${{ matrix.php }} · WP ${{ matrix.wp }}${{ matrix.multisite && ' · multisite' || '' }} · ${{ matrix.db || 'mysql:8.0' }}
