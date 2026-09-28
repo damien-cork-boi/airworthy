@@ -111,7 +111,7 @@ final class Branding {
 	 * Pro's styles on its tabs; Media Library and colour picker for the branding form.
 	 */
 	public static function enqueue() {
-		if ( self::on_tab( array( self::TAB, Welcome::TAB ) ) ) {
+		if ( self::on_tab( array( self::TAB, Welcome::TAB, Plan::TAB, Versions::TAB ) ) ) {
 			wp_enqueue_style( 'airworthy-pro-admin', AIRWORTHY_PRO_URL . 'assets/admin.css', array(), AIRWORTHY_PRO_VERSION );
 		}
 		if ( ! self::on_tab( array( self::TAB ) ) ) {

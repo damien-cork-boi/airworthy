@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Airworthy Pro
  * Plugin URI:        https://airworthywp.com/
- * Description:       Branded client reports for Airworthy scans: your logo, your name, your colour, ready to save as PDF. Needs the free Airworthy plugin.
- * Version:           0.1.4
+ * Description:       An upgrade plan that ticks itself off, every PHP version at once, and branded client reports. Needs the free Airworthy plugin.
+ * Version:           0.2.0
  * Requires at least: 6.5
  * Requires PHP:      7.2
  * Requires Plugins:  airworthy
@@ -18,13 +18,15 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AIRWORTHY_PRO_VERSION', '0.1.4' );
+define( 'AIRWORTHY_PRO_VERSION', '0.2.0' );
 define( 'AIRWORTHY_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AIRWORTHY_PRO_URL', plugin_dir_url( __FILE__ ) );
 
 require_once AIRWORTHY_PRO_DIR . 'src/Branding.php';
 require_once AIRWORTHY_PRO_DIR . 'src/Report.php';
 require_once AIRWORTHY_PRO_DIR . 'src/Welcome.php';
+require_once AIRWORTHY_PRO_DIR . 'src/Versions.php';
+require_once AIRWORTHY_PRO_DIR . 'src/Plan.php';
 
 register_activation_hook( __FILE__, array( 'AirworthyPro\\Welcome', 'activate' ) );
 
@@ -45,6 +47,8 @@ add_action(
 		AirworthyPro\Branding::register();
 		AirworthyPro\Report::register();
 		AirworthyPro\Welcome::register();
+		AirworthyPro\Versions::register();
+		AirworthyPro\Plan::register();
 	},
 	20
 );

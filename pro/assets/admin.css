@@ -192,3 +192,217 @@
 	color: #1747a6;
 	background: #eef4ff;
 }
+
+/* Upgrade plan. */
+
+.airworthy-pro-plan-form {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 10px;
+}
+
+.airworthy-pro-plan-head {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: flex-end;
+	gap: 12px;
+}
+
+.airworthy-pro-plan-head .airworthy-pro-eyebrow {
+	color: #2f74e8;
+}
+
+.airworthy-pro-plan-head h2 {
+	margin: 2px 0 0;
+	font-size: 22px;
+}
+
+.airworthy-pro-plan-score {
+	text-align: right;
+}
+
+.airworthy-pro-plan-score strong {
+	display: block;
+	font-size: 28px;
+	line-height: 1.1;
+	color: #1747a6;
+}
+
+.airworthy-pro-plan-score span {
+	color: #50575e;
+}
+
+.airworthy-pro-plan-bar {
+	height: 10px;
+	margin: 14px 0 18px;
+	border-radius: 999px;
+	background: #e8eef9;
+	overflow: hidden;
+}
+
+.airworthy-pro-plan-bar span {
+	display: block;
+	height: 100%;
+	border-radius: 999px;
+	background: linear-gradient(90deg, #2f74e8, #00a32a);
+	transition: width 0.3s;
+}
+
+.airworthy-pro-plan-steps {
+	margin: 18px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.airworthy-pro-plan-steps li {
+	display: flex;
+	gap: 14px;
+	padding: 14px 0;
+	border-top: 1px solid #f0f0f1;
+}
+
+.airworthy-pro-plan-steps li form {
+	margin: 0;
+}
+
+.airworthy-pro-check {
+	flex: none;
+	width: 32px;
+	height: 32px;
+	border: 2px solid #c3c4c7;
+	border-radius: 50%;
+	font-weight: 700;
+	color: #50575e;
+	background: #fff;
+	cursor: pointer;
+}
+
+.airworthy-pro-check:hover:not(:disabled) {
+	border-color: #2f74e8;
+	color: #2f74e8;
+}
+
+.airworthy-pro-check:disabled {
+	cursor: default;
+}
+
+.airworthy-pro-plan-steps li.done .airworthy-pro-check {
+	border-color: #00a32a;
+	color: #fff;
+	background: #00a32a;
+}
+
+.airworthy-pro-step-body strong {
+	font-size: 14px;
+}
+
+.airworthy-pro-plan-steps li.done .airworthy-pro-step-body strong {
+	color: #50575e;
+	text-decoration: line-through;
+	text-decoration-color: #a7aaad;
+}
+
+.airworthy-pro-step-body p {
+	margin: 4px 0 8px;
+	color: #50575e;
+}
+
+.airworthy-pro-how {
+	font-size: 12px;
+	font-weight: 600;
+	color: #007017;
+}
+
+.airworthy-pro-plan-foot {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 10px;
+	margin-top: 10px;
+	padding-top: 14px;
+	border-top: 1px solid #f0f0f1;
+}
+
+/* Every PHP version. */
+
+.airworthy-pro-matrix-wrap {
+	margin: 16px 0 12px;
+	overflow-x: auto;
+	border: 1px solid #e2e4e7;
+	border-radius: 10px;
+}
+
+.airworthy-pro-matrix {
+	width: 100%;
+	min-width: 720px;
+	border-collapse: collapse;
+}
+
+.airworthy-pro-matrix th,
+.airworthy-pro-matrix td {
+	padding: 10px 12px;
+	border-bottom: 1px solid #f0f0f1;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.airworthy-pro-matrix th[scope="row"],
+.airworthy-pro-matrix thead th:first-child {
+	text-align: left;
+}
+
+.airworthy-pro-matrix thead th {
+	font-size: 13px;
+	background: #f6f7f7;
+}
+
+.airworthy-pro-matrix thead th span,
+.airworthy-pro-matrix th[scope="row"] span {
+	display: block;
+	font-size: 11px;
+	font-weight: 400;
+	color: #646970;
+}
+
+.airworthy-pro-matrix thead th.current {
+	background: #eef4ff;
+}
+
+.airworthy-pro-matrix tr.totals th,
+.airworthy-pro-matrix tr.totals td {
+	font-weight: 700;
+	background: #fbfbfc;
+}
+
+.airworthy-pro-matrix tr.totals td.good {
+	color: #007017;
+}
+
+.airworthy-pro-matrix tr.totals td.bad {
+	color: #b32d2e;
+}
+
+.airworthy-pro-matrix .upto {
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.airworthy-pro-matrix .cell {
+	display: inline-block;
+	min-width: 76px;
+	padding: 2px 8px;
+	border: 1px solid;
+	border-radius: 10px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.cell-blocker { color: #8a2424; background: #fcf0f1; border-color: #f1adad; }
+.cell-unknown { color: #3c434a; background: #f0f0f1; border-color: #c3c4c7; }
+.cell-suppressed { color: #6e4f00; background: #fcf9e8; border-color: #f2d675; }
+.cell-guarded { color: #0a4b78; background: #f0f6fc; border-color: #9ec2e6; }
+.cell-warnings { color: #6e4f00; background: #fef8ee; border-color: #f5e6ab; }
+.cell-ready { color: #005c12; background: #edfaef; border-color: #a7e3b5; }
