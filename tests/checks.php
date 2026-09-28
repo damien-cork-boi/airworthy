@@ -50,7 +50,7 @@ $versions = array(
 	'Function create_function() is deprecated since PHP 7.2 and removed since PHP 8.0; Use an anonymous function' => '8.0',
 	"Extension 'mysql_' is deprecated since PHP 5.5 and removed since PHP 7.0; Use mysqli instead" => '7.0',
 	'Indirect access to variables, properties and methods will be evaluated strictly in left-to-right order since PHP 7.0.' => '7.0',
-	'Passing E_USER_ERROR to trigger_error() is deprecated since 8.4.' => null,
+	'Passing E_USER_ERROR to trigger_error() is deprecated since 8.4.' => '8.4', // "PHP" left out of the message.
 	'Something with no version' => null,
 );
 foreach ( $versions as $message => $want ) {

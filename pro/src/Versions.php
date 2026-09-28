@@ -32,6 +32,14 @@ final class Versions {
 	/** Action name for admin-post.php (start a scan against the newest version). */
 	const ACTION = 'airworthy_pro_scan_all';
 
+	/**
+	 * Rules whose messages name no PHP version, with the version their change came in.
+	 * RemovedSerializable: the Serializable interface was deprecated in PHP 8.1.
+	 */
+	const RULE_VERSIONS = array(
+		'PHPCompatibility.Interfaces.RemovedSerializable' => '8.1',
+	);
+
 	/** Findings fetched per REST page. */
 	const PAGE = 500;
 
@@ -159,8 +167,15 @@ final class Versions {
 	 */
 	public static function severity_at( array $finding, $target ) {
 		$message = (string) $finding['message'];
-		$removed = preg_match( '/removed (?:since|in|as of) PHP (?:version )?(\d+\.\d+)/i', $message, $m ) ? $m[1] : null;
-		$deprec  = preg_match( '/deprecated (?:since|in|as of) PHP (?:version )?(\d+\.\d+)/i', $message, $m ) ? $m[1] : null;
+		// "PHP" is sometimes left out ("deprecated since 8.4").
+		$removed = preg_match( '/removed (?:since|in|as of) (?:PHP )?(?:version )?(\d+\.\d+)/i', $message, $m ) ? $m[1] : null;
+		$deprec  = preg_match( '/deprecated (?:since|in|as of) (?:PHP )?(?:version )?(\d+\.\d+)/i', $message, $m ) ? $m[1] : null;
+		// Findings whose message names no version, dated by their rule.
+		foreach ( self::RULE_VERSIONS as $prefix => $version ) {
+			if ( null === $removed && null === $deprec && ! empty( $finding['rule'] ) && 0 === strpos( (string) $finding['rule'], $prefix ) ) {
+				$deprec = $version;
+			}
+		}
 		if ( null === $removed && null === $deprec ) {
 			// No version named: when the message dates the change at all, use that; else it
 			// counts as it did on the newest version (the cautious answer).

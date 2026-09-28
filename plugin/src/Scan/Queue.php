@@ -789,11 +789,15 @@ final class Queue {
 	 * @return string|null "x.y", or null when the message names no version.
 	 */
 	public static function change_version( $message ) {
-		if ( preg_match( '/removed (?:since|in) PHP (?:version )?(\d+\.\d+)/i', $message, $m ) ) {
+		// "PHP" is sometimes left out: "deprecated since 8.4".
+		if ( preg_match( '/removed (?:since|in) (?:PHP )?(?:version )?(\d+\.\d+)/i', $message, $m ) ) {
 			return $m[1];
 		}
 		if ( preg_match_all( '/(?:since|as of|in) PHP (?:version )?(\d+\.\d+)/i', $message, $m ) ) {
 			return (string) end( $m[1] );
+		}
+		if ( preg_match( '/(?:deprecated|removed) (?:since|as of|in) (\d+\.\d+)/i', $message, $m ) ) {
+			return $m[1];
 		}
 		return null;
 	}
