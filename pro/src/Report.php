@@ -204,8 +204,16 @@ final class Report {
 			wp_die( esc_html__( 'That scan could not be found. Run a scan first, then open the report from its results.', 'airworthy-pro' ), 404 );
 		}
 
-		$target     = (string) $scan['target_php'];
-		$components = (array) $scan['components'];
+		$target = (string) $scan['target_php'];
+		// The client doesn't need to see the tool that made the report.
+		$components = array_values(
+			array_filter(
+				(array) $scan['components'],
+				static function ( $c ) {
+					return ! ( 'plugin' === $c['type'] && in_array( $c['slug'], array( 'airworthy', 'airworthy-pro' ), true ) );
+				}
+			)
+		);
 		$groups     = array(
 			'fix'   => array(),
 			'watch' => array(),
@@ -251,12 +259,18 @@ final class Report {
 			$findings[ $c['id'] ] = is_array( $items ) ? $items : array();
 		}
 
-		$branding   = Branding::get();
-		$logo       = Branding::logo_url( $branding );
-		$site_name  = get_bloginfo( 'name' );
-		$site_host  = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-		$checked    = ! empty( $scan['finished_at'] ) ? date_i18n( get_option( 'date_format' ), strtotime( $scan['finished_at'] ) ) : '';
-		$counts     = (array) $scan['counts'];
+		$branding  = Branding::get();
+		$logo      = Branding::logo_url( $branding );
+		$site_name = get_bloginfo( 'name' );
+		$site_host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+		$checked   = ! empty( $scan['finished_at'] ) ? date_i18n( get_option( 'date_format' ), strtotime( $scan['finished_at'] ) ) : '';
+		// Counted from the listed plugins (the scan's own totals include Airworthy).
+		$counts = array_fill_keys( array( 'blocker', 'unknown', 'suppressed', 'guarded', 'warnings', 'ready' ), 0 );
+		foreach ( $components as $c ) {
+			if ( isset( $counts[ $c['verdict'] ] ) ) {
+				++$counts[ $c['verdict'] ];
+			}
+		}
 		$labels     = self::labels();
 		$needs      = (int) $counts['blocker'];
 		$support    = isset( $scan['host_support'] ) && is_array( $scan['host_support'] ) ? $scan['host_support'] : null;
@@ -312,7 +326,7 @@ final class Report {
 <body>
 	<div class="toolbar">
 		<button type="button" class="primary" onclick="window.print()"><?php esc_html_e( 'Download PDF', 'airworthy-pro' ); ?></button>
-		<span><?php esc_html_e( 'In the print window, choose "Save as PDF" as the destination.', 'airworthy-pro' ); ?></span>
+		<span><?php esc_html_e( 'In the print window, choose "Save as PDF" as the destination, and untick "Headers and footers" (under More settings) so only the report\'s own footer shows.', 'airworthy-pro' ); ?></span>
 	</div>
 
 	<main class="report">

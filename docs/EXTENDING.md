@@ -17,4 +17,4 @@ Settings forms on add-on tabs can reuse the `airworthy-card` and `airworthy-sett
 
 Lives in `pro/` (private: not in the public repo or on WordPress.org). Build it with `bin/build-pro.sh` → `dist/airworthy-pro-<version>.zip`. It needs the free plugin (`Requires Plugins: airworthy`).
 
-- **Client report** (0.1.0): a "Client report" tab (agency name, logo, brand colour) and a "Client report" button on the results. The report is a print-ready page (A4, page 1 summary, details from page 2, agency name and page numbers in the footer) that browsers save as PDF.
+- **Client report** (0.1.0; 0.1.1 leaves Airworthy and Airworthy Pro out of the client's report and tells people to untick the browser's "Headers and footers"): a "Client report" tab (agency name, logo, brand colour) and a "Client report" button on the results. The report is a print-ready page (A4, page 1 summary, details from page 2, agency name and page numbers in the footer) that browsers save as PDF.
