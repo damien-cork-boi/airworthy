@@ -39,6 +39,7 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 
 **Free improvements (27 Sep 2026 list):**
 - Now: "Update available" in the results (update, then Airworthy rescans), a PHP support countdown on the start and results screens, results grouped by what to do next.
+- Later (Damo liked Code Snippets' orange "Go Pro" menu item, 28 Sep 2026): a highlighted "Airworthy Pro" item under Tools next to Airworthy, linking to the Pro page on airworthywp.com, hidden once Pro is active. Check the WordPress.org guidelines first (upsells are allowed if they don't hijack the admin: one menu item, no nags); needs the Pro page to exist.
 - Next: a dashboard widget (last result, date, Scan button; the one allowed spot for a small, dismissible Pro mention), a "Copy summary for my host or developer" button, plugin icons from WordPress.org (with consent).
 
 **Pro (27 Sep 2026: client report built, v0.1.0 in pro/, see docs/EXTENDING.md):**
