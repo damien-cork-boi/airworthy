@@ -97,25 +97,28 @@ final class Branding {
 	}
 
 	/**
-	 * Whether the Client report tab is on screen.
+	 * Whether one of these tabs is on screen.
 	 *
+	 * @param string[] $tabs Tab slugs.
 	 * @return bool
 	 */
-	private static function on_tab() {
+	private static function on_tab( array $tabs ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only decides which assets to load.
-		return isset( $_GET['page'], $_GET['tab'] ) && 'airworthy' === sanitize_key( wp_unslash( $_GET['page'] ) ) && self::TAB === sanitize_key( wp_unslash( $_GET['tab'] ) );
+		return isset( $_GET['page'], $_GET['tab'] ) && 'airworthy' === sanitize_key( wp_unslash( $_GET['page'] ) ) && in_array( sanitize_key( wp_unslash( $_GET['tab'] ) ), $tabs, true );
 	}
 
 	/**
-	 * Media Library and colour picker for the branding form.
+	 * Pro's styles on its tabs; Media Library and colour picker for the branding form.
 	 */
 	public static function enqueue() {
-		if ( ! self::on_tab() ) {
+		if ( self::on_tab( array( self::TAB, Welcome::TAB ) ) ) {
+			wp_enqueue_style( 'airworthy-pro-admin', AIRWORTHY_PRO_URL . 'assets/admin.css', array(), AIRWORTHY_PRO_VERSION );
+		}
+		if ( ! self::on_tab( array( self::TAB ) ) ) {
 			return;
 		}
 		wp_enqueue_media();
 		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_style( 'airworthy-pro-branding', AIRWORTHY_PRO_URL . 'assets/branding.css', array(), AIRWORTHY_PRO_VERSION );
 		wp_enqueue_script( 'airworthy-pro-branding', AIRWORTHY_PRO_URL . 'assets/branding.js', array( 'jquery', 'wp-color-picker' ), AIRWORTHY_PRO_VERSION, true );
 		wp_localize_script(
 			'airworthy-pro-branding',

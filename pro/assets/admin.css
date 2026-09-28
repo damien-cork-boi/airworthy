@@ -1,0 +1,194 @@
+/* Airworthy Pro: the Pro and Client report tabs. */
+
+.airworthy-pro-logo {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+}
+
+.airworthy-pro-logo img {
+	max-height: 56px;
+	max-width: 240px;
+	padding: 6px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #fff;
+}
+
+.airworthy-pro-logo img[hidden] {
+	display: none;
+}
+
+.airworthy-pro-report .button-hero {
+	margin-top: 4px;
+}
+
+/* Pro tab: welcome view. */
+
+.airworthy-wrap .airworthy-pro-welcome {
+	border: 0;
+	color: #fff;
+	background: linear-gradient(135deg, #1747a6 0%, #2f74e8 60%, #3fa36b 140%);
+}
+
+.airworthy-wrap .airworthy-card.airworthy-pro-welcome h2 {
+	margin: 4px 0 18px;
+	font-size: 22px;
+	line-height: 1.3;
+	color: #fff;
+}
+
+.airworthy-pro-eyebrow {
+	margin: 0;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #cfe0ff;
+}
+
+.airworthy-pro-steps {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+	gap: 14px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	counter-reset: step;
+}
+
+.airworthy-pro-steps li {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 16px 16px 16px 56px;
+	border-radius: 10px;
+	color: #1d2327;
+	background: rgba(255, 255, 255, 0.95);
+	counter-increment: step;
+}
+
+.airworthy-pro-steps li::before {
+	content: counter(step);
+	position: absolute;
+	top: 16px;
+	left: 16px;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	font-weight: 700;
+	line-height: 26px;
+	text-align: center;
+	color: #fff;
+	background: #2f74e8;
+}
+
+.airworthy-pro-steps li.done::before {
+	content: "✓";
+	background: #00a32a;
+}
+
+.airworthy-pro-steps li span {
+	color: #50575e;
+}
+
+.airworthy-pro-steps li .button {
+	align-self: flex-start;
+	margin-top: auto;
+}
+
+/* Pro tab: home. */
+
+.airworthy-pro-home-head {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 16px 32px;
+	margin-bottom: 20px;
+}
+
+.airworthy-pro-home-head h2 {
+	margin: 0 0 6px;
+}
+
+.airworthy-pro-facts {
+	display: grid;
+	grid-template-columns: auto auto;
+	gap: 4px 16px;
+	margin: 0;
+	padding: 12px 16px;
+	border-radius: 8px;
+	background: #f6f7f7;
+}
+
+.airworthy-pro-facts dt {
+	color: #50575e;
+}
+
+.airworthy-pro-facts dd {
+	margin: 0;
+	font-weight: 600;
+}
+
+.airworthy-pro-features {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+	gap: 14px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.airworthy-pro-feature {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 18px;
+	border: 1px solid #e2e4e7;
+	border-radius: 10px;
+	background: #fff;
+}
+
+.airworthy-pro-feature h3 {
+	margin: 4px 0 0;
+	font-size: 15px;
+}
+
+.airworthy-pro-feature p {
+	margin: 0;
+	color: #50575e;
+}
+
+.airworthy-pro-feature .button {
+	align-self: flex-start;
+	margin-top: auto;
+}
+
+.airworthy-pro-included {
+	border-color: #a7e3b5;
+	box-shadow: 0 0 0 1px #a7e3b5, 0 6px 18px rgba(0, 163, 42, 0.08);
+}
+
+.airworthy-pro-status {
+	align-self: flex-start;
+	padding: 1px 9px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #50575e;
+	background: #f0f0f1;
+}
+
+.airworthy-pro-included .airworthy-pro-status {
+	color: #005c12;
+	background: #edfaef;
+}
+
+.airworthy-pro-next .airworthy-pro-status {
+	color: #1747a6;
+	background: #eef4ff;
+}
