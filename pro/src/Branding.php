@@ -34,6 +34,12 @@ final class Branding {
 	 */
 	public static function register() {
 		add_filter( 'airworthy_admin_tabs', array( __CLASS__, 'add_tab' ) );
+		add_filter(
+			'airworthy_admin_badge',
+			static function () {
+				return __( 'Pro', 'airworthy-pro' );
+			}
+		);
 		add_action( 'airworthy_render_tab_' . self::TAB, array( __CLASS__, 'render' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
 		add_action( 'admin_post_' . self::ACTION, array( __CLASS__, 'save' ) );

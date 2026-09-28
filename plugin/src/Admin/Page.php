@@ -227,7 +227,19 @@ final class Page {
 			<div class="airworthy-brand">
 				<svg class="airworthy-logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="airworthy-logo-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f74e8"/><stop offset="1" stop-color="#1747a6"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#airworthy-logo-bg)"/><path d="M12 36.5 L23 47 L37.5 29.5" fill="none" stroke="#8fe3a8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(45.5 20) rotate(40) scale(0.5) translate(-32 -32)"><path fill="#ffffff" d="M32 4c2.4 0 3.8 3 3.8 6.5V25l21.2 12.5v5.2L35.8 35.6V48l7.2 5.4V58L32 54.8 21 58v-4.6l7.2-5.4V35.6L7 42.7v-5.2L28.2 25V10.5C28.2 7 29.6 4 32 4z"/></g></svg>
 				<div>
-					<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+					<?php
+					/**
+					 * Filters a short badge shown after the screen's title (Airworthy Pro shows "Pro").
+					 *
+					 * @param string $badge Badge text; empty for none.
+					 */
+					$badge = (string) apply_filters( 'airworthy_admin_badge', '' );
+					?>
+					<h1><?php echo esc_html( get_admin_page_title() ); ?>
+					<?php
+					if ( '' !== $badge ) :
+						?>
+						<span class="airworthy-edition"><?php echo esc_html( $badge ); ?></span><?php endif; ?></h1>
 					<p class="airworthy-lede"><?php esc_html_e( 'Before you upgrade PHP, see which plugins and themes are ready, which need fixing, and what to do next.', 'airworthy' ); ?></p>
 				</div>
 			</div>
