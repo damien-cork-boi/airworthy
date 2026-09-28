@@ -3,7 +3,7 @@
  * Plugin Name:       Airworthy Pro
  * Plugin URI:        https://airworthywp.com/
  * Description:       Branded client reports for Airworthy scans: your logo, your name, your colour, ready to save as PDF. Needs the free Airworthy plugin.
- * Version:           0.1.3
+ * Version:           0.1.4
  * Requires at least: 6.5
  * Requires PHP:      7.2
  * Requires Plugins:  airworthy
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AIRWORTHY_PRO_VERSION', '0.1.3' );
+define( 'AIRWORTHY_PRO_VERSION', '0.1.4' );
 define( 'AIRWORTHY_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AIRWORTHY_PRO_URL', plugin_dir_url( __FILE__ ) );
 

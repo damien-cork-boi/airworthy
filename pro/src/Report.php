@@ -171,6 +171,10 @@ final class Report {
 			/* translators: %s: list of plugin names. */
 			$steps[] = sprintf( __( 'Have the files that could not be checked looked at: %s.', 'airworthy-pro' ), $names( $unknown ) );
 		}
+		if ( $steps ) {
+			// Updates and replacements change the code: confirm before going further.
+			$steps[] = __( 'Run Airworthy again to confirm those changes cleared the findings. If anything still needs attention, deal with it before going on.', 'airworthy-pro' );
+		}
 		$steps[] = __( 'Back up the whole site: files and database.', 'airworthy-pro' );
 		/* translators: %s: PHP version. */
 		$steps[] = sprintf( __( 'Try PHP %s on a staging copy first and click through what matters: forms, checkout, logins, bookings.', 'airworthy-pro' ), $target );
