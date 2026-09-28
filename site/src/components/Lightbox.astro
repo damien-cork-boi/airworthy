@@ -1,0 +1,171 @@
+---
+/**
+ * Screenshot lightbox: links with class "zoom" open their image over the page instead of in
+ * a new tab. Esc, a click or the close button shuts it; the arrow keys and buttons step
+ * through every zoomable screenshot on the page. Without JavaScript the links still open
+ * the image.
+ */
+---
+<dialog class="lightbox" aria-label="Screenshot">
+	<button type="button" class="lb-close" aria-label="Close">×</button>
+	<button type="button" class="lb-prev" aria-label="Previous screenshot">‹</button>
+	<figure>
+		<img alt="" />
+		<figcaption></figcaption>
+	</figure>
+	<button type="button" class="lb-next" aria-label="Next screenshot">›</button>
+</dialog>
+
+<script>
+	const dialog = document.querySelector<HTMLDialogElement>( 'dialog.lightbox' );
+	const links = Array.from( document.querySelectorAll<HTMLAnchorElement>( 'a.zoom' ) );
+	if ( dialog && links.length && typeof dialog.showModal === 'function' ) {
+		const img = dialog.querySelector( 'img' ) as HTMLImageElement;
+		const caption = dialog.querySelector( 'figcaption' ) as HTMLElement;
+		let index = 0;
+		const show = ( i: number ) => {
+			index = ( i + links.length ) % links.length;
+			const link = links[ index ];
+			const thumb = link.querySelector( 'img' );
+			img.src = link.href;
+			img.alt = thumb ? thumb.alt : '';
+			caption.textContent = link.dataset.caption || ( thumb ? thumb.alt : '' );
+			dialog.classList.toggle( 'single', links.length < 2 );
+		};
+		links.forEach( ( link, i ) =>
+			link.addEventListener( 'click', ( event ) => {
+				if ( event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0 ) {
+					return; // Let people open it in a new tab on purpose.
+				}
+				event.preventDefault();
+				show( i );
+				dialog.showModal();
+			} )
+		);
+		dialog.querySelector( '.lb-close' )?.addEventListener( 'click', () => dialog.close() );
+		dialog.querySelector( '.lb-prev' )?.addEventListener( 'click', ( e ) => { e.stopPropagation(); show( index - 1 ); } );
+		dialog.querySelector( '.lb-next' )?.addEventListener( 'click', ( e ) => { e.stopPropagation(); show( index + 1 ); } );
+		// A click on the backdrop or the image closes it; the arrows don't.
+		dialog.addEventListener( 'click', ( e ) => {
+			const t = e.target as HTMLElement;
+			if ( ! t.closest( '.lb-prev, .lb-next, figcaption' ) ) {
+				dialog.close();
+			}
+		} );
+		dialog.addEventListener( 'keydown', ( e ) => {
+			if ( e.key === 'ArrowRight' ) {
+				show( index + 1 );
+			} else if ( e.key === 'ArrowLeft' ) {
+				show( index - 1 );
+			}
+		} );
+		dialog.addEventListener( 'close', () => img.removeAttribute( 'src' ) );
+	}
+</script>
+
+<style>
+	.lightbox {
+		width: 100vw;
+		height: 100vh;
+		max-width: none;
+		max-height: none;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: #fff;
+	}
+
+	.lightbox[open] {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
+	}
+
+	.lightbox::backdrop {
+		background: rgba(8, 14, 24, 0.88);
+		backdrop-filter: blur(2px);
+	}
+
+	figure {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+		max-width: min(1400px, calc(100vw - 140px));
+		margin: 0;
+		cursor: zoom-out;
+	}
+
+	img {
+		max-width: 100%;
+		max-height: calc(100vh - 120px);
+		width: auto;
+		height: auto;
+		border-radius: 10px;
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+		background: #fff;
+	}
+
+	figcaption {
+		max-width: 70ch;
+		font-size: 0.95rem;
+		text-align: center;
+		color: #dbe4f0;
+		cursor: default;
+	}
+
+	button {
+		flex: none;
+		width: 48px;
+		height: 48px;
+		border: 0;
+		border-radius: 50%;
+		font-size: 30px;
+		line-height: 1;
+		color: #fff;
+		background: rgba(255, 255, 255, 0.12);
+		cursor: pointer;
+	}
+
+	button:hover,
+	button:focus-visible {
+		background: rgba(255, 255, 255, 0.25);
+	}
+
+	.lb-close {
+		position: fixed;
+		top: 16px;
+		right: 16px;
+	}
+
+	.single .lb-prev,
+	.single .lb-next {
+		display: none;
+	}
+
+	@media (max-width: 700px) {
+		figure {
+			max-width: calc(100vw - 24px);
+		}
+
+		.lb-prev,
+		.lb-next {
+			position: fixed;
+			bottom: 16px;
+		}
+
+		.lb-prev {
+			left: 16px;
+		}
+
+		.lb-next {
+			right: 16px;
+		}
+
+		img {
+			max-height: calc(100vh - 170px);
+		}
+	}
+</style>

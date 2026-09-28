@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import InstallButton from '../components/InstallButton.astro';
 import ExampleResults from '../components/ExampleResults.astro';
+import Lightbox from '../components/Lightbox.astro';
 import { SITE, COMPANY } from '../config';
 import { readme, sub, boldList } from '../lib/readme';
 import fs from 'node:fs';
@@ -108,7 +109,9 @@ const schema = {
 					</ol>
 				</div>
 				<figure>
-					<img class="shot" src="/screenshots/screenshot-1.png" width={ pngSize( 1 ).width } height={ pngSize( 1 ).height } alt="The Airworthy screen in WordPress: the server's PHP version, what will be scanned, the estimated time and a PHP version picker." loading="lazy" />
+					<a class="zoom" href="/screenshots/screenshot-1.png" data-caption={ shotOne.caption }>
+						<img class="shot" src="/screenshots/screenshot-1.png" width={ pngSize( 1 ).width } height={ pngSize( 1 ).height } alt="The Airworthy screen in WordPress: the server's PHP version, what will be scanned, the estimated time and a PHP version picker." loading="lazy" />
+					</a>
 					<figcaption>{ shotOne.caption }</figcaption>
 				</figure>
 			</div>
@@ -126,7 +129,7 @@ const schema = {
 				<div class="tour">
 					{ tour.map( ( s ) => (
 						<figure class={ `tour-shot tour-shot-${ s.n }` }>
-							<a href={ `/screenshots/screenshot-${ s.n }.png` } target="_blank" rel="noopener">
+							<a class="zoom" href={ `/screenshots/screenshot-${ s.n }.png` } data-caption={ s.caption }>
 								<img class="shot" src={ `/screenshots/screenshot-${ s.n }.png` } width={ s.width } height={ s.height } alt={ s.caption } loading="lazy" />
 							</a>
 							<figcaption>{ s.caption }</figcaption>
@@ -215,6 +218,7 @@ wp airworthy export --file=report.csv` }</code></pre>
 			</div>
 		</div>
 	</section>
+	<Lightbox />
 </Base>
 
 <style>
@@ -294,6 +298,19 @@ wp airworthy export --file=report.csv` }</code></pre>
 
 	.tour-shot {
 		margin: 0;
+	}
+
+	.zoom {
+		display: block;
+		cursor: zoom-in;
+	}
+
+	.zoom img {
+		transition: transform 0.15s, box-shadow 0.15s;
+	}
+
+	.zoom:hover img {
+		transform: translateY(-2px);
 	}
 
 	.tour-shot img {

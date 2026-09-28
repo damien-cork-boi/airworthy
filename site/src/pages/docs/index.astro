@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { SITE } from '../../config';
 import { readme } from '../../lib/readme';
+import Lightbox from '../../components/Lightbox.astro';
 
 // The docs are the plugin's readme.txt, section by section.
 const r = readme();
@@ -53,7 +54,9 @@ const requirements = [
 					{ s.slug === 'screenshots' ? (
 						shots.length ? shots.map( ( shot ) => (
 							<figure style="margin-bottom: 28px;">
-								<img class="shot" src={ `/screenshots/screenshot-${ shot.n }.png` } alt={ shot.caption } loading="lazy" />
+								<a class="zoom" href={ `/screenshots/screenshot-${ shot.n }.png` } data-caption={ shot.caption } style="display: block; cursor: zoom-in;">
+									<img class="shot" src={ `/screenshots/screenshot-${ shot.n }.png` } alt={ shot.caption } loading="lazy" />
+								</a>
 								<figcaption>{ shot.caption }</figcaption>
 							</figure>
 						) ) : null
@@ -72,4 +75,5 @@ const requirements = [
 			) ) }
 		</article>
 	</div>
+	<Lightbox />
 </Base>
