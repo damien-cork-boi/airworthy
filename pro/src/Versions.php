@@ -118,10 +118,7 @@ final class Versions {
 	 * @return array|null
 	 */
 	public static function latest_full_scan() {
-		global $wpdb;
-		$t = \Airworthy\Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Airworthy's own table.
-		$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(id) FROM {$t['scans']} WHERE status = 'complete' AND target_php = %s", self::newest() ) );
+		$id = Scans::latest_id( self::newest() );
 		if ( ! $id ) {
 			return null;
 		}

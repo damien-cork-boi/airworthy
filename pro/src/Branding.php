@@ -136,11 +136,7 @@ final class Branding {
 	 * @return object|null id, target_php, finished_at.
 	 */
 	private static function latest_scan() {
-		global $wpdb;
-		$t = \Airworthy\Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Airworthy's own table, no user input.
-		$scan = $wpdb->get_row( "SELECT id, target_php, finished_at FROM {$t['scans']} WHERE status = 'complete' ORDER BY id DESC LIMIT 1" );
-		return $scan ? $scan : null;
+		return Scans::latest();
 	}
 
 	/**

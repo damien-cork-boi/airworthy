@@ -93,10 +93,7 @@ final class Welcome {
 	 * @return int
 	 */
 	private static function latest_scan_id() {
-		global $wpdb;
-		$t = \Airworthy\Installer::tables();
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Airworthy's own table, no user input.
-		return (int) $wpdb->get_var( "SELECT MAX(id) FROM {$t['scans']} WHERE status = 'complete'" );
+		return Scans::latest_id();
 	}
 
 	/**
