@@ -109,9 +109,9 @@ const schema = {
 					</ol>
 				</div>
 				<figure>
-					<a class="zoom" href="/screenshots/screenshot-1.png" data-caption={ shotOne.caption }>
+					<button type="button" class="zoom" data-src="/screenshots/screenshot-1.png" data-caption={ shotOne.caption }>
 						<img class="shot" src="/screenshots/screenshot-1.png" width={ pngSize( 1 ).width } height={ pngSize( 1 ).height } alt="The Airworthy screen in WordPress: the server's PHP version, what will be scanned, the estimated time and a PHP version picker." loading="lazy" />
-					</a>
+					</button>
 					<figcaption>{ shotOne.caption }</figcaption>
 				</figure>
 			</div>
@@ -129,9 +129,9 @@ const schema = {
 				<div class="tour">
 					{ tour.map( ( s ) => (
 						<figure class={ `tour-shot tour-shot-${ s.n }` }>
-							<a class="zoom" href={ `/screenshots/screenshot-${ s.n }.png` } data-caption={ s.caption }>
+							<button type="button" class="zoom" data-src={ `/screenshots/screenshot-${ s.n }.png` } data-caption={ s.caption }>
 								<img class="shot" src={ `/screenshots/screenshot-${ s.n }.png` } width={ s.width } height={ s.height } alt={ s.caption } loading="lazy" />
-							</a>
+							</button>
 							<figcaption>{ s.caption }</figcaption>
 						</figure>
 					) ) }

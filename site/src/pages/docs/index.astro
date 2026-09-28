@@ -54,9 +54,9 @@ const requirements = [
 					{ s.slug === 'screenshots' ? (
 						shots.length ? shots.map( ( shot ) => (
 							<figure style="margin-bottom: 28px;">
-								<a class="zoom" href={ `/screenshots/screenshot-${ shot.n }.png` } data-caption={ shot.caption } style="display: block; cursor: zoom-in;">
+								<button type="button" class="zoom" data-src={ `/screenshots/screenshot-${ shot.n }.png` } data-caption={ shot.caption }>
 									<img class="shot" src={ `/screenshots/screenshot-${ shot.n }.png` } alt={ shot.caption } loading="lazy" />
-								</a>
+								</button>
 								<figcaption>{ shot.caption }</figcaption>
 							</figure>
 						) ) : null

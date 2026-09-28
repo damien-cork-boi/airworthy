@@ -1,9 +1,9 @@
 ---
 /**
- * Screenshot lightbox: links with class "zoom" open their image over the page instead of in
- * a new tab. Esc, a click or the close button shuts it; the arrow keys and buttons step
- * through every zoomable screenshot on the page. Without JavaScript the links still open
- * the image.
+ * Screenshot lightbox: buttons with class "zoom" (data-src, data-caption) open their image
+ * over the page. They're buttons, not links to the image, so a tap never opens the PNG on
+ * its own or offers to download it. Esc, a click or the close button shuts it; the arrow
+ * keys and buttons step through every screenshot on the page.
  */
 ---
 <dialog class="lightbox" aria-label="Screenshot">
@@ -18,7 +18,7 @@
 
 <script>
 	const dialog = document.querySelector<HTMLDialogElement>( 'dialog.lightbox' );
-	const links = Array.from( document.querySelectorAll<HTMLAnchorElement>( 'a.zoom' ) );
+	const links = Array.from( document.querySelectorAll<HTMLButtonElement>( 'button.zoom' ) );
 	if ( dialog && links.length && typeof dialog.showModal === 'function' ) {
 		const img = dialog.querySelector( 'img' ) as HTMLImageElement;
 		const caption = dialog.querySelector( 'figcaption' ) as HTMLElement;
@@ -27,17 +27,13 @@
 			index = ( i + links.length ) % links.length;
 			const link = links[ index ];
 			const thumb = link.querySelector( 'img' );
-			img.src = link.href;
+			img.src = link.dataset.src || '';
 			img.alt = thumb ? thumb.alt : '';
 			caption.textContent = link.dataset.caption || ( thumb ? thumb.alt : '' );
 			dialog.classList.toggle( 'single', links.length < 2 );
 		};
 		links.forEach( ( link, i ) =>
-			link.addEventListener( 'click', ( event ) => {
-				if ( event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0 ) {
-					return; // Let people open it in a new tab on purpose.
-				}
-				event.preventDefault();
+			link.addEventListener( 'click', () => {
 				show( i );
 				dialog.showModal();
 			} )
@@ -62,6 +58,26 @@
 		dialog.addEventListener( 'close', () => img.removeAttribute( 'src' ) );
 	}
 </script>
+
+<style is:global>
+	/* The screenshot buttons: look like the image, nothing else. */
+	button.zoom {
+		display: block;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		text-align: inherit;
+		cursor: zoom-in;
+	}
+
+	button.zoom:focus-visible {
+		outline: 3px solid var(--brand);
+		outline-offset: 4px;
+		border-radius: 12px;
+	}
+</style>
 
 <style>
 	.lightbox {
