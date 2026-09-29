@@ -49,7 +49,7 @@ Zips for real-site testing are release candidates: `RC=3 bin/build.sh` numbers t
 
 - [ ] Update the public source repo: `bin/export-public.sh` (copies an allowlist into `../airworthy-public` and refuses if anything private is in it), review, commit "Airworthy X.Y.Z", tag and push there.
 - [ ] Commit, tag `vX.Y.Z` and push the tag. Create a GitHub release with the zip and `sbom.cdx.json` attached.
-- [ ] **First release only (1.0.0):** the plugin was submitted as plain "Airworthy" so its slug is `airworthy` (WordPress.org makes the slug from the Plugin Name header, permanently). Before the first SVN commit, set the display name back to "Airworthy – PHP Compatibility & Upgrade Checker" in both the `Plugin Name:` header and the readme's `=== … ===` title (they must match, or Plugin Check warns `mismatched_plugin_name`).
+- [ ] **First release only (1.0.0):** the plugin was submitted on 29 Sep 2026 (automated scan: Pass; slug `airworthy` confirmed) as plain "Airworthy" so its slug is `airworthy` (WordPress.org makes the slug from the Plugin Name header, permanently). Before the first SVN commit, set the display name back to "Airworthy – PHP Compatibility & Upgrade Checker" in both the `Plugin Name:` header and the readme's `=== … ===` title (they must match, or Plugin Check warns `mismatched_plugin_name`).
 - [ ] Deploy to WordPress.org SVN: copy `build/airworthy/` to `trunk/`, copy trunk to `tags/X.Y.Z`, and put `assets/icon.svg`, `assets/icon-*.png`, `assets/banner-*.png` and the screenshots from `assets/screenshots/` in the SVN `assets/` folder (brand images are rendered from `assets/source/` with `npm run brand` in `site/`). Commit.
 - [ ] Check the WordPress.org page, and that a test site sees the update and updates cleanly.
 
