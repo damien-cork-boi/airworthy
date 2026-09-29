@@ -5,7 +5,7 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 **Step 8 (hardening): done 27 Sep 2026**
 - [x] Multisite: tested in CI (network activation, site admins refused, network uninstall).
 - [x] MySQL/MariaDB: CI runs on MySQL 8.0, and MariaDB 10.6 for PHP 7.2.
-- [x] PHP 7.2 (declared minimum): CI runs the full suite on real PHP 7.2 with WordPress 6.5. Cheap shared hosting is still to test with real sites.
+- [x] PHP 7.2 (declared minimum): CI runs the full suite on real PHP 7.2 with WordPress 6.9. Cheap shared hosting is still to test with real sites.
 - [x] WordPress coding standards 0/0; Plugin Check 0 errors / 0 warnings (see docs/RELEASE.md).
 - [x] Security policy (SECURITY.md), vulnerability handling (docs/VULNERABILITY-HANDLING.md), SBOM (docs/sbom.cdx.json).
 - [x] Full readme.txt.

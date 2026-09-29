@@ -4,7 +4,7 @@
  * Plugin URI:        https://airworthywp.com/
  * Description:       An upgrade plan that ticks itself off, every PHP version at once, and branded client reports. Needs the free Airworthy plugin.
  * Version:           0.2.1
- * Requires at least: 6.5
+ * Requires at least: 6.9
  * Requires PHP:      7.2
  * Requires Plugins:  airworthy
  * Author:            DigitalKind

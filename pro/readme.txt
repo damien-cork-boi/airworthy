@@ -1,7 +1,7 @@
 === Airworthy Pro ===
 Contributors: digitalkind
 Tags: php, php 8, compatibility, upgrade, report
-Requires at least: 6.5
+Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.2
 Requires Plugins: airworthy
