@@ -6,7 +6,7 @@ Work down the list for every release. Tick items in the release's GitHub issue o
 
 - [ ] `main` is green in GitHub Actions (coding standards, build, Plugin Check, every PHP × WordPress test job).
 - [ ] docs/FOLLOWUPS.md has nothing marked as blocking this release.
-- [ ] security@airworthywp.com works: send it a test email and check it arrives.
+- [x] security@airworthywp.com works: send it a test email and check it arrives (tested 29 Sep 2026).
 
 ## 2. Update the facts that go stale
 
