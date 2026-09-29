@@ -47,6 +47,10 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - Pro's own readme, changelog and translation template; a Pro page on airworthywp.com when it launches.
 - Client report ideas for later: an optional note from the agency, a white-label option (hide "Made with Airworthy") for the agency tier, and a true server-side PDF if customers ask.
 
+**Bundled libraries (checked 29 Sep 2026 for 1.0.0):**
+- PHP_CodeSniffer 4.0.4 and PHPCSUtils 1.2.3 include the fixes for their 2026 advisories (GHSA-hmqg-cxww-wqhq, GHSA-r6hr-vr92-vv28). PHPCompatibility 10.0.0-alpha2 is its newest.
+- Action Scheduler: 3.9.3 bundled; 4.1.0 (Aug 2026) adds hardening against object injection when reading stored schedules (no advisory; needs database write access to exploit). 4.x needs WordPress 6.8+ and 4.0 has breaking changes (unique actions consider args; failed actions purged after 3 months). Move to 4.x in a later release together with raising Requires at least to 6.8. Meanwhile sites with WooCommerce etc. already run the newest copy (Action Scheduler loads the newest registered version).
+
 **Post-launch:**
 - Full namespaced class-name resolution in LoadGraph (FQCN keys, `use … as` aliases, `X::class` passed to a container, a hash_algos() capability check). This fixes WooCommerce's false Blocker at target PHP 8.0 only. See docs/ACCURACY.md "Post-launch".
 - Write our own sniffs for the static coverage gaps: 8.1 ArrayAccess return types (ReturnTypeWillChange), 8.2 mb_convert_encoding HTML-ENTITIES and "self::" callables, 8.5 `case X;` semicolons, null array offsets and PDO::MYSQL_ATTR_* constants, plus array_is_list() not being flagged at target 8.0.

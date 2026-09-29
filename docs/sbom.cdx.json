@@ -3,12 +3,12 @@
     "specVersion": "1.5",
     "version": 1,
     "metadata": {
-        "timestamp": "2026-09-28T18:02:10Z",
+        "timestamp": "2026-09-29T13:08:59Z",
         "component": {
             "type": "application",
-            "bom-ref": "pkg:wordpress-plugin/airworthy@1.0.0-rc.22",
+            "bom-ref": "pkg:wordpress-plugin/airworthy@1.0.0",
             "name": "airworthy",
-            "version": "1.0.0-rc.22",
+            "version": "1.0.0",
             "description": "Airworthy – PHP Compatibility & Upgrade Checker (WordPress plugin)",
             "licenses": [
                 {
@@ -208,7 +208,7 @@
     ],
     "dependencies": [
         {
-            "ref": "pkg:wordpress-plugin/airworthy@1.0.0-rc.22",
+            "ref": "pkg:wordpress-plugin/airworthy@1.0.0",
             "dependsOn": [
                 "pkg:composer/phpcompatibility/php-compatibility@10.0.0-alpha2",
                 "pkg:composer/phpcompatibility/phpcompatibility-paragonie@2.0.0-alpha2",

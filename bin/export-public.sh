@@ -64,17 +64,24 @@ vendor/
 /engine-test/fixtures/plugins/fx-unreadable/inc/secret.php
 EOF
 
-# The website isn't part of the public repo: drop its CI job.
-python3 - "$TARGET/.github/workflows/ci.yml" <<'EOF'
+# The website and Airworthy Pro aren't part of the public repo: drop their CI jobs, and
+# Pro's paths and text domain from the coding-standards config.
+python3 - "$TARGET/.github/workflows/ci.yml" "$TARGET/.phpcs.xml.dist" <<'EOF'
 import re, sys
 p = sys.argv[1]
 s = open(p).read()
 s = re.sub(r"\n  site:\n.*?(?=\n  build:\n)", "\n", s, flags=re.S)
+s = re.sub(r"\n  plugin-check-pro:\n.*?(?=\n  test:\n)", "\n", s, flags=re.S)
+open(p, "w").write(s)
+p = sys.argv[2]
+s = open(p).read()
+s = re.sub(r"\t<file>pro/[^<]*</file>\n", "", s)
+s = s.replace("\t\t\t\t<element value=\"airworthy-pro\"/>\n", "")
 open(p, "w").write(s)
 EOF
 
 echo "==> Checking nothing private was copied"
-if grep -rIilE "Advanced_Data_Table|rackspace|opencloud|ObjectStore|reversed implode|wedops|marryhq|/Users/" "$TARGET" --exclude-dir=.git; then
+if grep -rIilE "Advanced_Data_Table|rackspace|opencloud|ObjectStore|reversed implode|wedops|marryhq|/Users/|build-pro|pro/src|airworthy-pro[.\"/]|plugin-check-pro" "$TARGET" --exclude-dir=.git; then
 	echo "ERROR: the files above mention something private (see bin/export-public.sh)." >&2
 	exit 1
 fi
