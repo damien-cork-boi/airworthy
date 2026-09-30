@@ -19,7 +19,7 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - Licence: the distributed zip as a whole is GPLv3 (Action Scheduler is GPLv3, PHPCompatibility LGPLv3). The readme says so. Part of the legal check below.
 - Done 30 Sep 2026: table names use the %i placeholder (WordPress.org review); the per-line Plugin Check ignores for them are gone.
 - WP-CLI output is English only (like WP-CLI itself); the admin screen is fully translatable. Revisit if users ask.
-- Airworthy's own scan shows "Warnings" (5 deprecations, all in bundled Action Scheduler 3.9.3 and PHPCompatibility, none in our code). Update when Action Scheduler fixes them, or move to 4.x once WordPress 6.9+ passes ~90% of sites.
+- Airworthy's own scan shows "Warnings" (5 deprecations, all in bundled Action Scheduler 4.2.0 and PHPCompatibility, none in our code). Update when those libraries fix them.
 
 **Website (airworthywp.com, `site/`):** live on 27 Sep 2026. Cloudflare Worker `airworthywp` (static assets), deploys on push to main; nameservers moved from Hosting Ireland to Cloudflare; www redirects to the root; Email Routing forwards security@ and hello@ to Damo's Gmail; SPF and a strict DMARC (p=reject) record in place.
 - Done: http redirects to https; test emails to security@ and hello@ arrive at info@digitalkind.ie (Google Workspace). Email Routing forwards there, not to Gmail.
@@ -49,7 +49,7 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 
 **Bundled libraries (checked 29 Sep 2026 for 1.0.0):**
 - PHP_CodeSniffer 4.0.4 and PHPCSUtils 1.2.3 include the fixes for their 2026 advisories (GHSA-hmqg-cxww-wqhq, GHSA-r6hr-vr92-vv28). PHPCompatibility 10.0.0-alpha2 is its newest.
-- Action Scheduler: 3.9.3 bundled; 4.1.0 (Aug 2026) adds hardening against object injection when reading stored schedules (no advisory; needs database write access to exploit). 4.x needs WordPress 6.8+ and 4.0 has breaking changes (unique actions consider args; failed actions purged after 3 months). Move to 4.x in a later release together with raising Requires at least to 6.8. Meanwhile sites with WooCommerce etc. already run the newest copy (Action Scheduler loads the newest registered version).
+- Action Scheduler: 4.2.0 bundled since 29 Sep 2026 (WordPress.org review asked; it includes 4.1.0's object-injection hardening). Our calls all pass $unique = false, so 4.0's breaking change to unique actions doesn't affect us. Minimum WordPress is 6.9 as a result.
 
 **Post-launch:**
 - Full namespaced class-name resolution in LoadGraph (FQCN keys, `use … as` aliases, `X::class` passed to a container, a hash_algos() capability check). This fixes WooCommerce's false Blocker at target PHP 8.0 only. See docs/ACCURACY.md "Post-launch".

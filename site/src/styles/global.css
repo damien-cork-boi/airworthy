@@ -305,6 +305,12 @@ pre code {
 	font-size: 0.95rem;
 }
 
+/* The header's link colours (.site-nav a) would otherwise win over the button's own. */
+.site-nav a.button-primary,
+.site-nav a.button-primary:hover {
+	color: var(--on-brand);
+}
+
 /* Sections */
 
 .section {

@@ -9,8 +9,8 @@ export const SITE = {
 	description:
 		'Before you upgrade PHP, see which WordPress plugins and themes are ready, which need fixing, and which look abandoned. Free on WordPress.org.',
 
-	/** Flip to true once the plugin is approved on WordPress.org: turns on the install buttons. */
-	listed: false,
+	/** True since 30 Sep 2026, when 1.0.0 went live on WordPress.org: turns on the install buttons. */
+	listed: true,
 	wporgUrl: 'https://wordpress.org/plugins/airworthy/',
 	repoUrl: 'https://github.com/DigitalKind/airworthy',
 
