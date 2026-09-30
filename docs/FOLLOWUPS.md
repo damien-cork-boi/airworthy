@@ -31,6 +31,7 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 
 **Before launch / submission:**
 - Reported privately on 28 Sep 2026 (see docs/RELEASE.md): the two reversed implode() bugs (fatal on PHP 8). Watch for replies and fixes; no public mention before 28 Oct 2026 unless fixed. The bugs: Essential Addons for Elementor includes/Elements/Advanced_Data_Table.php:1934, and UpdraftPlus's bundled Rackspace library vendor/rackspace/php-opencloud/lib/OpenCloud/ObjectStore/Service.php:180.
+  - Essential Addons: confirmed by WPDeveloper support on 29 Sep 2026 (bug in 6.8.4, line 1934; our fix accepted; passed to their developers for an upcoming release; they'll reply when it's out). Still no public mention until the fixed version ships. UpdraftPlus: TeamUpdraft asked whether we use Free or Premium (reply drafted); no confirmation yet.
 - Create the WordPress.org account "digitalkind" (readme Contributors must be a real username); confirm the "airworthy" slug on submission.
 - Launch headline, once the bugs are fixed: "We scanned the 30 most popular WordPress plugins for PHP 8.4. A basic scan flags 4 as broken, and 3 of those are false alarms. Airworthy finds the 2 real bugs." Evidence: airworthy/docs/ACCURACY.md.
 - Quick legal check that bundling LGPL-3.0 and BSD code in a commercially sold GPL plugin is fine.
