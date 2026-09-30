@@ -58,6 +58,32 @@ Zips for real-site testing are release candidates: `RC=3 bin/build.sh` numbers t
 - [ ] Watch the support forum and security@airworthywp.com for a week.
 - [ ] Move anything learned into docs/FOLLOWUPS.md.
 
+## 8. Keeping up (the yearly checklist)
+
+Why this section exists: WP Engine's PHP Compatibility Checker (200,000 sites, added 2016) was discontinued with no more releases, not even security fixes. Its rating fell to 2.7/5 with half its reviews at 1 star, and the most common complaints were "abandoned" and "doesn't support newer PHP" (it stopped at PHP 8.0). Its scanner wasn't the problem; falling behind was. Staying current is part of the product.
+
+**Every new PHP version (released each year in late November; the next is due late 2026):**
+- [ ] Check that the scan engine (PHPCompatibility, PHPCSUtils, PHP_CodeSniffer) has rules for the new version. If it doesn't yet, say so plainly in the readme FAQ rather than stay silent.
+- [ ] Add the version to `Targets::ALL` and its support dates to `Targets` (from php.net/supported-versions.php), and update `TABLE_CHECKED`.
+- [ ] Add the new target to `tests/expected-verdicts.json` and the CI checks; run the accuracy set from docs/ACCURACY.md against it.
+- [ ] Update the "PHP 8.0 to 8.x" wording: readme (description, changelog, FAQ), site hero line and Pro teaser (site/src/pages/index.astro), and the screenshots if the target picker changed.
+- [ ] Release within a few weeks of the PHP release, and say so in the changelog ("Adds PHP 8.x").
+- [ ] Add the new PHP version to the CI matrix once setup-php and WordPress support it.
+
+**Every WordPress major release (about three a year):**
+- [ ] Run the full tests against it (CI's "latest" job does this automatically after release; check it passed).
+- [ ] Bump "Tested up to" in the readme. If nothing else changed, this is a readme-only commit to SVN `trunk/` and the current `tags/X.Y.Z/`, no new version needed. WordPress.org warns visitors about plugins not tested with the last three major releases, and that warning costs installs.
+
+**Twice a year (January and July):**
+- [ ] Check the bundled libraries (Action Scheduler, PHP_CodeSniffer, PHPCompatibility, PHPCSUtils) for new releases and security fixes; update, rebuild, check the SBOM and the readme's library list (the build fails if they disagree).
+- [ ] Re-run Plugin Check on the latest version: its rules change.
+- [ ] Re-check the PHP support dates in `Targets` against php.net.
+
+**Always:**
+- [ ] Answer every support-forum thread within two working days, even if only to say it's being looked at. Resolved threads show on the plugin page.
+- [ ] Keep security@airworthywp.com monitored (SECURITY.md promises it).
+- [ ] The scan never depends on a server of ours. PHP Compatibility Checker moved its scanning to a remote service (Tide) and died with it. Pro may use our servers for alerts and licences, never for the scan itself.
+
 ## Known Plugin Check warnings
 
 Plugin Check 2.1.0 on 1.0.0: **0 errors, 0 warnings**.
