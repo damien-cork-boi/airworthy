@@ -17,7 +17,7 @@ Open items collected during Steps 1–8 (27 Sep 2026). Tick them off here as the
 - Done 29 Sep 2026: security@airworthywp.com (named in SECURITY.md, readme and SBOM) tested; mail arrives.
 - Confirm the CRA points in docs/VULNERABILITY-HANDLING.md: whether Airworthy counts as "commercial activity", and the declared support period (at least 5 years from 1.0.0).
 - Licence: the distributed zip as a whole is GPLv3 (Action Scheduler is GPLv3, PHPCompatibility LGPLv3). The readme says so. Part of the legal check below.
-- Optional clean-up: use the %i identifier placeholder (WordPress 6.2+) for our table names instead of the 49 per-line Plugin Check ignores.
+- Done 30 Sep 2026: table names use the %i placeholder (WordPress.org review); the per-line Plugin Check ignores for them are gone.
 - WP-CLI output is English only (like WP-CLI itself); the admin screen is fully translatable. Revisit if users ask.
 - Airworthy's own scan shows "Warnings" (5 deprecations, all in bundled Action Scheduler 3.9.3 and PHPCompatibility, none in our code). Update when Action Scheduler fixes them, or move to 4.x once WordPress 6.9+ passes ~90% of sites.
 

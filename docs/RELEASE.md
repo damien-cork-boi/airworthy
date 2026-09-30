@@ -60,7 +60,7 @@ Zips for real-site testing are release candidates: `RC=3 bin/build.sh` numbers t
 
 ## Known Plugin Check warnings
 
-Plugin Check 2.1.0 on 1.0.0: **0 errors, 0 warnings** after the per-line ignores below.
+Plugin Check 2.1.0 on 1.0.0: **0 errors, 0 warnings**.
 
-- `PluginCheck.Security.DirectDB.UnescapedDBParameter` (49 places): our own table names (`{$wpdb->base_prefix}airworthy_scans`, `_components`, `_issues`, fixed strings from `Installer::tables()`, never user input) are put into the SQL string directly. Every value is a `prepare()` placeholder. Each line has a `phpcs:ignore` with the reason "Own table." A cleaner option, possible since our minimum is WordPress 6.9, is the `%i` identifier placeholder (WordPress 6.2+); see docs/FOLLOWUPS.md.
+- SQL (changed 30 Sep 2026 for the WordPress.org review): every query goes through `$wpdb->prepare()` with a fixed SQL string. Table names use the `%i` identifier placeholder (WordPress 6.2+), never string interpolation; lists use a fixed-length `IN (%s,%s,%s,%s)` (see `Rest\Controller::filter_values()`); issues are saved with `$wpdb->insert()`. Only `CREATE TABLE` for `dbDelta()` still names our tables directly, as `dbDelta()` requires. Keep it this way: the reviewers reject SQL built from variables, and `FIND_IN_SET` doesn't work on SQLite (WordPress Playground).
 - `vendor/` is skipped by Plugin Check. It contains the scoped scan engine and Action Scheduler, which are third-party libraries (Action Scheduler is the same library WooCommerce ships). Their own coding style (for example Action Scheduler's `action-scheduler` text domain) is not ours to change.
