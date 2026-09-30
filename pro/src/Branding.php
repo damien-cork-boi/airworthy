@@ -112,14 +112,14 @@ final class Branding {
 	 */
 	public static function enqueue() {
 		if ( self::on_tab( array( self::TAB, Welcome::TAB, Plan::TAB, Versions::TAB ) ) ) {
-			wp_enqueue_style( 'airworthy-pro-admin', AIRWORTHY_PRO_URL . 'assets/admin.css', array(), AIRWORTHY_PRO_VERSION );
+			wp_enqueue_style( 'airworthy-pro-admin', AIRWORTHY_PRO_URL . 'assets/admin.css', array(), AIRWORTHY_PRO_VERSION . '.' . (int) filemtime( AIRWORTHY_PRO_DIR . 'assets/admin.css' ) );
 		}
 		if ( ! self::on_tab( array( self::TAB ) ) ) {
 			return;
 		}
 		wp_enqueue_media();
 		wp_enqueue_style( 'wp-color-picker' );
-		wp_enqueue_script( 'airworthy-pro-branding', AIRWORTHY_PRO_URL . 'assets/branding.js', array( 'jquery', 'wp-color-picker' ), AIRWORTHY_PRO_VERSION, true );
+		wp_enqueue_script( 'airworthy-pro-branding', AIRWORTHY_PRO_URL . 'assets/branding.js', array( 'jquery', 'wp-color-picker' ), AIRWORTHY_PRO_VERSION . '.' . (int) filemtime( AIRWORTHY_PRO_DIR . 'assets/branding.js' ), true );
 		wp_localize_script(
 			'airworthy-pro-branding',
 			'airworthyProBranding',

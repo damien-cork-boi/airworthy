@@ -312,7 +312,7 @@ final class Report {
 	<meta name="robots" content="noindex, nofollow" />
 	<title><?php echo esc_html( $title ); ?></title>
 	<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- A standalone print page with no wp_head(). ?>
-	<link rel="stylesheet" href="<?php echo esc_url( AIRWORTHY_PRO_URL . 'assets/report.css?ver=' . AIRWORTHY_PRO_VERSION ); ?>" />
+	<link rel="stylesheet" href="<?php echo esc_url( AIRWORTHY_PRO_URL . 'assets/report.css?ver=' . AIRWORTHY_PRO_VERSION . '.' . (int) filemtime( AIRWORTHY_PRO_DIR . 'assets/report.css' ) ); ?>" />
 	<style>
 		:root { --accent: <?php echo esc_html( $branding['color'] ); ?>; }
 		@page {
