@@ -1,0 +1,31 @@
+<!doctype html>
+<!-- Source for screenshot-7.png (WP-CLI). The text is real output of `wp airworthy scan` on the
+     clean demo site (16 Oct 2026, --only limited to the plugins below); only the prompt is made up.
+     Render: node site/scripts/render-cli-screenshot.mjs -->
+<html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#e9edf3}
+.win{margin:28px;border-radius:12px;overflow:hidden;box-shadow:0 18px 50px rgba(15,30,60,.28);background:#141a24}
+.bar{height:34px;background:#232b38;display:flex;align-items:center;gap:8px;padding:0 14px}
+.bar i{width:12px;height:12px;border-radius:50%;display:block}
+.bar i:nth-child(1){background:#ff5f57}.bar i:nth-child(2){background:#febc2e}.bar i:nth-child(3){background:#28c840}
+.bar span{margin-left:auto;margin-right:auto;color:#9aa6b8;font:13px -apple-system,Segoe UI,sans-serif;transform:translateX(-24px)}
+pre{margin:0;padding:18px 22px 22px;color:#d7dde8;font:12.5px/1.55 "SF Mono",Menlo,Consolas,monospace;white-space:pre}
+.prompt{color:#8fe3a8}.v-bad{color:#ff7b7b;font-weight:700}.v-warn{color:#f5c86b}.v-ok{color:#7fb6ff}.v-good{color:#8fe3a8}
+</style></head><body><div class="win"><div class="bar"><i></i><i></i><i></i><span>Terminal — wp airworthy scan</span></div><pre><span class="prompt">~/sites/client-shop $</span> wp airworthy scan --target=8.4 --from=7.4 --wporg --fail-on=blocker
+Checking against PHP 8.4, upgrading from PHP 7.4…
++------------------------+------------------------+---------+----------+--------+------------+---------+----------+---------------+
+| name                   | slug                   | version | verdict  | errors | suppressed | guarded | warnings | wporg         |
++------------------------+------------------------+---------+----------+--------+------------+---------+----------+---------------+
+| Old Widget Pack        | old-widget-pack        | 1.4.2   | <span class="v-bad">blocker </span> | 3      | 0          | 0       | 0        | not listed    |
+| Legacy Lightbox        | legacy-lightbox        | 2.0.1   | <span class="v-ok">guarded </span> | 0      | 0          | 2       | 0        | not listed    |
+| Wordfence Security     | wordfence              | 9.0.1   | <span class="v-ok">guarded </span> | 0      | 0          | 9       | 9        | update 9.0.2  |
+| Advanced Custom Fields | advanced-custom-fields | 6.8.10  | <span class="v-warn">warnings</span> | 0      | 0          | 0       | 1        | ok            |
+| WooCommerce            | woocommerce            | 11.1.2  | <span class="v-warn">warnings</span> | 0      | 0          | 0       | 23       | update 11.2.1 |
+| WP Mail SMTP           | wp-mail-smtp           | 4.9.0   | <span class="v-warn">warnings</span> | 0      | 0          | 0       | 14       | update 4.10.2 |
+| Yoast SEO              | wordpress-seo          | 28.5    | <span class="v-warn">warnings</span> | 0      | 0          | 0       | 6        | update 28.7   |
+| Contact Form 7         | contact-form-7         | 6.1.7   | <span class="v-good">ready   </span> | 0      | 0          | 0       | 0        | update 6.2.2  |
+| Redirection            | redirection            | 5.10.1  | <span class="v-good">ready   </span> | 0      | 0          | 0       | 0        | ok            |
+| Twenty Twenty-Five     | twentytwentyfive       | 1.5     | <span class="v-good">ready   </span> | 0      | 0          | 0       | 0        | -             |
++------------------------+------------------------+---------+----------+--------+------------+---------+----------+---------------+
+PHP 8.4 (scan 11, complete): 1 blocker, 0 unknown, 0 suppressed, 2 guarded, 4 warnings, 3 ready.
+8 problems already apply on PHP 7.4, so they are not caused by this upgrade. To see where: wp airworthy results --fields=name,verdict,existing</pre></div></body></html>
