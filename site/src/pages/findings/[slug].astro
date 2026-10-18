@@ -28,7 +28,7 @@ const VERDICTS: Record<string, string> = {
 };
 const KIND: Record<string, string> = {
 	real: 'Real bug',
-	latent: 'Real bug, asleep',
+	latent: 'Real bug, in unused code',
 	false: 'False alarm',
 	none: '',
 };
@@ -36,7 +36,7 @@ const plural = ( n: number, one: string, many: string ) => `${ n } ${ 1 === n ? 
 const date = ( iso: string ) => new Date( iso + 'T12:00:00Z' ).toLocaleDateString( 'en-IE', { day: 'numeric', month: 'long', year: 'numeric' } );
 
 const title = 'We checked the 30 most popular WordPress plugins against PHP 8.4';
-const description = `A basic compatibility scan says ${ flagged.length } of the 30 most popular WordPress plugins break on PHP 8.4. One really does, and has since been fixed. One has a bug in code it doesn't use. The other ${ falseAlarms.length } are false alarms.`;
+const description = `A basic compatibility scan flags ${ flagged.length } of the 30 most popular WordPress plugins as breaking on PHP 8.4. One really does, and has since been fixed. One has a bug in code it doesn't use. The other ${ falseAlarms.length } are false alarms, and those plugins are fine.`;
 const schema = {
 	'@context': 'https://schema.org',
 	'@type': 'Article',
@@ -54,17 +54,17 @@ const schema = {
 		<h1>{ title }</h1>
 		<p class="lede">
 			A basic compatibility scan says { flagged.length } of them will break. One really does, and has since been fixed.
-			One has a real bug in code it doesn't use today. The other { falseAlarms.length } are false alarms: old code that
-			can never run on a modern PHP version.
+			One has a real bug in code it doesn't use today. The other { falseAlarms.length } are false alarms: careful old code
+			that can never run on a modern PHP version, and those plugins are fine.
 		</p>
 	</div>
 
 	<div class="wrap">
 		<ul class="f-stats" aria-label="Summary">
-			<li class="f-stat"><span class="f-num">{ flagged.length }</span><span class="f-label">plugins a basic scan says will break, out of 30</span></li>
+			<li class="f-stat"><span class="f-num">{ flagged.length }</span><span class="f-label">plugins a basic scan flags as breaking, out of 30</span></li>
 			<li class="f-stat f-stat-bad"><span class="f-num">1</span><span class="f-label">really breaks (fixed since)</span></li>
 			<li class="f-stat f-stat-warn"><span class="f-num">1</span><span class="f-label">real bug in code it doesn't call</span></li>
-			<li class="f-stat f-stat-good"><span class="f-num">{ falseAlarms.length }</span><span class="f-label">false alarms</span></li>
+			<li class="f-stat f-stat-good"><span class="f-num">{ falseAlarms.length }</span><span class="f-label">false alarms: those plugins are fine</span></li>
 		</ul>
 	</div>
 
@@ -73,22 +73,30 @@ const schema = {
 		<p>
 			Hosts are moving sites off old PHP versions, and PHP 8.2 stops getting security fixes on 31 December 2026. Before
 			you switch, you want to know which plugins will break. Compatibility scanners read a plugin's code and flag
-			anything PHP has removed. The trouble is how much they flag: across these 30 plugins, a basic scan reports
-			{ totalErrors } errors in { flagged.length } plugins. Faced with that, most people either panic and put the upgrade
-			off, or stop reading the report. Both are bad outcomes, because one of those { totalErrors } errors was real.
+			anything PHP has removed. The trouble is how much they flag: across these 30 plugins, a basic scan reports{ ' ' }
+			{ totalErrors } errors in { flagged.length } plugins. Faced with a list like that, it's easy to either put the
+			upgrade off or stop reading the report. Neither is good, because one of those { totalErrors } errors was real.
+		</p>
+		<p>
+			That isn't a fault in the scanner. PHPCompatibility, the open-source project behind most PHP compatibility
+			checks (Airworthy included), is very good at its job: finding code that a PHP version changed or removed. What
+			it can't tell, reading one file at a time, is whether that code will ever run on your site. That's the part
+			Airworthy adds.
 		</p>
 
 		<h2>The real problems</h2>
 		<h3>{ real.name } { real.version }</h3>
 		<p>{ real.note }</p>
 		<p>
-			PHP 7.4 only gave a deprecation notice for this. PHP 8 turns it into a fatal error. A basic scan does report it,
-			but as 1 error among { totalErrors }, and nothing sets it apart from the false alarms around it.
+			PHP 7.4 only gave a deprecation notice for this. PHP 8 turns it into a fatal error. The Essential Addons team
+			confirmed it the day after we reported it, and the fix shipped in 6.8.6. A basic scan does report it, but as 1
+			error among { totalErrors }, with nothing to set it apart from the false alarms around it.
 		</p>
 		<h3>{ latent.name } { latent.version }</h3>
 		<p>{ latent.note }</p>
 		<p>
-			This one would only fail if that library code were called, which UpdraftPlus doesn't do today. Airworthy still
+			This one would only fail if that library code were called, which UpdraftPlus doesn't do today, so it's no
+			reason to hold back a PHP upgrade. The UpdraftPlus team passed our report to their developers. Airworthy still
 			flags it as a Blocker, because a scan that reads code can't prove a function is never called, and the code is in
 			the plugin.
 		</p>
@@ -109,11 +117,16 @@ return new MySQLi_Database();` }</code></pre>
 			extension check (<code>extension_loaded( 'mcrypt' )</code>), a function check (<code>function_exists()</code>),
 			a polyfill that defines what PHP removed, or lines the plugin's authors marked as intentional.
 		</p>
+		<p>
+			To be clear: none of the false alarms below is a problem in the plugin. It's careful, backwards-compatible code
+			doing exactly what it should. The only thing wrong is the alarm.
+		</p>
 
 		<h2>All 30 plugins</h2>
 		<p>
 			Plugin versions as current on { date( data.plugin_versions_from ) }, checked against PHP { data.target }.
-			"Basic scan" is PHPCompatibility on its own; "Airworthy" is the same engine plus Airworthy's checks.
+			"Basic scan" is what PHPCompatibility reports on its own; "Airworthy" is the same engine plus Airworthy's checks.
+			Results are for the versions listed; later versions may differ.
 		</p>
 	</div>
 
@@ -124,7 +137,7 @@ return new MySQLi_Database();` }</code></pre>
 				<thead>
 					<tr>
 						<th scope="col">Plugin</th>
-						<th scope="col">Basic scan</th>
+						<th scope="col">Basic scan says</th>
 						<th scope="col">Airworthy</th>
 						<th scope="col">What's really there</th>
 					</tr>
@@ -133,9 +146,9 @@ return new MySQLi_Database();` }</code></pre>
 					{ rows.map( ( r ) => (
 						<tr class={ r.basic_errors ? 'f-flagged' : '' }>
 							<th scope="row">{ r.name }<span class="f-version">{ r.version }</span></th>
-							<td data-label="Basic scan">
+							<td data-label="Basic scan says">
 								{ r.basic_errors ?
-									<span class="badge v-blocker">Breaks</span><span class="f-small">{ plural( r.basic_errors, 'error', 'errors' ) }</span> :
+									<span class="badge v-blocker">Flagged</span><span class="f-small">{ plural( r.basic_errors, 'error', 'errors' ) }</span> :
 									<span class="f-small">No errors</span> }
 							</td>
 							<td data-label="Airworthy"><span class={ `badge v-${ r.verdict }` }>{ VERDICTS[ r.verdict ] }</span></td>
@@ -154,10 +167,11 @@ return new MySQLi_Database();` }</code></pre>
 		<h2>Found since</h2>
 		<p>
 			While testing on a real site in October, Airworthy flagged <strong>Contact Form 7 6.2.2</strong> (released 11
-			October 2026). Five of its REST API permission checks are <code>static</code> closures that use
-			<code>$this</code>, which PHP doesn't allow on any version: when a visitor without permission calls those routes,
-			they get a server error instead of a clean "not allowed". Access is still refused, so it isn't a security
-			problem. We reported it publicly: <a href="https://github.com/rocklobster-in/contact-form-7/issues/1891">contact-form-7#1891</a>.
+			October 2026). Five of its REST API permission checks are <code>static</code> closures that use{ ' ' }
+			<code>$this</code>, which PHP doesn't allow on any version. It's a small mistake and an easy one to make: when a
+			visitor without permission calls those routes, they get a server error instead of a clean "not allowed". Access is
+			still refused, so it isn't a security problem, and we reported it in the open:{ ' ' }
+			<a href="https://github.com/rocklobster-in/contact-form-7/issues/1891">contact-form-7#1891</a>.
 		</p>
 		<p>
 			It also taught us something. The code fails on every PHP version, so it isn't caused by upgrading, and it
@@ -176,6 +190,10 @@ return new MySQLi_Database();` }</code></pre>
 			A scan that reads code without running it can't catch everything: some problems only show up when code runs, or
 			come from your server's set-up. Whatever a scanner says, back up your site and try the new PHP version on a
 			staging copy first.
+		</p>
+		<p class="muted">
+			Spotted a mistake, or maintain one of these plugins and want something corrected? Email{ ' ' }
+			<a href={ `mailto:${ SITE.email.hello }` }>{ SITE.email.hello }</a> and we'll fix it.
 		</p>
 	</div>
 
