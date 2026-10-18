@@ -21,6 +21,14 @@ export const SITE = {
 	 */
 	heldScreenshots: [] as number[],
 
+	/**
+	 * The top-30 findings page (/findings/top-30-plugins-php-8-4/). It names UpdraftPlus's
+	 * latent bug, which was reported privately on 28 Sep 2026: keep this false (the page isn't
+	 * built, linked or in the sitemap) until UpdraftPlus ships a fix or 28 Oct 2026, whichever
+	 * comes first. Preview locally with PREVIEW_FINDINGS=1 npm run dev.
+	 */
+	findingsPublished: false,
+
 	email: {
 		hello: 'hello@airworthywp.com',
 		security: 'security@airworthywp.com',
@@ -36,6 +44,10 @@ export const COMPANY = {
 	address: 'Coolduve, Kilmurry, Lissarda, Cork, Ireland',
 	country: 'IE',
 };
+
+/** Whether the findings page is built: published, or previewed locally (PREVIEW_FINDINGS=1). */
+export const FINDINGS_LIVE = SITE.findingsPublished || '1' === import.meta.env.PREVIEW_FINDINGS;
+export const FINDINGS_URL = '/findings/top-30-plugins-php-8-4/';
 
 export const NAV = [
 	{ href: '/docs/', label: 'Docs' },

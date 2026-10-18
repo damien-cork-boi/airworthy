@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import Logo from '../components/Logo.astro';
 import InstallButton from '../components/InstallButton.astro';
-import { SITE, COMPANY, NAV } from '../config';
+import { SITE, COMPANY, NAV, FINDINGS_LIVE, FINDINGS_URL } from '../config';
 
 interface Props {
 	title?: string;
@@ -73,6 +73,7 @@ const year = new Date().getFullYear();
 				</div>
 				<ul class="footer-links">
 					<li><a href="/docs/">Docs</a></li>
+					{ FINDINGS_LIVE && <li><a href={ FINDINGS_URL }>Top 30 plugins on PHP 8.4</a></li> }
 					<li><a href="/changelog/">Changelog</a></li>
 					<li><a href="/security/">Security</a></li>
 					<li><a href="/privacy/">Privacy</a></li>

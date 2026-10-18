@@ -1,0 +1,388 @@
+---
+import Base from '../../layouts/Base.astro';
+import InstallButton from '../../components/InstallButton.astro';
+import { SITE, COMPANY, FINDINGS_LIVE, FINDINGS_URL } from '../../config';
+import data from '../../data/php84-top30.json';
+
+// Only built once SITE.findingsPublished is true (see config.ts): until then this route has no
+// pages, so nothing is published, linked or listed in the sitemap.
+export function getStaticPaths() {
+	return FINDINGS_LIVE ? [ { params: { slug: FINDINGS_URL.split( '/' )[ 2 ] } } ] : [];
+}
+
+type Row = ( typeof data.plugins )[ number ];
+const rows: Row[] = data.plugins;
+const flagged = rows.filter( ( r ) => r.basic_errors > 0 );
+const falseAlarms = flagged.filter( ( r ) => 'false' === r.kind );
+const real = rows.find( ( r ) => 'real' === r.kind )!;
+const latent = rows.find( ( r ) => 'latent' === r.kind )!;
+const totalErrors = flagged.reduce( ( n, r ) => n + r.basic_errors, 0 );
+
+const VERDICTS: Record<string, string> = {
+	blocker: 'Blocker',
+	unknown: 'Unknown',
+	suppressed: 'Suppressed by author',
+	guarded: 'Guarded legacy code',
+	warnings: 'Warnings',
+	ready: 'Ready',
+};
+const KIND: Record<string, string> = {
+	real: 'Real bug',
+	latent: 'Real bug, asleep',
+	false: 'False alarm',
+	none: '',
+};
+const plural = ( n: number, one: string, many: string ) => `${ n } ${ 1 === n ? one : many }`;
+const date = ( iso: string ) => new Date( iso + 'T12:00:00Z' ).toLocaleDateString( 'en-IE', { day: 'numeric', month: 'long', year: 'numeric' } );
+
+const title = 'We checked the 30 most popular WordPress plugins against PHP 8.4';
+const description = `A basic compatibility scan says ${ flagged.length } of the 30 most popular WordPress plugins break on PHP 8.4. One really does, and has since been fixed. One has a bug in code it doesn't use. The other ${ falseAlarms.length } are false alarms.`;
+const schema = {
+	'@context': 'https://schema.org',
+	'@type': 'Article',
+	headline: title,
+	description,
+	datePublished: data.tested,
+	author: { '@type': 'Organization', name: COMPANY.name, url: COMPANY.url },
+	publisher: { '@type': 'Organization', name: COMPANY.name, url: COMPANY.url },
+	mainEntityOfPage: SITE.url + FINDINGS_URL,
+};
+---
+<Base title="Top 30 plugins on PHP 8.4" description={ description } schema={ schema }>
+	<div class="wrap page-head">
+		<p class="eyebrow">Findings · { date( data.tested ) }</p>
+		<h1>{ title }</h1>
+		<p class="lede">
+			A basic compatibility scan says { flagged.length } of them will break. One really does, and has since been fixed.
+			One has a real bug in code it doesn't use today. The other { falseAlarms.length } are false alarms: old code that
+			can never run on a modern PHP version.
+		</p>
+	</div>
+
+	<div class="wrap">
+		<ul class="f-stats" aria-label="Summary">
+			<li class="f-stat"><span class="f-num">{ flagged.length }</span><span class="f-label">plugins a basic scan says will break, out of 30</span></li>
+			<li class="f-stat f-stat-bad"><span class="f-num">1</span><span class="f-label">really breaks (fixed since)</span></li>
+			<li class="f-stat f-stat-warn"><span class="f-num">1</span><span class="f-label">real bug in code it doesn't call</span></li>
+			<li class="f-stat f-stat-good"><span class="f-num">{ falseAlarms.length }</span><span class="f-label">false alarms</span></li>
+		</ul>
+	</div>
+
+	<div class="wrap prose f-body">
+		<h2>Why this matters</h2>
+		<p>
+			Hosts are moving sites off old PHP versions, and PHP 8.2 stops getting security fixes on 31 December 2026. Before
+			you switch, you want to know which plugins will break. Compatibility scanners read a plugin's code and flag
+			anything PHP has removed. The trouble is how much they flag: across these 30 plugins, a basic scan reports
+			{ totalErrors } errors in { flagged.length } plugins. Faced with that, most people either panic and put the upgrade
+			off, or stop reading the report. Both are bad outcomes, because one of those { totalErrors } errors was real.
+		</p>
+
+		<h2>The real problems</h2>
+		<h3>{ real.name } { real.version }</h3>
+		<p>{ real.note }</p>
+		<p>
+			PHP 7.4 only gave a deprecation notice for this. PHP 8 turns it into a fatal error. A basic scan does report it,
+			but as 1 error among { totalErrors }, and nothing sets it apart from the false alarms around it.
+		</p>
+		<h3>{ latent.name } { latent.version }</h3>
+		<p>{ latent.note }</p>
+		<p>
+			This one would only fail if that library code were called, which UpdraftPlus doesn't do today. Airworthy still
+			flags it as a Blocker, because a scan that reads code can't prove a function is never called, and the code is in
+			the plugin.
+		</p>
+
+		<h2>What a false alarm looks like</h2>
+		<p>
+			Plugins that have been around for years often keep code for old PHP versions, so that sites on old servers keep
+			working. That code sits behind a check, and on PHP 8 the check makes sure it never runs:
+		</p>
+		<pre><code>{ `if ( PHP_VERSION_ID < 70000 ) {
+	return new Legacy_MySQL_Database(); // Uses mysql_*, removed in PHP 7.
+}
+return new MySQLi_Database();` }</code></pre>
+		<p>
+			A basic scan reads each file on its own and sees <code>mysql_query()</code> in the legacy class, so it reports the
+			plugin as broken. Airworthy follows the check, including when it's in another file, as it is in All-in-One WP
+			Migration, and marks that code as guarded. The other false alarms here are the same idea in different forms: an
+			extension check (<code>extension_loaded( 'mcrypt' )</code>), a function check (<code>function_exists()</code>),
+			a polyfill that defines what PHP removed, or lines the plugin's authors marked as intentional.
+		</p>
+
+		<h2>All 30 plugins</h2>
+		<p>
+			Plugin versions as current on { date( data.plugin_versions_from ) }, checked against PHP { data.target }.
+			"Basic scan" is PHPCompatibility on its own; "Airworthy" is the same engine plus Airworthy's checks.
+		</p>
+	</div>
+
+	<div class="wrap">
+		<div class="f-table-wrap">
+			<table class="f-table">
+				<caption class="sr-only">The 30 most popular WordPress plugins, checked against PHP { data.target }</caption>
+				<thead>
+					<tr>
+						<th scope="col">Plugin</th>
+						<th scope="col">Basic scan</th>
+						<th scope="col">Airworthy</th>
+						<th scope="col">What's really there</th>
+					</tr>
+				</thead>
+				<tbody>
+					{ rows.map( ( r ) => (
+						<tr class={ r.basic_errors ? 'f-flagged' : '' }>
+							<th scope="row">{ r.name }<span class="f-version">{ r.version }</span></th>
+							<td data-label="Basic scan">
+								{ r.basic_errors ?
+									<span class="badge v-blocker">Breaks</span><span class="f-small">{ plural( r.basic_errors, 'error', 'errors' ) }</span> :
+									<span class="f-small">No errors</span> }
+							</td>
+							<td data-label="Airworthy"><span class={ `badge v-${ r.verdict }` }>{ VERDICTS[ r.verdict ] }</span></td>
+							<td data-label="What's really there">
+								{ KIND[ r.kind ] && <strong class={ `f-kind f-kind-${ r.kind }` }>{ KIND[ r.kind ] }. </strong> }
+								{ r.note || ( 'warnings' === r.verdict ? 'Works on PHP 8.4. Some deprecations to update before a later PHP version.' : 'No problems found for PHP 8.4.' ) }
+							</td>
+						</tr>
+					) ) }
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="wrap prose f-body">
+		<h2>Found since</h2>
+		<p>
+			While testing on a real site in October, Airworthy flagged <strong>Contact Form 7 6.2.2</strong> (released 11
+			October 2026). Five of its REST API permission checks are <code>static</code> closures that use
+			<code>$this</code>, which PHP doesn't allow on any version: when a visitor without permission calls those routes,
+			they get a server error instead of a clean "not allowed". Access is still refused, so it isn't a security
+			problem. We reported it publicly: <a href="https://github.com/rocklobster-in/contact-form-7/issues/1891">contact-form-7#1891</a>.
+		</p>
+		<p>
+			It also taught us something. The code fails on every PHP version, so it isn't caused by upgrading, and it
+			shouldn't hold an upgrade back. Airworthy 1.0.2 now lists problems like this as "already applies on your PHP"
+			instead of as a Blocker.
+		</p>
+
+		<h2>How we tested</h2>
+		<ul>
+			<li><strong>Plugins:</strong> the 30 most installed plugins on WordPress.org, at the versions that were current on { date( data.plugin_versions_from ) }, on a local WordPress site.</li>
+			<li><strong>Basic scan:</strong> PHP_CodeSniffer { data.tools.phpcs } with PHPCompatibility { data.tools.phpcompatibility } (the version Airworthy bundles), with the plugin authors' <code>phpcs:ignore</code> comments respected:<br /><code>phpcs --standard=PHPCompatibility --runtime-set testVersion { data.target } --extensions=php &lt;plugin folder&gt;</code></li>
+			<li><strong>Airworthy:</strong> version { data.tools.airworthy }, <code>wp airworthy scan --target={ data.target } --from=5.6 --no-wporg</code>. Comparing from PHP 5.6 counts every PHP change, like the basic scan does.</li>
+			<li><strong>Both bugs</strong> were confirmed in the code, and reported privately to the plugins' authors on 28 September 2026, before this page was published. The Essential Addons team confirmed theirs the next day.</li>
+		</ul>
+		<p class="muted">
+			A scan that reads code without running it can't catch everything: some problems only show up when code runs, or
+			come from your server's set-up. Whatever a scanner says, back up your site and try the new PHP version on a
+			staging copy first.
+		</p>
+	</div>
+
+	<section class="section section-soft">
+		<div class="wrap f-cta">
+			<div>
+				<h2>Check your own plugins</h2>
+				<p class="lede">Airworthy is free. It checks every plugin and theme on your site against the PHP version you're moving to, and tells you which ones need attention, and which ones only look like they do.</p>
+			</div>
+			<InstallButton />
+		</div>
+	</section>
+</Base>
+
+<style>
+	.f-stats {
+		list-style: none;
+		margin: 0 0 8px;
+		padding: 0;
+		display: grid;
+		gap: 12px;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+	}
+
+	.f-stat {
+		background: var(--bg-card);
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
+		padding: 18px 20px;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		box-shadow: var(--shadow);
+	}
+
+	.f-num {
+		font-size: 2.4rem;
+		font-weight: 700;
+		line-height: 1;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.f-label {
+		color: var(--muted);
+	}
+
+	.f-stat-bad .f-num { color: var(--v-blocker-ink); }
+	.f-stat-warn .f-num { color: var(--v-suppressed-ink); }
+	.f-stat-good .f-num { color: var(--v-ready-ink); }
+
+	.f-body {
+		padding-top: 8px;
+	}
+
+	.f-body li code {
+		overflow-wrap: anywhere;
+	}
+
+	.f-body pre {
+		background: var(--code-bg);
+		border-radius: var(--radius);
+		padding: 14px 16px;
+		overflow-x: auto;
+		font-size: 0.92rem;
+	}
+
+	.f-table-wrap {
+		overflow-x: auto;
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
+		background: var(--bg-card);
+		margin: 8px 0 24px;
+	}
+
+	.f-table {
+		width: 100%;
+		min-width: 760px;
+		border-collapse: collapse;
+		font-size: 0.95rem;
+	}
+
+	.f-table th,
+	.f-table td {
+		padding: 12px 14px;
+		text-align: left;
+		vertical-align: top;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.f-table thead th {
+		font-size: 0.8rem;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--muted);
+		background: var(--bg-soft);
+	}
+
+	.f-table tbody tr:last-child th,
+	.f-table tbody tr:last-child td {
+		border-bottom: 0;
+	}
+
+	.f-table tbody th {
+		font-weight: 600;
+		width: 22%;
+	}
+
+	.f-table td:nth-child(2),
+	.f-table td:nth-child(3) {
+		white-space: nowrap;
+	}
+
+	.f-flagged {
+		background: var(--bg-soft);
+	}
+
+	.f-version,
+	.f-small {
+		display: block;
+		font-weight: 400;
+		font-size: 0.85rem;
+		color: var(--muted);
+		margin-top: 4px;
+	}
+
+	.f-kind-real { color: var(--v-blocker-ink); }
+	.f-kind-latent { color: var(--v-suppressed-ink); }
+	.f-kind-false { color: var(--v-guarded-ink); }
+
+	@media (max-width: 720px) {
+		.f-table {
+			min-width: 0;
+		}
+
+		.f-table thead {
+			display: none;
+		}
+
+		.f-table tr,
+		.f-table tbody th,
+		.f-table td {
+			display: block;
+			width: auto;
+		}
+
+		.f-table tr {
+			padding: 14px 16px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.f-table tbody tr:last-child {
+			border-bottom: 0;
+		}
+
+		.f-table tbody th,
+		.f-table td {
+			padding: 0;
+			border: 0;
+			white-space: normal;
+		}
+
+		.f-table td {
+			margin-top: 10px;
+		}
+
+		.f-table td:nth-child(2),
+		.f-table td:nth-child(3) {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: baseline;
+			gap: 8px;
+			white-space: normal;
+		}
+
+		.f-table td::before {
+			content: attr(data-label);
+			display: block;
+			min-width: 6.5rem;
+			font-size: 0.75rem;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+
+		.f-table td:nth-child(2) .f-small {
+			margin-top: 0;
+		}
+	}
+
+	.f-cta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 24px;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.f-cta h2 {
+		margin-top: 0;
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+	}
+</style>

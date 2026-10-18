@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import InstallButton from '../components/InstallButton.astro';
 import ExampleResults from '../components/ExampleResults.astro';
 import Lightbox from '../components/Lightbox.astro';
-import { SITE, COMPANY } from '../config';
+import { SITE, COMPANY, FINDINGS_LIVE, FINDINGS_URL } from '../config';
 import { readme, sub, boldList } from '../lib/readme';
 import fs from 'node:fs';
 
@@ -93,6 +93,12 @@ const schema = {
 					</div>
 				) ) }
 			</dl>
+			{ FINDINGS_LIVE && (
+				<p class="findings-teaser card">
+					<strong>We checked the 30 most popular plugins against PHP 8.4.</strong> A basic scan says 8 will break. One really does.
+					<a href={ FINDINGS_URL }>See all 30, and why the rest are false alarms</a>
+				</p>
+			) }
 		</div>
 	</section>
 

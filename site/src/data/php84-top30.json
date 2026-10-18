@@ -1,0 +1,313 @@
+{
+	"about": "Top 30 WordPress.org plugins at PHP 8.4. Generated 18 Oct 2026 from the test site (plugin versions current on 27 Sep 2026). basic_* = phpcs 4.0.4 + PHPCompatibility 10.0.0-alpha2, --runtime-set testVersion 8.4 (authors' phpcs:ignore comments honoured). verdict = Airworthy 1.0.2, wp airworthy scan --target=8.4 --from=5.6 --no-wporg. Source: docs/ACCURACY.md.",
+	"tested": "2026-10-18",
+	"plugin_versions_from": "2026-09-27",
+	"target": "8.4",
+	"tools": {
+		"phpcs": "4.0.4",
+		"phpcompatibility": "10.0.0-alpha2",
+		"airworthy": "1.0.2"
+	},
+	"plugins": [
+		{
+			"slug": "essential-addons-for-elementor-lite",
+			"name": "Essential Addons for Elementor",
+			"version": "6.8.4",
+			"basic_errors": 1,
+			"basic_warnings": 2,
+			"verdict": "blocker",
+			"kind": "real",
+			"note": "implode() with its arguments in the old order, in the Advanced Data Table widget. PHP 8 stops with a fatal error when that code runs. Reported to the authors on 28 September 2026; fixed in 6.8.6 on 15 October 2026."
+		},
+		{
+			"slug": "updraftplus",
+			"name": "UpdraftPlus - Backup/Restore",
+			"version": "1.26.8",
+			"basic_errors": 84,
+			"basic_warnings": 195,
+			"verdict": "blocker",
+			"kind": "latent",
+			"note": "implode() with its arguments in the old order, in a bundled Rackspace library file that UpdraftPlus doesn't currently call. Reported to the authors on 28 September 2026. Everything else the basic scan flags is old fallback code (mcrypt in the bundled phpseclib library, only used if that extension exists; mysql_* functions its authors marked as intentional)."
+		},
+		{
+			"slug": "google-site-kit",
+			"name": "Site Kit by Google",
+			"version": "1.188.0",
+			"basic_errors": 49,
+			"basic_warnings": 19,
+			"verdict": "guarded",
+			"kind": "false",
+			"note": "mcrypt code in the bundled phpseclib library, only used when the mcrypt extension is installed. That extension doesn't exist on PHP 7.2 or later, so the code never runs."
+		},
+		{
+			"slug": "all-in-one-wp-migration",
+			"name": "All-in-One WP Migration and Backup",
+			"version": "7.111",
+			"basic_errors": 22,
+			"basic_warnings": 3,
+			"verdict": "guarded",
+			"kind": "false",
+			"note": "Old mysql_* database code in its bundled database library. The plugin only uses it on PHP older than 7, and the version check is in another file, so a file-by-file scan can't see it."
+		},
+		{
+			"slug": "wordfence",
+			"name": "Wordfence Security",
+			"version": "9.0.1",
+			"basic_errors": 2,
+			"basic_warnings": 7,
+			"verdict": "suppressed",
+			"kind": "false",
+			"note": "Two calls to functions PHP removed (mysql_errno() and get_magic_quotes_gpc()), each behind a check that only lets it run on old PHP. The other findings Airworthy lists are fallback code or lines its authors marked as intentional."
+		},
+		{
+			"slug": "wordpress-importer",
+			"name": "WordPress Importer",
+			"version": "0.9.6",
+			"basic_errors": 2,
+			"basic_warnings": 3,
+			"verdict": "warnings",
+			"kind": "false",
+			"note": "A change in how PHP 7 reads hexadecimal strings, in bundled library code. That is a behaviour change worth knowing about, not a failure: Airworthy lists it as a warning."
+		},
+		{
+			"slug": "wp-mail-smtp",
+			"name": "WP Mail SMTP",
+			"version": "4.9.0",
+			"basic_errors": 2,
+			"basic_warnings": 12,
+			"verdict": "warnings",
+			"kind": "false",
+			"note": "A constant PHP removed, which the bundled Symfony polyfill defines itself. Nothing is missing at run time."
+		},
+		{
+			"slug": "wpforms-lite",
+			"name": "WPForms Lite",
+			"version": "2.0.2.1",
+			"basic_errors": 1,
+			"basic_warnings": 69,
+			"verdict": "guarded",
+			"kind": "false",
+			"note": "get_magic_quotes_gpc() in the bundled HTML Purifier library, behind a check that it exists. It never runs on PHP 8."
+		},
+		{
+			"slug": "jetpack",
+			"name": "Jetpack",
+			"version": "16.2",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "suppressed",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "advanced-custom-fields",
+			"name": "Advanced Custom Fields",
+			"version": "6.8.10",
+			"basic_errors": 0,
+			"basic_warnings": 1,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "all-in-one-seo-pack",
+			"name": "All in One SEO",
+			"version": "5.0.2",
+			"basic_errors": 0,
+			"basic_warnings": 9,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "elementor",
+			"name": "Elementor",
+			"version": "4.3.2",
+			"basic_errors": 0,
+			"basic_warnings": 13,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "google-analytics-for-wordpress",
+			"name": "Google Analytics for WordPress by MonsterInsights",
+			"version": "11.3.0",
+			"basic_errors": 0,
+			"basic_warnings": 6,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "hostinger",
+			"name": "Hostinger Tools",
+			"version": "3.0.78",
+			"basic_errors": 0,
+			"basic_warnings": 5,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "seo-by-rank-math",
+			"name": "Rank Math SEO",
+			"version": "1.0.279",
+			"basic_errors": 0,
+			"basic_warnings": 11,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "really-simple-ssl",
+			"name": "Really Simple Security",
+			"version": "9.8.3",
+			"basic_errors": 0,
+			"basic_warnings": 16,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "woocommerce",
+			"name": "WooCommerce",
+			"version": "11.1.2",
+			"basic_errors": 0,
+			"basic_warnings": 20,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "wps-hide-login",
+			"name": "WPS Hide Login",
+			"version": "1.9.19",
+			"basic_errors": 0,
+			"basic_warnings": 1,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "duplicate-post",
+			"name": "Yoast Duplicate Post",
+			"version": "4.7",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "wordpress-seo",
+			"name": "Yoast SEO",
+			"version": "28.5",
+			"basic_errors": 0,
+			"basic_warnings": 6,
+			"verdict": "warnings",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "tinymce-advanced",
+			"name": "Advanced Editor Tools",
+			"version": "5.10.1",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "akismet",
+			"name": "Akismet Anti-spam: Spam Protection",
+			"version": "5.7.2",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "classic-editor",
+			"name": "Classic Editor",
+			"version": "1.7.0",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "classic-widgets",
+			"name": "Classic Widgets",
+			"version": "0.3",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "contact-form-7",
+			"name": "Contact Form 7",
+			"version": "6.1.7",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "duplicate-page",
+			"name": "Duplicate Page",
+			"version": "4.5.9",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "litespeed-cache",
+			"name": "LiteSpeed Cache",
+			"version": "7.9.1",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "redirection",
+			"name": "Redirection",
+			"version": "5.10.1",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "header-footer-elementor",
+			"name": "Ultimate Addons for Elementor (UAE)",
+			"version": "2.9.5",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		},
+		{
+			"slug": "insert-headers-and-footers",
+			"name": "WPCode Lite",
+			"version": "2.3.9",
+			"basic_errors": 0,
+			"basic_warnings": 0,
+			"verdict": "ready",
+			"kind": "none",
+			"note": ""
+		}
+	]
+}

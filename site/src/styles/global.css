@@ -524,3 +524,16 @@ figcaption {
 .footer-company p {
 	margin: 0 0 4px;
 }
+
+/* Homepage link to the findings page. */
+
+.findings-teaser {
+	margin-top: 28px;
+	max-width: 46rem;
+}
+
+.findings-teaser a {
+	display: block;
+	margin-top: 6px;
+	font-weight: 600;
+}
