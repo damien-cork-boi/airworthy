@@ -39,7 +39,7 @@ Also:
 - "No PHP code found" (short open tags) is a notice.
 - Generated data files (charset tables, Composer and Jetpack classmaps, `.l10n.php`) and test suites inside bundled libraries are never scanned.
 
-## Fixtures (`engine-test/fixtures/plugins`): 102/102 correct for 8.0–8.5
+## Fixtures (`engine-test/fixtures/plugins`): 108/108 correct for 8.0–8.5
 
 | Fixture | Expected | Result |
 |---|---|---|
@@ -54,6 +54,7 @@ Also:
 | fx-needs-php82 (WordPress.org "Requires PHP 8.2", mocked) | Blocker for 8.0–8.1, Ready for 8.2+ | ✓ |
 | fx-suppressed (ignore, bare ignore, disable/enable) | Suppressed | ✓ |
 | fx-implode (reversed implode() arguments) | Blocker | ✓ |
+| fx-static-this (`$this` in a static closure: fails on every PHP version, the Contact Form 7 6.2.2 pattern found 18 Oct 2026) | Ready, finding counted as already applying | ✓ (1.0.2) |
 | fx-data (broken code only in data files) | Ready | ✓ |
 | fx-own-prefix (own sqlite_/mysql_ functions) | Ready | ✓ |
 | fx-unreadable | Unknown | ✓ |
