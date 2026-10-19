@@ -171,7 +171,10 @@ return new MySQLi_Database();` }</code></pre>
 			<code>$this</code>, which PHP doesn't allow on any version. It's a small mistake and an easy one to make: when a
 			visitor without permission calls those routes, they get a server error instead of a clean "not allowed". Access is
 			still refused, so it isn't a security problem, and we reported it in the open:{ ' ' }
-			<a href="https://github.com/rocklobster-in/contact-form-7/issues/1891">contact-form-7#1891</a>.
+			<a href="https://github.com/rocklobster-in/contact-form-7/issues/1891">contact-form-7#1891</a>. Takayuki Miyoshi,
+			Contact Form 7's author, confirmed it the next morning and merged a fix the same day
+			(<a href="https://github.com/rocklobster-in/contact-form-7/pull/1893">#1893</a>), so it goes out with the next
+			release.
 		</p>
 		<p>
 			It also taught us something. The code fails on every PHP version, so it isn't caused by upgrading, and it
