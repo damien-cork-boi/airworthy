@@ -39,7 +39,7 @@ Also:
 - "No PHP code found" (short open tags) is a notice.
 - Generated data files (charset tables, Composer and Jetpack classmaps, `.l10n.php`) and test suites inside bundled libraries are never scanned.
 
-## Fixtures (`engine-test/fixtures/plugins`): 108/108 correct for 8.0–8.5
+## Fixtures (`engine-test/fixtures/plugins`): 217/217 correct for 8.0–8.6
 
 | Fixture | Expected | Result |
 |---|---|---|
@@ -55,6 +55,8 @@ Also:
 | fx-suppressed (ignore, bare ignore, disable/enable) | Suppressed | ✓ |
 | fx-implode (reversed implode() arguments) | Blocker | ✓ |
 | fx-static-this (`$this` in a static closure: fails on every PHP version, the Contact Form 7 6.2.2 pattern found 18 Oct 2026) | Ready, finding counted as already applying | ✓ (1.0.2) |
+| fx-php86 (one use of each PHP 8.6 deprecation Airworthy checks: 26 findings) | Ready for 8.0–8.5, Warnings for 8.6 | ✓ (1.1.0) |
+| fx-php86-fake (look-alikes: methods, static calls, class constants, namespaced functions, strings and comments, closures inside finally and constructors, is_a() with $allow_string true) | Ready for every target | ✓ (1.1.0) |
 | fx-data (broken code only in data files) | Ready | ✓ |
 | fx-own-prefix (own sqlite_/mysql_ functions) | Ready | ✓ |
 | fx-unreadable | Unknown | ✓ |
@@ -109,6 +111,16 @@ Both real bugs should be reported to the authors, with file and line, before the
    - One xxh3 finding is guarded by `in_array( 'xxh3', hash_algos() )`, a capability check the classifier doesn't know yet.
    **Parked as a post-launch item** (decided 27 Sep 2026): see "Post-launch" below.
 4. **Coverage gaps from Step 1** (static): the 8.1 `ArrayAccess` return types, 8.2 `HTML-ENTITIES` and `"self::"` callables, and the 8.5 `case;`, null offset and `PDO::MYSQL_ATTR_*` cases. Planned as our own sniffs (see ENGINE.md).
+
+## PHP 8.6 (1.1.0, own sniffs in `plugin/standards/Airworthy`)
+
+The bundled PHPCompatibility 10.0.0-alpha2 knows PHP up to 8.5 (8.6 support is an open upstream issue), so Airworthy checks PHP 8.6 itself. Source: php-src `UPGRADING` on the PHP-8.6 branch, section 4 (read 21 Oct 2026, RC4), and the [PHP 8.6 deprecations RFC](https://wiki.php.net/rfc/deprecations_php_8_6). PHP 8.6 removes no functions or extensions, so every 8.6 finding is a deprecation (Warnings).
+
+Checked: `spl_object_hash()`, `spl_classes()`, `is_double()`, `is_long()`, `is_integer()`, `doubleval()`, `strcoll()`, `metaphone()`, `mysqli_get_charset()`, `mysqli_stmt_init()`, the 16 mbregex functions (`mb_ereg*`, `mb_regex_*`, `mb_split`), the `SORT_LOCALE_STRING` constant, `return` in `finally`, a return value or `yield` in `__construct()`/`__destruct()`, `let`/`is` as class, interface, trait, enum, function or constant names (also via `define()` and `class_alias()`), `readonly` as a function name, `_` as a constant name, `namespace` as a class constant name (any case: the RFC's own example is `const NAMESPACE`), `is_a()`/`is_subclass_of()` with a class-name string and `$allow_string` false, and a nullable return type on `__debugInfo()`. A third argument to `define()` is deprecated in 8.6 too, but PHPCompatibility already reports it as removed since 8.0.
+
+Not checked (needs run-time values or object types): methods of `ArrayIterator`, `SplFileObject`, `mysqli` and `Reflection*`; objects passed to `array_walk()`, `http_build_query()`, `mb_convert_variables()`, stream filters or `deflate_init()`; more than 16 `php://filter` filters; session handlers without `create_sid()`/`validateId()`; GMP precision loss.
+
+Top 30 at 8.6 (21 Oct 2026, same plugin versions, from 5.6): **48 findings in 12 plugins**, all Warnings. Verdicts: the same as 8.5 except LiteSpeed Cache (Ready → Warnings, one `spl_object_hash()`). By kind: `spl_object_hash()` 16, return value in `__construct()` 14 (e.g. All in One SEO's model constructor returns `true`/`false`), `is_integer()` 10, `const NAMESPACE` in REST controllers 4 (Elementor, Rank Math, Really Simple Security…), class `Is` 4 (the Guzzle promises library bundled by Site Kit, UpdraftPlus and WP Mail SMTP). Samples of each kind checked by hand against the source: all real.
 
 ## WordPress.org signals (Step 5, `plugin/src/Wporg/`)
 

@@ -31,8 +31,12 @@ $check( 'Scan engine is scoped into Airworthy\\Vendor', is_readable( $engine ) &
 $check( 'Default for PHP 7.4 on 2026-09-27 is 8.2', '8.2' === Targets::default_for( '7.4.33', $day( '2026-09-27' ) ) );
 $check( 'Default for PHP 8.2 on 2026-09-27 is 8.3 (never a downgrade)', '8.3' === Targets::default_for( '8.2.10', $day( '2026-09-27' ) ) );
 $check( 'Default for PHP 7.4 on 2027-01-15 is 8.3', '8.3' === Targets::default_for( '7.4.33', $day( '2027-01-15' ) ) );
-$check( 'Default for PHP 8.5 is 8.5 (nothing newer)', '8.5' === Targets::default_for( '8.5.0', $day( '2026-09-27' ) ) );
+$check( 'Default for PHP 8.5 before 8.6 is out is 8.5 (nothing newer released)', '8.5' === Targets::default_for( '8.5.0', $day( '2026-09-27' ) ) );
 $check( 'Default when the table is out of date is the next version', '8.0' === Targets::default_for( '7.4.33', $day( '2031-01-01' ) ) );
+$check( 'PHP 8.6 is a release candidate until 19 Nov 2026', ! Targets::is_released( '8.6', $day( '2026-11-18' ) ) && Targets::is_released( '8.6', $day( '2026-11-19' ) ) && Targets::is_released( '8.5', $day( '2026-11-18' ) ) );
+$check( 'A release candidate is never the default', '8.5' === Targets::default_for( '8.5.12', $day( '2026-11-18' ) ) );
+$check( 'Default for PHP 8.5 once 8.6 is out is 8.6', '8.6' === Targets::default_for( '8.5.12', $day( '2026-11-20' ) ) );
+$check( 'A server already on the release candidate keeps it as the default', '8.6' === Targets::default_for( '8.6.0', $day( '2026-11-01' ) ) );
 $check( '8.1 ended on 2025-12-31', ! Targets::is_supported( '8.1', $day( '2026-01-01' ) ) && Targets::is_supported( '8.1', $day( '2025-12-31' ) ) );
 $check( 'Unknown targets are refused', ! Targets::is_valid( '9.0' ) && ! Targets::is_valid( '8.4.1' ) && Targets::is_valid( '8.4' ) );
 $check( 'Support table checked within the last 13 months', ( time() - $day( Targets::TABLE_CHECKED ) ) < 395 * DAY_IN_SECONDS, 'Update Targets::SECURITY_UNTIL (docs/RELEASE.md)' );
@@ -264,7 +268,7 @@ $check( 'Resume: an unknown scan is refused', is_wp_error( \Airworthy\Scan\Queue
 // Site Health: the test is registered and answers for the site's PHP version.
 $tests = apply_filters( 'site_status_tests', array( 'direct' => array(), 'async' => array() ) );
 $check( 'Site Health: test is registered', isset( $tests['direct'][ \Airworthy\Admin\SiteHealth::TEST ] ) );
-$health = \Airworthy\Admin\SiteHealth::run( '8.5.1' );
+$health = \Airworthy\Admin\SiteHealth::run( Targets::ALL[ count( Targets::ALL ) - 1 ] . '.1' );
 $check( 'Site Health: passes on the newest PHP version', 'good' === $health['status'], $health['label'] );
 $health = \Airworthy\Admin\SiteHealth::run( '7.2.34' );
 $check( 'Site Health: gives a result for an older PHP version', in_array( $health['status'], array( 'good', 'recommended' ), true ) && '' !== $health['label'], $health['label'] );
