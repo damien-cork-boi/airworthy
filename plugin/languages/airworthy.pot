@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-21T20:10:34+00:00\n"
+"POT-Creation-Date: 2026-10-21T20:32:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: airworthy\n"
@@ -52,7 +52,7 @@ msgid "Sorry, you are not allowed to do that."
 msgstr ""
 
 #: src/Admin/Export.php:69
-#: src/Rest/Controller.php:593
+#: src/Rest/Controller.php:596
 #: src/Scan/Queue.php:171
 #: src/Scan/Queue.php:190
 #: src/Scan/Queue.php:359
@@ -631,8 +631,497 @@ msgstr ""
 msgid "The user's answer to the review request: done, later or never."
 msgstr ""
 
-#: src/Rest/Controller.php:573
+#: src/Rest/Controller.php:576
 msgid "The scan could not be completed. Try again, or ask your host whether background tasks (WP-Cron) are working."
+msgstr ""
+
+#: src/Scan/Explain.php:41
+msgid "Update the plugin or theme: newer versions often fix this. If there is no update, send this finding to its developer."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Scan/Explain.php:68
+#, php-format
+msgid "Nothing to do: Airworthy found this code can never run on PHP %s, so it can't break anything."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Scan/Explain.php:71
+#, php-format
+msgid "The plugin's authors marked this line as intentional. Usually safe, but look here first if the plugin misbehaves on PHP %s."
+msgstr ""
+
+#: src/Scan/Explain.php:73
+msgid "This already applies on the PHP version your site runs now, so it isn't caused by the upgrade: that code either never runs today or is already failing."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Scan/Explain.php:78
+#, php-format
+msgid "This code needs a newer PHP version than %1$s. On %1$s it stops with a fatal error if it runs, unless the plugin only runs it on newer PHP."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Scan/Explain.php:81
+#, php-format
+msgid "On PHP %s this stops with a fatal error when the code runs: the page, form or task it belongs to fails."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Scan/Explain.php:85
+#, php-format
+msgid "Still works on PHP %s, but PHP logs a deprecation notice each time it runs, and a later PHP version will stop it working."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Scan/Explain.php:88
+#, php-format
+msgid "Not an error on PHP %s: worth a look, because the code may behave differently or this may be a false lead."
+msgstr ""
+
+#: src/Scan/Explain.php:115
+msgid "Uses PHP's old mysql_* database functions, which PHP 7.0 removed."
+msgstr ""
+
+#: src/Scan/Explain.php:116
+msgid "Use WordPress's database layer ($wpdb), or mysqli."
+msgstr ""
+
+#: src/Scan/Explain.php:123
+msgid "Uses the mcrypt encryption extension, which PHP 7.2 removed."
+msgstr ""
+
+#: src/Scan/Explain.php:124
+#: src/Scan/Explain.php:459
+msgid "Use openssl_encrypt() and openssl_decrypt(), or sodium."
+msgstr ""
+
+#. translators: %s: PHP extension name.
+#: src/Scan/Explain.php:131
+#, php-format
+msgid "Uses the %s extension, which newer PHP versions no longer include."
+msgstr ""
+
+#. translators: %s: replacement suggested by the checker.
+#: src/Scan/Explain.php:133
+#: src/Scan/Explain.php:143
+#: src/Scan/Explain.php:176
+#: src/Scan/Explain.php:471
+#, php-format
+msgid "Use %s instead."
+msgstr ""
+
+#. translators: %s: replacement suggested by the checker.
+#: src/Scan/Explain.php:133
+msgid "Replace it with code that doesn't need the extension."
+msgstr ""
+
+#. translators: %s: constant name.
+#: src/Scan/Explain.php:141
+#, php-format
+msgid "Uses the constant %s, which newer PHP versions deprecate or remove."
+msgstr ""
+
+#. translators: %s: replacement suggested by the checker.
+#: src/Scan/Explain.php:143
+msgid "Remove it, or use the newer way PHP offers for the same thing."
+msgstr ""
+
+#. translators: %s: PHP setting name.
+#: src/Scan/Explain.php:150
+#, php-format
+msgid "Reads or changes the PHP setting %s, which newer PHP versions removed."
+msgstr ""
+
+#: src/Scan/Explain.php:151
+msgid "Remove the ini_set() or ini_get() call for it: the setting no longer does anything."
+msgstr ""
+
+#: src/Scan/Explain.php:159
+msgid "Reads $HTTP_RAW_POST_DATA, which PHP 7.0 removed."
+msgstr ""
+
+#: src/Scan/Explain.php:160
+msgid "Read the raw request body from php://input."
+msgstr ""
+
+#: src/Scan/Explain.php:167
+msgid "Reads $php_errormsg, which PHP 8.0 removed."
+msgstr ""
+
+#: src/Scan/Explain.php:168
+msgid "Use error_get_last() instead."
+msgstr ""
+
+#: src/Scan/Explain.php:174
+msgid "Reads a global variable PHP no longer sets."
+msgstr ""
+
+#. translators: %s: replacement suggested by the checker.
+#: src/Scan/Explain.php:176
+msgid "Get the value another way."
+msgstr ""
+
+#: src/Scan/Explain.php:181
+msgid "A parameter has a type and a default of null, but its type doesn't say it can be null. PHP 8.4 wants that written out."
+msgstr ""
+
+#: src/Scan/Explain.php:182
+msgid "Put a ? in front of the type."
+msgstr ""
+
+#: src/Scan/Explain.php:189
+msgid "A function has an optional parameter before a required one, so the default can never be used."
+msgstr ""
+
+#: src/Scan/Explain.php:190
+msgid "Remove the default from the earlier parameter, or move the optional parameters to the end."
+msgstr ""
+
+#: src/Scan/Explain.php:197
+msgid "A constructor calls exit() or die(). Since PHP 8.0 the object's destructor no longer runs after that."
+msgstr ""
+
+#: src/Scan/Explain.php:198
+msgid "Usually nothing to do. If clean-up happens in __destruct(), do it before exiting."
+msgstr ""
+
+#: src/Scan/Explain.php:203
+msgid "Uses \"integer\", \"boolean\" or \"double\" as a type. PHP reads that as a class name, not as int, bool or float."
+msgstr ""
+
+#: src/Scan/Explain.php:204
+msgid "Use the short type name."
+msgstr ""
+
+#: src/Scan/Explain.php:212
+msgid "A static closure uses $this, which a static closure never has. PHP throws an Error when it runs, on every version."
+msgstr ""
+
+#: src/Scan/Explain.php:213
+msgid "Remove \"static\" from the closure, or don't use $this inside it."
+msgstr ""
+
+#: src/Scan/Explain.php:219
+msgid "A closure uses $this where there may be no object to point to."
+msgstr ""
+
+#: src/Scan/Explain.php:220
+msgid "Check the closure is created inside a class method, or pass the object in with use ()."
+msgstr ""
+
+#: src/Scan/Explain.php:225
+msgid "Calls implode() with its two arguments the wrong way round. PHP 7.4 warned about it; PHP 8.0 stops with a fatal error."
+msgstr ""
+
+#: src/Scan/Explain.php:226
+msgid "Put the separator first."
+msgstr ""
+
+#: src/Scan/Explain.php:233
+msgid "Calls trigger_error() with E_USER_ERROR, which PHP 8.4 deprecated."
+msgstr ""
+
+#: src/Scan/Explain.php:234
+msgid "Throw an exception instead, or stop with wp_die() in WordPress code."
+msgstr ""
+
+#: src/Scan/Explain.php:241
+msgid "Calls get_class() with no argument inside a class, which PHP 8.3 deprecated."
+msgstr ""
+
+#: src/Scan/Explain.php:242
+msgid "Use self::class (or static::class for the actual class)."
+msgstr ""
+
+#: src/Scan/Explain.php:249
+msgid "Calls fgetcsv(), fputcsv() or str_getcsv() without the $escape argument. Its default is changing, so PHP 8.4 wants it passed."
+msgstr ""
+
+#: src/Scan/Explain.php:250
+msgid "Pass the escape character: an empty string for standard CSV, or a backslash to keep today's behaviour."
+msgstr ""
+
+#: src/Scan/Explain.php:257
+msgid "Uses func_get_args(), debug_backtrace() or similar after changing a parameter. Since PHP 7.0 they show the changed value, not the original."
+msgstr ""
+
+#: src/Scan/Explain.php:258
+msgid "Usually nothing to do. If the code needs the original value, read it before changing the parameter."
+msgstr ""
+
+#: src/Scan/Explain.php:263
+msgid "A function or method name starts with two underscores (__), which PHP keeps for its own magic methods."
+msgstr ""
+
+#: src/Scan/Explain.php:264
+msgid "Nothing breaks today. Renaming it avoids a clash with a future PHP version."
+msgstr ""
+
+#: src/Scan/Explain.php:269
+msgid "A class uses a method with the same name as the class as its constructor. PHP 8.0 no longer calls it automatically."
+msgstr ""
+
+#: src/Scan/Explain.php:270
+msgid "Rename the method to __construct()."
+msgstr ""
+
+#: src/Scan/Explain.php:277
+msgid "Uses a word PHP reserves (such as resource, enum or match) as the name of a class, function or constant."
+msgstr ""
+
+#: src/Scan/Explain.php:278
+msgid "Rename it to something that isn't a PHP keyword."
+msgstr ""
+
+#: src/Scan/Explain.php:283
+msgid "A class implements Serializable. Since PHP 8.1 it should also have __serialize() and __unserialize(); the old interface will go."
+msgstr ""
+
+#: src/Scan/Explain.php:284
+msgid "Add __serialize() and __unserialize(). Once the plugin needs PHP 7.4 or newer, the Serializable methods can go."
+msgstr ""
+
+#: src/Scan/Explain.php:291
+msgid "Found text that looks like an old <% %> PHP tag. It's usually a JavaScript template (Underscore or Backbone), which is fine."
+msgstr ""
+
+#: src/Scan/Explain.php:292
+msgid "Nothing to do if it's inside a script template or a .js file."
+msgstr ""
+
+#: src/Scan/Explain.php:297
+msgid "Uses a \"global\" statement with a variable variable, which PHP 7.0 no longer supports in that form."
+msgstr ""
+
+#: src/Scan/Explain.php:298
+msgid "Use $GLOBALS instead."
+msgstr ""
+
+#: src/Scan/Explain.php:305
+msgid "Reads a character or array item with curly braces, which PHP 8.0 removed."
+msgstr ""
+
+#: src/Scan/Explain.php:306
+msgid "Use square brackets."
+msgstr ""
+
+#: src/Scan/Explain.php:313
+msgid "Chains two ?: operators without brackets, which PHP 8.0 no longer allows."
+msgstr ""
+
+#: src/Scan/Explain.php:314
+msgid "Add brackets to show which part belongs together."
+msgstr ""
+
+#: src/Scan/Explain.php:321
+msgid "Puts a variable in a string with ${…}, which PHP 8.2 deprecated."
+msgstr ""
+
+#: src/Scan/Explain.php:322
+msgid "Use {$…} instead."
+msgstr ""
+
+#: src/Scan/Explain.php:329
+msgid "Uses the (real) or (unset) cast, which newer PHP versions removed."
+msgstr ""
+
+#: src/Scan/Explain.php:330
+msgid "Use (float) instead of (real); replace (unset) with null."
+msgstr ""
+
+#: src/Scan/Explain.php:337
+msgid "Passes false as the $throw argument of spl_autoload_register(). PHP 8.0 ignores it and always throws, so the argument is deprecated."
+msgstr ""
+
+#: src/Scan/Explain.php:338
+msgid "Leave the argument out."
+msgstr ""
+
+#: src/Scan/Explain.php:345
+msgid "Passes an argument that newer PHP versions no longer accept for this function."
+msgstr ""
+
+#: src/Scan/Explain.php:346
+msgid "Remove that argument from the call; the message above says which one."
+msgstr ""
+
+#: src/Scan/Explain.php:357
+msgid "Uses something PHP added in a newer version than the one you're checking."
+msgstr ""
+
+#: src/Scan/Explain.php:358
+msgid "Check the plugin's \"Requires PHP\" on WordPress.org: it may need a newer PHP version. Often the code only runs on newer PHP, and is safe."
+msgstr ""
+
+#: src/Scan/Explain.php:376
+msgid "Loops with each(), which PHP 8.0 removed."
+msgstr ""
+
+#: src/Scan/Explain.php:377
+msgid "Use a foreach loop."
+msgstr ""
+
+#: src/Scan/Explain.php:382
+msgid "Builds a function from a string with create_function(), which PHP 8.0 removed."
+msgstr ""
+
+#: src/Scan/Explain.php:383
+msgid "Write an anonymous function instead."
+msgstr ""
+
+#: src/Scan/Explain.php:388
+msgid "Checks get_magic_quotes_gpc(), which PHP 8.0 removed (magic quotes went in PHP 5.4)."
+msgstr ""
+
+#: src/Scan/Explain.php:389
+msgid "Remove the check. In WordPress, use wp_unslash() on request data."
+msgstr ""
+
+#: src/Scan/Explain.php:394
+msgid "Formats money with money_format(), which PHP 8.0 removed."
+msgstr ""
+
+#: src/Scan/Explain.php:395
+msgid "Use NumberFormatter (intl), or number_format() with your own currency symbol."
+msgstr ""
+
+#: src/Scan/Explain.php:400
+msgid "Converts text with utf8_encode(), which PHP 8.2 deprecated."
+msgstr ""
+
+#: src/Scan/Explain.php:401
+#: src/Scan/Explain.php:407
+msgid "Use mb_convert_encoding()."
+msgstr ""
+
+#: src/Scan/Explain.php:406
+msgid "Converts text with utf8_decode(), which PHP 8.2 deprecated."
+msgstr ""
+
+#: src/Scan/Explain.php:412
+msgid "Formats dates with strftime(), which PHP 8.1 deprecated."
+msgstr ""
+
+#: src/Scan/Explain.php:413
+msgid "In WordPress, use wp_date() (it also translates month and day names)."
+msgstr ""
+
+#: src/Scan/Explain.php:418
+msgid "Uses spl_object_hash() to identify an object, which PHP 8.6 deprecates."
+msgstr ""
+
+#: src/Scan/Explain.php:419
+msgid "Use spl_object_id()."
+msgstr ""
+
+#: src/Scan/Explain.php:424
+msgid "Checks a number with is_integer(), which PHP 8.6 deprecates."
+msgstr ""
+
+#: src/Scan/Explain.php:425
+#: src/Scan/Explain.php:431
+msgid "Use is_int(): it does the same."
+msgstr ""
+
+#: src/Scan/Explain.php:430
+msgid "Checks a number with is_long(), which PHP 8.6 deprecates."
+msgstr ""
+
+#: src/Scan/Explain.php:436
+msgid "Calls curl_close(), which PHP 8.5 deprecated: it has done nothing since PHP 8.0."
+msgstr ""
+
+#: src/Scan/Explain.php:437
+msgid "Remove the call; the handle closes by itself."
+msgstr ""
+
+#. translators: %s: function name.
+#: src/Scan/Explain.php:449
+#, php-format
+msgid "Calls %s(), one of PHP's old mysql_* database functions, which PHP 7.0 removed."
+msgstr ""
+
+#: src/Scan/Explain.php:450
+msgid "Use WordPress's database layer ($wpdb, and esc_sql() or $wpdb->prepare() for escaping), or mysqli."
+msgstr ""
+
+#. translators: %s: function name.
+#: src/Scan/Explain.php:458
+#, php-format
+msgid "Calls %s(), part of the mcrypt encryption extension, which PHP 7.2 removed."
+msgstr ""
+
+#. translators: %s: function name.
+#: src/Scan/Explain.php:466
+#, php-format
+msgid "Calls %s(), which newer PHP versions removed."
+msgstr ""
+
+#. translators: %s: function name.
+#: src/Scan/Explain.php:468
+#, php-format
+msgid "Calls %s(), which newer PHP versions deprecate."
+msgstr ""
+
+#: src/Scan/Explain.php:472
+msgid "Remove the call, or do the same thing another way: PHP has no direct replacement."
+msgstr ""
+
+#: src/Scan/Explain.php:486
+msgid "A \"finally\" block returns a value, which overrides any return or exception from the \"try\" block. PHP 8.6 deprecates it."
+msgstr ""
+
+#: src/Scan/Explain.php:487
+msgid "Return after the try/finally instead, or move the return into the try block."
+msgstr ""
+
+#: src/Scan/Explain.php:491
+msgid "A constructor or destructor returns a value. PHP ignores it, and PHP 8.6 deprecates it."
+msgstr ""
+
+#: src/Scan/Explain.php:492
+msgid "Remove the value (a plain \"return;\" is fine). If the result matters, move that work into a normal method."
+msgstr ""
+
+#: src/Scan/Explain.php:498
+msgid "A constructor or destructor uses yield, which PHP 8.6 deprecates."
+msgstr ""
+
+#: src/Scan/Explain.php:499
+msgid "Move the yield into a separate method."
+msgstr ""
+
+#: src/Scan/Explain.php:503
+msgid "A class has a constant named NAMESPACE. PHP 8.6 reserves the word for future syntax."
+msgstr ""
+
+#: src/Scan/Explain.php:504
+msgid "Rename the constant, for example to REST_NAMESPACE."
+msgstr ""
+
+#: src/Scan/Explain.php:510
+msgid "Something is named \"let\", \"is\", \"readonly\" or \"_\", which PHP 8.6 reserves. Often it's a bundled library (such as Guzzle's Is class)."
+msgstr ""
+
+#: src/Scan/Explain.php:511
+msgid "If it's a bundled library, an update of the plugin will bring the fixed version. Otherwise rename it."
+msgstr ""
+
+#: src/Scan/Explain.php:515
+msgid "Calls is_a() or is_subclass_of() with a class name as text but without allowing strings. PHP 8.6 deprecates that."
+msgstr ""
+
+#: src/Scan/Explain.php:516
+msgid "Pass true as the third argument."
+msgstr ""
+
+#: src/Scan/Explain.php:522
+msgid "__debugInfo() is declared as returning ?array. PHP 8.6 wants array."
+msgstr ""
+
+#: src/Scan/Explain.php:523
+msgid "Return an empty array instead of null."
 msgstr ""
 
 #: src/Scan/Queue.php:105
@@ -915,7 +1404,7 @@ msgid "Checking now"
 msgstr ""
 
 #: assets/admin.js:564
-#: assets/admin.js:1474
+#: assets/admin.js:1499
 msgid "What the verdicts mean"
 msgstr ""
 
@@ -1307,121 +1796,141 @@ msgstr[1] ""
 msgid "None"
 msgstr ""
 
-#: assets/admin.js:1032
+#: assets/admin.js:1033
+msgid "What this means and how to fix it"
+msgstr ""
+
+#: assets/admin.js:1035
+msgid "What happens: "
+msgstr ""
+
+#: assets/admin.js:1036
+msgid "How to fix it: "
+msgstr ""
+
+#: assets/admin.js:1040
+msgid "Before"
+msgstr ""
+
+#: assets/admin.js:1041
+msgid "After"
+msgstr ""
+
+#: assets/admin.js:1056
 msgid "No findings."
 msgstr ""
 
 #. translators: 1: shown, 2: total.
-#: assets/admin.js:1063
+#: assets/admin.js:1088
 #, js-format
 msgid "Show more (%1$d of %2$d shown)"
 msgstr ""
 
 #. translators: %s: plugin or theme name.
-#: assets/admin.js:1083
+#: assets/admin.js:1108
 #, js-format
 msgid "Details for %s"
 msgstr ""
 
-#: assets/admin.js:1086
+#: assets/admin.js:1111
 msgid "Hide details"
 msgstr ""
 
-#: assets/admin.js:1086
-#: assets/admin.js:1095
+#: assets/admin.js:1111
+#: assets/admin.js:1120
 msgid "Details"
 msgstr ""
 
-#: assets/admin.js:1091
+#: assets/admin.js:1116
 msgid "Loading…"
 msgstr ""
 
 #. translators: %s: plugin or theme name.
-#: assets/admin.js:1100
+#: assets/admin.js:1125
 #, js-format
 msgid "Rescan %s"
 msgstr ""
 
 #. translators: %s: plugin or theme name.
-#: assets/admin.js:1106
+#: assets/admin.js:1131
 #, js-format
 msgid "Checking %s again."
 msgstr ""
 
-#: assets/admin.js:1116
+#: assets/admin.js:1141
 msgid "Rescan"
 msgstr ""
 
-#: assets/admin.js:1125
-#: assets/admin.js:1185
-#: assets/admin.js:1198
-#: assets/admin.js:1534
+#: assets/admin.js:1150
+#: assets/admin.js:1210
+#: assets/admin.js:1223
+#: assets/admin.js:1559
 msgid "Plugin or theme"
 msgstr ""
 
 #. translators: %s: plugin or theme version number.
-#: assets/admin.js:1130
+#: assets/admin.js:1155
 #, js-format
 msgid "Version %s"
 msgstr ""
 
-#: assets/admin.js:1131
+#: assets/admin.js:1156
 msgid "theme"
 msgstr ""
 
-#: assets/admin.js:1131
+#: assets/admin.js:1156
 msgid "inactive"
 msgstr ""
 
-#: assets/admin.js:1137
-#: assets/admin.js:1535
+#: assets/admin.js:1162
+#: assets/admin.js:1560
 msgid "Verdict"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1145
+#: assets/admin.js:1170
 #, js-format
 msgid "Nothing new breaks on PHP %s. Some old code already can't run on your current PHP: see the details."
 msgstr ""
 
-#: assets/admin.js:1149
-#: assets/admin.js:1536
+#: assets/admin.js:1174
+#: assets/admin.js:1561
 msgid "Findings"
 msgstr ""
 
-#: assets/admin.js:1150
-#: assets/admin.js:1537
+#: assets/admin.js:1175
+#: assets/admin.js:1562
 msgid "WordPress.org"
 msgstr ""
 
 #. translators: %d: number of files.
-#: assets/admin.js:1172
+#: assets/admin.js:1197
 #, js-format
 msgid "%d file could not be checked"
 msgid_plural "%d files could not be checked"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1174
+#: assets/admin.js:1199
 msgid "Airworthy gives these plugins an Unknown verdict unless it already found a Blocker. Raising your server’s PHP memory limit usually lets the large ones be checked."
 msgstr ""
 
-#: assets/admin.js:1178
+#: assets/admin.js:1203
 msgid "Files that could not be checked"
 msgstr ""
 
-#: assets/admin.js:1186
-#: assets/admin.js:1199
+#: assets/admin.js:1211
+#: assets/admin.js:1224
 msgid "File"
 msgstr ""
 
-#: assets/admin.js:1187
-#: assets/admin.js:1200
+#: assets/admin.js:1212
+#: assets/admin.js:1225
 msgid "Reason"
 msgstr ""
 
 #. translators: 1: number of plugins/themes, 2: PHP version.
-#: assets/admin.js:1257
+#: assets/admin.js:1282
 #, js-format
 msgid "%1$d plugin or theme needs attention before you upgrade to PHP %2$s."
 msgid_plural "%1$d plugins or themes need attention before you upgrade to PHP %2$s."
@@ -1429,24 +1938,24 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1260
-#: assets/admin.js:1635
+#: assets/admin.js:1285
+#: assets/admin.js:1660
 #, js-format
 msgid "Nothing found that would break on PHP %s, but some files could not be checked."
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1262
+#: assets/admin.js:1287
 #, js-format
 msgid "Good news: nothing Airworthy found will break when you upgrade to PHP %s."
 msgstr ""
 
-#: assets/admin.js:1264
+#: assets/admin.js:1289
 msgid "Open their details below to see what would break, and whether an update fixes it."
 msgstr ""
 
 #. translators: %d: number of plugins/themes.
-#: assets/admin.js:1267
+#: assets/admin.js:1292
 #, js-format
 msgid "%d plugin or theme has no verdict yet: the files that could not be checked are listed below."
 msgid_plural "%d plugins or themes have no verdict yet: the files that could not be checked are listed below."
@@ -1454,61 +1963,61 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of plugins/themes, 2: PHP version.
-#: assets/admin.js:1271
+#: assets/admin.js:1296
 #, js-format
 msgid "%1$d plugin or theme uses PHP features that still work on PHP %2$s but will be removed in a later PHP version. Your site won't break because of them now, and keeping it updated usually fixes them before that happens."
 msgid_plural "%1$d plugins or themes use PHP features that still work on PHP %2$s but will be removed in a later PHP version. Your site won't break because of them now, and keeping them updated usually fixes them before that happens."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1275
+#: assets/admin.js:1300
 msgid "Test on a staging copy before you switch all the same: some problems only show up when code runs."
 msgstr ""
 
 #. translators: %d: number of plugins/themes.
-#: assets/admin.js:1295
+#: assets/admin.js:1320
 #, js-format
 msgid "%d plugin or theme with findings has an update waiting. Updating often clears findings, and Airworthy checks each one again by itself after it is updated."
 msgid_plural "%d plugins or themes with findings have updates waiting. Updating often clears findings, and Airworthy checks each one again by itself after it is updated."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1298
+#: assets/admin.js:1323
 msgid "Go to Updates"
 msgstr ""
 
-#: assets/admin.js:1320
+#: assets/admin.js:1345
 msgid "Continuing the scan."
 msgstr ""
 
-#: assets/admin.js:1330
+#: assets/admin.js:1355
 msgid "Continue scan"
 msgstr ""
 
 #. translators: 1: percent, 2: plugins/themes checked, 3: total.
-#: assets/admin.js:1345
+#: assets/admin.js:1370
 #, js-format
 msgid "Scan stopped at %1$d%%: %2$d of %3$d plugins and themes checked."
 msgstr ""
 
-#: assets/admin.js:1346
+#: assets/admin.js:1371
 msgid "Scan stopped before it started checking."
 msgstr ""
 
-#: assets/admin.js:1352
+#: assets/admin.js:1377
 msgid "The results below are incomplete. Continue scan picks up where it stopped, and what has been checked keeps its results."
 msgstr ""
 
-#: assets/admin.js:1353
+#: assets/admin.js:1378
 msgid "The results below are incomplete. Start a new scan to check everything."
 msgstr ""
 
-#: assets/admin.js:1359
+#: assets/admin.js:1384
 msgid "The scan could not be completed."
 msgstr ""
 
 #. translators: 1: number of problems, 2: PHP version.
-#: assets/admin.js:1376
+#: assets/admin.js:1401
 #, js-format
 msgid "%1$d problem already applies on PHP %2$s, the version your site runs now, so it isn't caused by this upgrade: that code either never runs on your site today or is already failing. It isn't counted as a Blocker, and is listed in its plugin's details."
 msgid_plural "%1$d problems already apply on PHP %2$s, the version your site runs now, so they aren't caused by this upgrade: that code either never runs on your site today or is already failing. They aren't counted as Blockers, and are listed in each plugin's details."
@@ -1516,7 +2025,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of problems, 2: PHP version.
-#: assets/admin.js:1378
+#: assets/admin.js:1403
 #, js-format
 msgid "%1$d problem already applies on PHP %2$s, the version you are comparing from, so it isn't caused by this upgrade. It isn't counted as a Blocker, and is listed in its plugin's details."
 msgid_plural "%1$d problems already apply on PHP %2$s, the version you are comparing from, so they aren't caused by this upgrade. They aren't counted as Blockers, and are listed in each plugin's details."
@@ -1524,7 +2033,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of plugins.
-#: assets/admin.js:1391
+#: assets/admin.js:1416
 #, js-format
 msgid "%d inactive plugin was not checked."
 msgid_plural "%d inactive plugins were not checked."
@@ -1532,123 +2041,123 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of plugins and themes.
-#: assets/admin.js:1394
+#: assets/admin.js:1419
 #, js-format
 msgid "%d plugin or theme on your ignore list was not checked."
 msgid_plural "%d plugins and themes on your ignore list were not checked."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1396
+#: assets/admin.js:1421
 msgid "Change this in Settings"
 msgstr ""
 
-#: assets/admin.js:1400
+#: assets/admin.js:1425
 msgid "WordPress.org checks were off for this scan, so closed or abandoned plugins aren't flagged. You can turn them on when you start the next scan."
 msgstr ""
 
-#: assets/admin.js:1402
+#: assets/admin.js:1427
 msgid "WordPress.org could not be reached for some plugins, so their update and maintenance details are missing. Run the scan again later to fill them in."
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1422
+#: assets/admin.js:1447
 #, js-format
 msgid "Results for PHP %s"
 msgstr ""
 
 #. translators: 1: date and time, 2: server PHP version.
-#: assets/admin.js:1431
+#: assets/admin.js:1456
 #, js-format
 msgid "Stopped %1$s · server runs PHP %2$s"
 msgstr ""
 
 #. translators: 1: date and time, 2: server PHP version.
-#: assets/admin.js:1433
+#: assets/admin.js:1458
 #, js-format
 msgid "Checked %1$s · server runs PHP %2$s"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1436
+#: assets/admin.js:1461
 #, js-format
 msgid "compared from PHP %s"
 msgstr ""
 
 #. translators: %s: server PHP version.
-#: assets/admin.js:1438
+#: assets/admin.js:1463
 #, js-format
 msgid "Server runs PHP %s"
 msgstr ""
 
-#: assets/admin.js:1446
+#: assets/admin.js:1471
 msgid "Export CSV"
 msgstr ""
 
-#: assets/admin.js:1452
+#: assets/admin.js:1477
 msgid "Copy summary"
 msgstr ""
 
-#: assets/admin.js:1464
+#: assets/admin.js:1489
 msgid "New scan"
 msgstr ""
 
-#: assets/admin.js:1481
+#: assets/admin.js:1506
 msgid "Before you change your PHP version"
 msgstr ""
 
-#: assets/admin.js:1485
+#: assets/admin.js:1510
 msgid "Back up your whole site first: files and database."
 msgstr ""
 
-#: assets/admin.js:1486
+#: assets/admin.js:1511
 msgid "Try the new PHP version on a staging copy of your site before your live site, and click through what matters: checkout, forms, logins, bookings."
 msgstr ""
 
-#: assets/admin.js:1487
+#: assets/admin.js:1512
 msgid "Know how to switch back: most hosts let you change the PHP version back in their control panel."
 msgstr ""
 
-#: assets/admin.js:1489
+#: assets/admin.js:1514
 msgid "Airworthy reads your plugins’ code without running it, so it can’t catch everything: some problems only show up when code runs, or come from your server’s set-up. Use the results to plan your upgrade, not as a guarantee that your site will work."
 msgstr ""
 
 #. translators: %d: number of plugins.
-#: assets/admin.js:1499
+#: assets/admin.js:1524
 #, js-format
 msgid "%d plugin has been removed from WordPress.org"
 msgid_plural "%d plugins have been removed from WordPress.org"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/admin.js:1501
+#: assets/admin.js:1526
 msgid "Nobody can download these from WordPress.org any more, and no more updates will come for them, including security fixes."
 msgstr ""
 
 #. translators: 1: date, 2: reason in plain words, e.g. "the author withdrew it".
-#: assets/admin.js:1513
+#: assets/admin.js:1538
 #, js-format
 msgid "closed %1$s: %2$s."
 msgstr ""
 
-#: assets/admin.js:1527
+#: assets/admin.js:1552
 msgid "Results by plugin or theme, grouped by what to do next"
 msgstr ""
 
-#: assets/admin.js:1538
+#: assets/admin.js:1563
 msgid "Actions"
 msgstr ""
 
-#: assets/admin.js:1545
+#: assets/admin.js:1570
 msgid "No plugins or themes were checked in this scan."
 msgstr ""
 
-#: assets/admin.js:1629
+#: assets/admin.js:1654
 msgid "The scan was stopped before it finished, so these results are incomplete."
 msgstr ""
 
 #. translators: 1: number of plugins/themes, 2: PHP version.
-#: assets/admin.js:1632
+#: assets/admin.js:1657
 #, js-format
 msgid "%1$d plugin or theme needs attention before the upgrade to PHP %2$s."
 msgid_plural "%1$d plugins or themes need attention before the upgrade to PHP %2$s."
@@ -1656,99 +2165,99 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1637
+#: assets/admin.js:1662
 #, js-format
 msgid "Nothing found that would break on PHP %s."
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1641
+#: assets/admin.js:1666
 #, js-format
 msgid "Airworthy check for PHP %s"
 msgstr ""
 
 #. translators: %s: date and time.
-#: assets/admin.js:1644
+#: assets/admin.js:1669
 #, js-format
 msgid "Checked %s"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1646
+#: assets/admin.js:1671
 #, js-format
 msgid "server runs PHP %s"
 msgstr ""
 
 #. translators: %s: version number.
-#: assets/admin.js:1672
+#: assets/admin.js:1697
 #, js-format
 msgid "update available: %s"
 msgstr ""
 
-#: assets/admin.js:1675
+#: assets/admin.js:1700
 msgid "removed from WordPress.org"
 msgstr ""
 
-#: assets/admin.js:1677
+#: assets/admin.js:1702
 msgid "looks abandoned"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: assets/admin.js:1681
+#: assets/admin.js:1706
 #, js-format
 msgid "requires PHP %s"
 msgstr ""
 
-#: assets/admin.js:1691
+#: assets/admin.js:1716
 msgid "Airworthy reads the code without running it, so test the new PHP version on a staging copy before switching the live site."
 msgstr ""
 
 #. translators: %s: link to Airworthy on WordPress.org.
-#: assets/admin.js:1693
+#: assets/admin.js:1718
 #, js-format
 msgid "Checked with Airworthy (free): %s"
 msgstr ""
 
-#: assets/admin.js:1706
+#: assets/admin.js:1731
 msgid "Copied"
 msgstr ""
 
-#: assets/admin.js:1707
+#: assets/admin.js:1732
 msgid "Summary copied. Paste it into an email or support ticket."
 msgstr ""
 
-#: assets/admin.js:1730
+#: assets/admin.js:1755
 msgid "Copy the summary:"
 msgstr ""
 
-#: assets/admin.js:1753
+#: assets/admin.js:1778
 msgid "Thanks. Airworthy won't ask again for now."
 msgstr ""
 
-#: assets/admin.js:1759
+#: assets/admin.js:1784
 msgid "Did Airworthy help?"
 msgstr ""
 
-#: assets/admin.js:1760
+#: assets/admin.js:1785
 msgid "Airworthy is free. A short review on WordPress.org helps other site owners find it before their own PHP upgrade, and takes about a minute."
 msgstr ""
 
-#: assets/admin.js:1769
+#: assets/admin.js:1794
 msgid "Leave a review"
 msgstr ""
 
-#: assets/admin.js:1770
+#: assets/admin.js:1795
 msgid "(opens in a new tab)"
 msgstr ""
 
-#: assets/admin.js:1777
+#: assets/admin.js:1802
 msgid "Maybe later"
 msgstr ""
 
-#: assets/admin.js:1784
+#: assets/admin.js:1809
 msgid "Don't ask again"
 msgstr ""
 
-#: assets/admin.js:1826
+#: assets/admin.js:1851
 msgid "WordPress.org details added."
 msgstr ""

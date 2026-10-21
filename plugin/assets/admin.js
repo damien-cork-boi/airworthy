@@ -1019,6 +1019,30 @@
 	/**
 	 * Loads and shows one plugin's findings, a page at a time.
 	 */
+	/**
+	 * "What this means and how to fix it" under a finding: what it is, what happens on the
+	 * PHP version checked, the fix, and a before/after example when there is one.
+	 */
+	function explanation( x ) {
+		if ( ! x ) {
+			return null;
+		}
+		return el(
+			'details',
+			{ class: 'airworthy-explain' },
+			el( 'summary', null, __( 'What this means and how to fix it', 'airworthy' ) ),
+			x.what ? el( 'p', null, x.what ) : null,
+			x.effect ? el( 'p', null, el( 'strong', null, __( 'What happens: ', 'airworthy' ) ), x.effect ) : null,
+			x.fix ? el( 'p', null, el( 'strong', null, __( 'How to fix it: ', 'airworthy' ) ), x.fix ) : null,
+			x.before && x.after ? el(
+				'div',
+				{ class: 'airworthy-fix-example' },
+				el( 'div', null, el( 'span', { class: 'airworthy-fix-label' }, __( 'Before', 'airworthy' ) ), el( 'pre', null, el( 'code', null, x.before ) ) ),
+				el( 'div', null, el( 'span', { class: 'airworthy-fix-label' }, __( 'After', 'airworthy' ) ), el( 'pre', null, el( 'code', null, x.after ) ) )
+			) : null
+		);
+	}
+
 	function loadIssues( scan, c, container, page ) {
 		var perPage = 100;
 		apiFetch( { path: REST + '/scans/' + scan.id + '/components/' + c.id + '/issues?per_page=' + perPage + '&page=' + page, parse: false } ).then(
@@ -1042,7 +1066,8 @@
 										{ class: 'airworthy-issue airworthy-sev-' + i.severity + ( CONTEXT[ i.context ] ? ' airworthy-ctx-' + i.context : '' ) },
 										el( 'span', { class: 'airworthy-sev' }, SEVERITY[ i.severity ] || i.severity, CONTEXT[ i.context ] ? ' (' + CONTEXT[ i.context ] + ')' : '' ),
 										fileLocation( i.file, i.line ),
-										el( 'span', { class: 'airworthy-msg' }, i.message )
+										el( 'span', { class: 'airworthy-msg' }, i.message ),
+										explanation( i.explain )
 									)
 								);
 							}

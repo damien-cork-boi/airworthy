@@ -1233,3 +1233,48 @@
 .airworthy-row-linked > td {
 	background: #f0f6fc;
 }
+
+/* "What this means and how to fix it" under a finding. */
+
+.airworthy-explain {
+	grid-column: 1 / -1;
+	margin-top: 2px;
+	font-size: 13px;
+}
+
+.airworthy-explain summary {
+	cursor: pointer;
+	color: #2271b1;
+	font-size: 13px;
+}
+
+.airworthy-explain p {
+	margin: 6px 0;
+	max-width: 46rem;
+}
+
+.airworthy-fix-example {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+	gap: 8px;
+	margin: 8px 0 4px;
+}
+
+.airworthy-fix-example pre {
+	margin: 2px 0 0;
+	padding: 8px 10px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	overflow-x: auto;
+	font-size: 12px;
+	white-space: pre;
+}
+
+.airworthy-fix-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #50575e;
+}

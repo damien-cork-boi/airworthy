@@ -273,6 +273,23 @@ $check( 'Site Health: passes on the newest PHP version', 'good' === $health['sta
 $health = \Airworthy\Admin\SiteHealth::run( '7.2.34' );
 $check( 'Site Health: gives a result for an older PHP version', in_array( $health['status'], array( 'good', 'recommended' ), true ) && '' !== $health['label'], $health['label'] );
 
+// Explanations: hand-written entries, family entries built from the message, and the context.
+$x = \Airworthy\Scan\Explain::issue( 'PHPCompatibility.ParameterValues.RemovedImplodeFlexibleParamOrder.Removed', 'Passing the $glue and $pieces parameters in reverse order to implode has been deprecated since PHP 7.4 and is removed since PHP 8.0', 'error', 'plain', '8.4' );
+$check( 'Explain: implode() order has a fix with a before/after example', $x && '' !== $x['what'] && false !== strpos( $x['after'], "implode( ', '" ) && false !== strpos( $x['effect'], 'fatal error' ), wp_json_encode( $x ) );
+$x = \Airworthy\Scan\Explain::issue( 'PHPCompatibility.FunctionUse.RemovedFunctions.some_old_fnDeprecatedRemoved', 'Function some_old_fn() is deprecated since PHP 7.2 and removed since PHP 8.0; Use new_fn() instead', 'error', 'plain', '8.4' );
+$check( 'Explain: an unknown removed function gets a family explanation with the suggested replacement', $x && false !== strpos( $x['what'], 'some_old_fn()' ) && false !== strpos( $x['fix'], 'new_fn()' ), wp_json_encode( $x ) );
+$x = \Airworthy\Scan\Explain::issue( 'Airworthy.PHP86.DeprecatedFunctions.spl_object_hashDeprecated', 'Function spl_object_hash() is deprecated since PHP 8.6; Use spl_object_id() instead', 'warning', 'plain', '8.6' );
+$check( 'Explain: our own PHP 8.6 checks are explained, as deprecations that still work', $x && false !== strpos( $x['after'], 'spl_object_id' ) && false !== strpos( $x['effect'], 'Still works' ), wp_json_encode( $x ) );
+$x = \Airworthy\Scan\Explain::issue( 'PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved', "Extension 'mysql_' is deprecated since PHP 5.5 and removed since PHP 7.0; Use mysqli instead", 'error', 'guarded', '8.4' );
+$check( 'Explain: guarded code says there is nothing to do, and offers no fix', $x && false !== strpos( $x['effect'], 'Nothing to do' ) && '' === $x['fix'] && '' === $x['before'], wp_json_encode( $x ) );
+$x = \Airworthy\Scan\Explain::issue( 'PHPCompatibility.FunctionUse.RemovedFunctions.mysql_real_escape_stringDeprecatedRemoved', 'Function mysql_real_escape_string() is deprecated since PHP 5.5 and removed since PHP 7.0', 'error', 'plain', '8.4' );
+$check( 'Explain: old mysql_* functions point to $wpdb, not "no replacement"', $x && false !== strpos( $x['fix'], '$wpdb' ), wp_json_encode( $x ) );
+$check( 'Explain: notices and scan problems get none', null === \Airworthy\Scan\Explain::issue( 'Internal.NoCodeFound', 'No PHP code was found', 'notice', 'plain', '8.4' ) );
+$x = \Airworthy\Scan\Explain::issue( 'Some.Unknown.Rule.Found', 'Something new', 'warning', 'plain', '8.4' );
+$check( 'Explain: an unknown rule still gets what happens and a general fix', $x && '' === $x['what'] && '' !== $x['effect'] && '' !== $x['fix'] );
+list( $status, $data ) = $call( 'GET', "/scans/$scan_id/components/$comp_id/issues" );
+$check( 'REST: findings carry their explanation', 200 === $status && isset( $data[0]['explain'] ) && ( null === $data[0]['explain'] || isset( $data[0]['explain']['effect'] ) ), wp_json_encode( isset( $data[0] ) ? $data[0] : null ) );
+
 // Plugins screen badges, from the latest finished scan (the fixtures' scan in run.sh).
 \Airworthy\Admin\PluginsScreen::reset();
 $last    = $wpdb->get_row( "SELECT id, target_php FROM {$t['scans']} WHERE status = 'complete' ORDER BY id DESC LIMIT 1" ); // phpcs:ignore
