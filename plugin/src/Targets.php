@@ -40,6 +40,24 @@ final class Targets {
 	const TABLE_CHECKED = '2026-10-16';
 
 	/**
+	 * The latest PHP security release Airworthy knows about (from php.net's release notes),
+	 * so the start screen, results and Site Health can say when the server's PHP is missing
+	 * it. Bundled, not fetched: no outside connection. Update it whenever php.net publishes a
+	 * security release (see docs/RELEASE.md).
+	 * - date:         release day, Y-m-d ('' = none known).
+	 * - critical:     whether php.net rated any of its fixes critical.
+	 * - fixed:        minor version => first patch release with the fixes, e.g. '8.3' => '8.3.36'.
+	 * - eol_affected: whether php.net says versions that no longer get security fixes are
+	 *                 affected too (they get no fix).
+	 */
+	const SECURITY_RELEASE = array(
+		'date'         => '',
+		'critical'     => false,
+		'fixed'        => array(),
+		'eol_affected' => false,
+	);
+
+	/**
 	 * Whether a target is supported.
 	 *
 	 * @param string $target e.g. "8.4".
@@ -158,6 +176,64 @@ final class Targets {
 			'until'  => $until,
 			'months' => $months,
 			'text'   => $text,
+		);
+	}
+
+	/**
+	 * Whether the server's PHP is missing the latest security release Airworthy knows about.
+	 *
+	 * @param string     $version e.g. "8.3.30".
+	 * @param array|null $release Release data (for tests); default SECURITY_RELEASE.
+	 * @return array{level:string,fixed_in:?string,date:string,critical:bool,text:string}|null
+	 *         level: missing (a supported version without the fixes) | unpatched (a version
+	 *         that no longer gets fixes and is affected). Null when nothing is missing or
+	 *         nothing is known.
+	 */
+	public static function missing_patch( $version, $release = null ) {
+		$release = is_array( $release ) ? $release : self::SECURITY_RELEASE;
+		if ( empty( $release['date'] ) || ! preg_match( '/^\d+\.\d+\.\d+/', (string) $version, $m ) ) {
+			return null;
+		}
+		$exact    = $m[0];
+		$minor    = self::minor( $exact );
+		$date     = date_i18n( get_option( 'date_format' ), strtotime( $release['date'] . ' 12:00:00 UTC' ) );
+		$critical = ! empty( $release['critical'] );
+		$fixed    = isset( $release['fixed'][ $minor ] ) ? (string) $release['fixed'][ $minor ] : null;
+
+		if ( null !== $fixed ) {
+			if ( version_compare( $exact, $fixed, '>=' ) ) {
+				return null;
+			}
+			$text = $critical ?
+				/* translators: 1: date, 2: fixed PHP version, 3: server's PHP version. */
+				__( 'Critical PHP security fixes came out on %1$s, in PHP %2$s. This server runs PHP %3$s, without them. Ask your host to update PHP now: an update within the same version is routine and doesn\'t change how your plugins work.', 'airworthy' ) :
+				/* translators: 1: date, 2: fixed PHP version, 3: server's PHP version. */
+				__( 'PHP security fixes came out on %1$s, in PHP %2$s. This server runs PHP %3$s, without them. Ask your host to update PHP: an update within the same version is routine and doesn\'t change how your plugins work.', 'airworthy' );
+			return array(
+				'level'    => 'missing',
+				'fixed_in' => $fixed,
+				'date'     => $release['date'],
+				'critical' => $critical,
+				'text'     => sprintf( $text, $date, $fixed, $exact ),
+			);
+		}
+
+		// No fix for this version: only worth saying when it no longer gets fixes and is affected.
+		$until = self::security_until( $minor );
+		if ( empty( $release['eol_affected'] ) || null === $until || $until >= $release['date'] ) {
+			return null;
+		}
+		$text = $critical ?
+			/* translators: 1: PHP version, 2: date, 3: suggested PHP version. */
+			__( 'PHP %1$s no longer gets security fixes, so it didn\'t get the critical fixes released on %2$s. Ask your host to move your site to PHP %3$s or newer, after checking your plugins and themes for it here.', 'airworthy' ) :
+			/* translators: 1: PHP version, 2: date, 3: suggested PHP version. */
+			__( 'PHP %1$s no longer gets security fixes, so it didn\'t get the fixes released on %2$s. Ask your host to move your site to PHP %3$s or newer, after checking your plugins and themes for it here.', 'airworthy' );
+		return array(
+			'level'    => 'unpatched',
+			'fixed_in' => null,
+			'date'     => $release['date'],
+			'critical' => $critical,
+			'text'     => sprintf( $text, $minor, $date, self::default_for( $exact ) ),
 		);
 	}
 
