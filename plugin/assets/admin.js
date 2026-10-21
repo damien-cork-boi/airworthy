@@ -14,6 +14,7 @@
 	var apiFetch = window.wp.apiFetch;
 	var __       = window.wp.i18n.__;
 	var _n       = window.wp.i18n._n;
+	var _x       = window.wp.i18n._x;
 	var sprintf  = window.wp.i18n.sprintf;
 	var config   = window.airworthyConfig || {};
 	var REST     = config.rest || '/airworthy/v1';
@@ -1017,9 +1018,6 @@
 	}
 
 	/**
-	 * Loads and shows one plugin's findings, a page at a time.
-	 */
-	/**
 	 * "What this means and how to fix it" under a finding: what it is, what happens on the
 	 * PHP version checked, the fix, and a before/after example when there is one.
 	 */
@@ -1043,6 +1041,9 @@
 		);
 	}
 
+	/**
+	 * Loads and shows one plugin's findings, a page at a time.
+	 */
 	function loadIssues( scan, c, container, page ) {
 		var perPage = 100;
 		apiFetch( { path: REST + '/scans/' + scan.id + '/components/' + c.id + '/issues?per_page=' + perPage + '&page=' + page, parse: false } ).then(
@@ -1776,8 +1777,8 @@
 			return n[0];
 		}
 		if ( 2 === n.length ) {
-			/* translators: 1: name, 2: name. */
-			return sprintf( __( '%1$s and %2$s', 'airworthy' ), n[0], n[1] );
+			/* translators: 1: plugin or theme name, 2: plugin or theme name. */
+			return sprintf( _x( '%1$s and %2$s', 'two plugin or theme names', 'airworthy' ), n[0], n[1] );
 		}
 		/* translators: 1: name, 2: name, 3: how many more. */
 		return sprintf( _n( '%1$s, %2$s and %3$d more', '%1$s, %2$s and %3$d more', n.length - 2, 'airworthy' ), n[0], n[1], n.length - 2 );

@@ -18,7 +18,7 @@ const shots = r.screenshots.filter( ( s ) => ! SITE.heldScreenshots.includes( s.
 const requirements = [
 	[ 'WordPress', `${ r.headers[ 'Requires at least' ] } or newer (tested up to ${ r.headers[ 'Tested up to' ] })` ],
 	[ 'PHP on your server', `${ r.headers[ 'Requires PHP' ] } or newer` ],
-	[ 'Checks against', 'PHP 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5' ],
+	[ 'Checks against', 'PHP 8.0, 8.1, 8.2, 8.3, 8.4, 8.5 and 8.6' ],
 	[ 'Current version', r.headers[ 'Stable tag' ] ],
 	[ 'Licence', r.headers[ 'License' ] ],
 ];

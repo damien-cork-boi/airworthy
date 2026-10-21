@@ -1,6 +1,6 @@
 <?php
 /**
- * Every PHP version at once: verdicts for PHP 8.0 to 8.5 from one scan.
+ * Every PHP version at once: verdicts for every PHP version Airworthy knows (8.0 to 8.6) from one scan.
  *
  * @package AirworthyPro
  */
