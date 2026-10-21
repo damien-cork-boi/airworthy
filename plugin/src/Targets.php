@@ -37,7 +37,7 @@ final class Targets {
 	);
 
 	/** When SECURITY_UNTIL was last checked against php.net. */
-	const TABLE_CHECKED = '2026-10-16';
+	const TABLE_CHECKED = '2026-10-21';
 
 	/**
 	 * The latest PHP security release Airworthy knows about (from php.net's release notes),
@@ -48,13 +48,18 @@ final class Targets {
 	 * - critical:     whether php.net rated any of its fixes critical.
 	 * - fixed:        minor version => first patch release with the fixes, e.g. '8.3' => '8.3.36'.
 	 * - eol_affected: whether php.net says versions that no longer get security fixes are
-	 *                 affected too (they get no fix).
+	 *                 affected too (no release from the PHP project; vendors may patch).
 	 */
 	const SECURITY_RELEASE = array(
-		'date'         => '',
-		'critical'     => false,
-		'fixed'        => array(),
-		'eol_affected' => false,
+		'date'         => '2026-10-21', // CVE-2026-109618 and CVE-2026-109619, unauthenticated remote code execution.
+		'critical'     => true,
+		'fixed'        => array(
+			'8.2' => '8.2.35',
+			'8.3' => '8.3.36',
+			'8.4' => '8.4.27',
+			'8.5' => '8.5.12',
+		),
+		'eol_affected' => true, // php.net: 8.1 and older get no update from the PHP project; only source backports and vendor patches.
 	);
 
 	/**
@@ -225,9 +230,9 @@ final class Targets {
 		}
 		$text = $critical ?
 			/* translators: 1: PHP version, 2: date, 3: suggested PHP version. */
-			__( 'PHP %1$s no longer gets security fixes, so it didn\'t get the critical fixes released on %2$s. Ask your host to move your site to PHP %3$s or newer, after checking your plugins and themes for it here.', 'airworthy' ) :
+			__( 'PHP %1$s no longer gets security fixes from the PHP project, so there was no PHP %1$s release with the critical fixes of %2$s. Some hosts patch old versions themselves: ask yours whether this server has them, and plan to move your site to PHP %3$s or newer, after checking your plugins and themes for it here.', 'airworthy' ) :
 			/* translators: 1: PHP version, 2: date, 3: suggested PHP version. */
-			__( 'PHP %1$s no longer gets security fixes, so it didn\'t get the fixes released on %2$s. Ask your host to move your site to PHP %3$s or newer, after checking your plugins and themes for it here.', 'airworthy' );
+			__( 'PHP %1$s no longer gets security fixes from the PHP project, so there was no PHP %1$s release with the fixes of %2$s. Some hosts patch old versions themselves: ask yours whether this server has them, and plan to move your site to PHP %3$s or newer, after checking your plugins and themes for it here.', 'airworthy' );
 		return array(
 			'level'    => 'unpatched',
 			'fixed_in' => null,

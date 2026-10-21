@@ -71,8 +71,9 @@ const schema = {
 	<div class="wrap prose f-body">
 		<h2>Why this matters</h2>
 		<p>
-			Hosts are moving sites off old PHP versions, and PHP 8.2 stops getting security fixes on 31 December 2026. Before
-			you switch, you want to know which plugins will break. Compatibility scanners read a plugin's code and flag
+			Hosts are moving sites off old PHP versions, and PHP 8.2 stops getting security fixes on 31 December 2026. On 21
+			October 2026 PHP <a href="https://www.php.net/archive/2026.php#2026-10-21-5">released fixes for two critical security vulnerabilities</a>,
+			as new releases of PHP 8.2 to 8.5 only: PHP 8.1 and older got no release from the PHP project. Before you switch, you want to know which plugins will break. Compatibility scanners read a plugin's code and flag
 			anything PHP has removed. The trouble is how much they flag: across these 30 plugins, a basic scan reports{ ' ' }
 			{ totalErrors } errors in { flagged.length } plugins. Faced with a list like that, it's easy to either put the
 			upgrade off or stop reading the report. Neither is good, because one of those { totalErrors } errors was real.
