@@ -1227,3 +1227,9 @@
 	margin-top: 6px;
 	font-weight: 600;
 }
+
+/* The row a link from the Plugins screen opened. */
+
+.airworthy-row-linked > td {
+	background: #f0f6fc;
+}

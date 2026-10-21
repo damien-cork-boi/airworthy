@@ -273,6 +273,27 @@ $check( 'Site Health: passes on the newest PHP version', 'good' === $health['sta
 $health = \Airworthy\Admin\SiteHealth::run( '7.2.34' );
 $check( 'Site Health: gives a result for an older PHP version', in_array( $health['status'], array( 'good', 'recommended' ), true ) && '' !== $health['label'], $health['label'] );
 
+// Plugins screen badges, from the latest finished scan (the fixtures' scan in run.sh).
+\Airworthy\Admin\PluginsScreen::reset();
+$last    = $wpdb->get_row( "SELECT id, target_php FROM {$t['scans']} WHERE status = 'complete' ORDER BY id DESC LIMIT 1" ); // phpcs:ignore
+$fx_ver  = (string) $wpdb->get_var( $wpdb->prepare( "SELECT version FROM {$t['components']} WHERE scan_id = %d AND slug = 'fx-implode'", $last->id ) ); // phpcs:ignore
+$applies = version_compare( $last->target_php, Targets::minor( \Airworthy\Env::php_version() ), '>' );
+wp_set_current_user( $admin_id );
+$badge = \Airworthy\Admin\PluginsScreen::badge( 'fx-implode/fx-implode.php', array( 'Version' => $fx_ver ) );
+if ( $applies ) {
+	$check( 'Plugins screen: a scanned plugin gets its verdict, linking to its details', false !== strpos( $badge, 'Blocker' ) && false !== strpos( $badge, 'PHP ' . $last->target_php ) && false !== strpos( $badge, '#plugin:fx-implode' ), $badge );
+	$badge = \Airworthy\Admin\PluginsScreen::badge( 'fx-php86/fx-php86.php', array( 'Version' => '99.0.0' ) ); // A fixture with a Version header.
+	$check( 'Plugins screen: an updated plugin says it isn\'t checked since the update', false !== strpos( $badge, 'not checked since the update' ), $badge );
+	$meta = \Airworthy\Admin\PluginsScreen::row_meta( array( 'Version 1.0' ), 'fx-ready/fx-ready.php', array() );
+	$check( 'Plugins screen: the badge is added to the row meta', 2 === count( $meta ) && false !== strpos( $meta[1], 'airworthy-plugin-badge-ready' ), wp_json_encode( $meta ) );
+} else {
+	$check( 'Plugins screen: no badges when the server already runs the scanned PHP version', '' === $badge, $badge );
+}
+$check( 'Plugins screen: no badge for an inactive plugin that wasn\'t scanned', '' === \Airworthy\Admin\PluginsScreen::badge( 'not-installed/not-installed.php' ) );
+wp_set_current_user( (int) $editor_id );
+$check( 'Plugins screen: editors see no badges', '' === \Airworthy\Admin\PluginsScreen::badge( 'fx-implode/fx-implode.php', array( 'Version' => $fx_ver ) ) );
+wp_set_current_user( $admin_id );
+
 // PHP security releases: the server's PHP is missing the latest fixes (sample release data).
 $rel  = array(
 	'date'         => '2026-10-21',

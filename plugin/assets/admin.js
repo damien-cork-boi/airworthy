@@ -1119,7 +1119,7 @@
 
 		var row = el(
 			'tr',
-			{ class: 'airworthy-row airworthy-row-' + ( c.verdict || 'pending' ) },
+			{ class: 'airworthy-row airworthy-row-' + ( c.verdict || 'pending' ), 'data-component': c.type + ':' + c.slug },
 			el(
 				'td',
 				{ 'data-label': __( 'Plugin or theme', 'airworthy' ) },
@@ -1218,6 +1218,7 @@
 		clearTimeout( state.wporgTimer );
 		state.scan     = scan;
 		var components = scan.components || [];
+		var linked     = linkedComponent( scan, components );
 		var closed     = components.filter(
 			function ( c ) {
 				return c.wporg && 'closed' === c.wporg.status;
@@ -1553,10 +1554,63 @@
 		) ) {
 			loadUnchecked( scan, uncheckedCard );
 		}
-		if ( moveFocus ) {
+		if ( linked ) {
+			openLinked( linked );
+		} else if ( moveFocus ) {
 			focusHeading( views.results );
 		}
 		watchWporg( scan );
+	}
+
+	/**
+	 * The plugin or theme a link asked for (#plugin:<slug>, from the badges on the Plugins
+	 * screen), once per page load. Its group is opened before the results are drawn.
+	 */
+	function linkedComponent( scan, components ) {
+		var m = ! state.linkDone && /^#(plugin|theme):(.+)$/.exec( window.location.hash );
+		if ( ! m ) {
+			return null;
+		}
+		state.linkDone = true;
+		var slug       = decodeURIComponent( m[2] );
+		var c          = components.filter(
+			function ( item ) {
+				return item.type === m[1] && item.slug === slug;
+			}
+		)[0];
+		if ( ! c ) {
+			return null;
+		}
+		var group = resultGroups( scan, [ c ] )[0];
+		if ( group ) {
+			state.groupOpen[ group.key ] = true;
+		}
+		return c;
+	}
+
+	/**
+	 * Opens the linked row's details, scrolls to it and moves focus there.
+	 */
+	function openLinked( c ) {
+		var key = c.type + ':' + c.slug;
+		var row = Array.prototype.filter.call(
+			views.results.querySelectorAll( 'tr[data-component]' ),
+			function ( tr ) {
+				return tr.getAttribute( 'data-component' ) === key;
+			}
+		)[0];
+		if ( ! row ) {
+			return;
+		}
+		var toggle = row.querySelector( 'button[aria-controls]' );
+		if ( toggle && 'true' !== toggle.getAttribute( 'aria-expanded' ) ) {
+			toggle.click();
+		}
+		row.classList.add( 'airworthy-row-linked' );
+		row.scrollIntoView( { block: 'center' } );
+		if ( toggle ) {
+			toggle.focus( { preventScroll: true } );
+		}
 	}
 
 	/**
@@ -1779,6 +1833,17 @@
 		};
 		state.wporgTimer = setTimeout( check, POLL_MS );
 	}
+
+	// A new #plugin:<slug> link while the results are on screen: open that one.
+	window.addEventListener(
+		'hashchange',
+		function () {
+			if ( state.scan && ! views.results.hidden && /^#(plugin|theme):/.test( window.location.hash ) ) {
+				state.linkDone = false;
+				renderResults( state.scan );
+			}
+		}
+	);
 
 	// ---------------------------------------------------------------------------------------
 	// Boot: show whatever state the site is in.
