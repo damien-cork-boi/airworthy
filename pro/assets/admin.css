@@ -427,3 +427,44 @@
 .cell-guarded { color: #0a4b78; background: #f0f6fc; border-color: #9ec2e6; }
 .cell-warnings { color: #6e4f00; background: #fef8ee; border-color: #f5e6ab; }
 .cell-ready { color: #005c12; background: #edfaef; border-color: #a7e3b5; }
+
+/* Pro tab: support info. */
+
+.airworthy-pro-support h3 {
+	margin: 20px 0 4px;
+	font-size: 15px;
+}
+
+.airworthy-pro-support-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.airworthy-pro-support-privacy {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+	gap: 12px;
+	margin: 12px 0 0;
+}
+
+.airworthy-pro-support-privacy > div {
+	padding: 12px 16px;
+	border: 1px solid #e2e4e7;
+	border-radius: 8px;
+	background: #f6f7f9;
+}
+
+.airworthy-pro-support-privacy h4 {
+	margin: 0 0 6px;
+	font-size: 13px;
+}
+
+.airworthy-pro-support-privacy ul {
+	margin: 0 0 0 18px;
+	list-style: disc;
+}
+
+.airworthy-pro-support-privacy li {
+	margin-bottom: 4px;
+}

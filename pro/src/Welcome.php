@@ -234,7 +234,37 @@ final class Welcome {
 
 		<div class="airworthy-card airworthy-pro-support">
 			<h2><?php esc_html_e( 'Priority support', 'airworthy-pro' ); ?></h2>
-			<p><?php esc_html_e( 'Pro customers get help straight from the people who make Airworthy. Tell us your site\'s PHP version and what you\'re seeing; a CSV export of the results helps.', 'airworthy-pro' ); ?></p>
+			<p><?php esc_html_e( 'Pro customers get help straight from the people who make Airworthy. Tell us what you\'re seeing, and attach the support info file: it has the versions, settings and recent scan results we need, so we can help without a round of questions.', 'airworthy-pro' ); ?></p>
+
+			<h3><?php esc_html_e( '1. Get the support info file', 'airworthy-pro' ); ?></h3>
+			<p class="airworthy-muted"><?php esc_html_e( 'Made on this site when you click. Nothing is sent anywhere: you download the file and attach it to your email. Preview it first to see exactly what\'s in it.', 'airworthy-pro' ); ?></p>
+			<p class="airworthy-pro-support-actions">
+				<a class="button button-primary" href="<?php echo esc_url( Support::url( true ) ); ?>"><?php esc_html_e( 'Download support info', 'airworthy-pro' ); ?></a>
+				<a class="button" href="<?php echo esc_url( Support::url( false ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Preview', 'airworthy-pro' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(opens in a new tab)', 'airworthy-pro' ); ?></span></a>
+			</p>
+			<div class="airworthy-pro-support-privacy">
+				<div>
+					<h4><?php esc_html_e( 'What\'s in it', 'airworthy-pro' ); ?></h4>
+					<ul>
+						<li><?php esc_html_e( 'Airworthy, WordPress, PHP and database versions', 'airworthy-pro' ); ?></li>
+						<li><?php esc_html_e( 'Server limits: memory, time, web server, caching', 'airworthy-pro' ); ?></li>
+						<li><?php esc_html_e( 'Airworthy\'s settings', 'airworthy-pro' ); ?></li>
+						<li><?php esc_html_e( 'Your theme and plugins: names, versions, active or not', 'airworthy-pro' ); ?></li>
+						<li><?php esc_html_e( 'The last five scans, files that couldn\'t be checked, and failed background jobs', 'airworthy-pro' ); ?></li>
+					</ul>
+				</div>
+				<div>
+					<h4><?php esc_html_e( 'What\'s never in it', 'airworthy-pro' ); ?></h4>
+					<ul>
+						<li><?php esc_html_e( 'Your site\'s address, usernames, email or IP addresses', 'airworthy-pro' ); ?></li>
+						<li><?php esc_html_e( 'Posts, orders, donations, members or any other customer data', 'airworthy-pro' ); ?></li>
+						<li><?php esc_html_e( 'Passwords, keys or the contents of wp-config.php', 'airworthy-pro' ); ?></li>
+						<li><?php esc_html_e( 'The contents of any file. File paths start from the site\'s folder.', 'airworthy-pro' ); ?></li>
+					</ul>
+				</div>
+			</div>
+
+			<h3><?php esc_html_e( '2. Email us', 'airworthy-pro' ); ?></h3>
 			<p><a class="button" href="<?php echo esc_url( $support ); ?>"><?php esc_html_e( 'Email support', 'airworthy-pro' ); ?></a> <span class="airworthy-muted"><?php echo esc_html( self::SUPPORT_EMAIL ); ?></span></p>
 		</div>
 		<?php
