@@ -3,7 +3,7 @@
  * Plugin Name:       Airworthy Pro
  * Plugin URI:        https://airworthywp.com/
  * Description:       An upgrade plan that ticks itself off, every PHP version at once, and branded client reports. Needs the free Airworthy plugin.
- * Version:           0.2.1
+ * Version:           0.2.2
  * Requires at least: 6.9
  * Requires PHP:      7.2
  * Requires Plugins:  airworthy
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AIRWORTHY_PRO_VERSION', '0.2.1' );
+define( 'AIRWORTHY_PRO_VERSION', '0.2.2' );
 define( 'AIRWORTHY_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AIRWORTHY_PRO_URL', plugin_dir_url( __FILE__ ) );
 

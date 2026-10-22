@@ -26,7 +26,28 @@
 
 /* Pro tab: welcome view. */
 
+.airworthy-wrap .airworthy-pro-welcome-close {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	padding: 6px 14px;
+	font-weight: 600;
+	color: #fff;
+	text-decoration: none;
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	border-radius: 999px;
+}
+
+.airworthy-wrap .airworthy-pro-welcome-close:hover,
+.airworthy-wrap .airworthy-pro-welcome-close:focus {
+	color: #1747a6;
+	background: #fff;
+	outline: none;
+	box-shadow: 0 0 0 2px #fff;
+}
+
 .airworthy-wrap .airworthy-pro-welcome {
+	position: relative;
 	border: 0;
 	color: #fff;
 	background: linear-gradient(135deg, #1747a6 0%, #2f74e8 60%, #3fa36b 140%);

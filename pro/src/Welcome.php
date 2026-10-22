@@ -33,6 +33,21 @@ final class Welcome {
 		add_filter( 'airworthy_admin_tabs', array( __CLASS__, 'add_tab' ), 5 ); // Before Client report.
 		add_action( 'airworthy_render_tab_' . self::TAB, array( __CLASS__, 'render' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect' ) );
+		add_filter( 'airworthy_admin_tab_icons', array( __CLASS__, 'tab_icons' ) );
+	}
+
+	/**
+	 * Icons for Pro's tabs in the Airworthy header.
+	 *
+	 * @param array $icons slug => Dashicons class.
+	 * @return array
+	 */
+	public static function tab_icons( $icons ) {
+		$icons[ self::TAB ]     = 'dashicons-star-filled';
+		$icons[ Plan::TAB ]     = 'dashicons-list-view';
+		$icons[ Versions::TAB ] = 'dashicons-chart-bar';
+		$icons[ Branding::TAB ] = 'dashicons-media-document';
+		return $icons;
 	}
 
 	/**
@@ -104,6 +119,7 @@ final class Welcome {
 	 */
 	private static function features( $scan_id ) {
 		$report_tab = add_query_arg( 'tab', Branding::TAB, \Airworthy\Admin\Page::url() );
+		$versions   = \Airworthy\Targets::ALL;
 		return array(
 			array(
 				'title'     => __( 'Client reports', 'airworthy-pro' ),
@@ -122,7 +138,8 @@ final class Welcome {
 			),
 			array(
 				'title'     => __( 'Every PHP version at once', 'airworthy-pro' ),
-				'text'      => __( 'One scan, PHP 8.0 to 8.5 side by side, and the highest version your site is ready for today.', 'airworthy-pro' ),
+				/* translators: 1: oldest PHP version, 2: newest PHP version. */
+				'text'      => sprintf( __( 'One scan, PHP %1$s to %2$s side by side, and the highest version your site is ready for today.', 'airworthy-pro' ), reset( $versions ), end( $versions ) ),
 				'status'    => 'included',
 				'link'      => add_query_arg( 'tab', Versions::TAB, \Airworthy\Admin\Page::url() ),
 				'link_text' => __( 'See every version', 'airworthy-pro' ),
@@ -160,6 +177,7 @@ final class Welcome {
 		?>
 		<?php if ( $welcome ) : ?>
 			<div class="airworthy-card airworthy-pro-welcome">
+				<a class="airworthy-pro-welcome-close" href="<?php echo esc_url( self::url() ); ?>"><?php esc_html_e( 'Got it', 'airworthy-pro' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(close the welcome)', 'airworthy-pro' ); ?></span></a>
 				<p class="airworthy-pro-eyebrow"><?php esc_html_e( 'Welcome to Airworthy Pro', 'airworthy-pro' ); ?></p>
 				<h2><?php esc_html_e( 'You\'re all set. Here\'s how to get the most out of it.', 'airworthy-pro' ); ?></h2>
 				<ol class="airworthy-pro-steps">
