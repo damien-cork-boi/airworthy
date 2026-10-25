@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { SITE } from '../../config';
 import { readme } from '../../lib/readme';
 import Lightbox from '../../components/Lightbox.astro';
+import VideoPlayer from '../../components/VideoPlayer.astro';
 
 // The docs are the plugin's readme.txt, section by section.
 const r = readme();
@@ -76,4 +77,5 @@ const requirements = [
 		</article>
 	</div>
 	<Lightbox />
+	<VideoPlayer />
 </Base>

@@ -537,3 +537,69 @@ figcaption {
 	margin-top: 6px;
 	font-weight: 600;
 }
+
+/* Click-to-play video (lib/readme.ts videoHtml, components/VideoPlayer.astro). */
+
+.video {
+	margin: 24px 0;
+}
+
+.video-facade,
+.video-frame {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+	overflow: hidden;
+}
+
+.video-facade {
+	position: relative;
+	padding: 0;
+	cursor: pointer;
+	background: var(--bg-card);
+}
+
+.video-facade img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.video-play {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 84px;
+	height: 84px;
+	margin: -42px 0 0 -42px;
+	border-radius: 50%;
+	background: rgba(23, 71, 166, 0.92);
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+	transition: transform 0.15s;
+}
+
+.video-play::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin: -14px 0 0 -8px;
+	border-style: solid;
+	border-width: 14px 0 14px 24px;
+	border-color: transparent transparent transparent #fff;
+}
+
+.video-facade:hover .video-play,
+.video-facade:focus-visible .video-play {
+	transform: scale(1.08);
+}
+
+.video-facade:focus-visible {
+	outline: 3px solid var(--accent, #1f5fd0);
+	outline-offset: 3px;
+}
+

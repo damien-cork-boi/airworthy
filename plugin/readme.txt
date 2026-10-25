@@ -16,6 +16,8 @@ Your host wants you on a newer PHP version. Will your site survive the switch?
 
 Airworthy is a PHP compatibility scanner for WordPress. It reads the code of every installed plugin and of your theme (on multisite: every network-enabled theme) and checks it against the PHP version you pick, from PHP 8.0 to PHP 8.6. It also looks each plugin up on WordPress.org to see whether it is still maintained. You get one clear verdict per plugin and theme, before you touch your server settings.
 
+[youtube https://www.youtube.com/watch?v=-Hkm3wv-dJ0]
+
 **Important:** Airworthy helps you plan a PHP upgrade; it doesn't guarantee one. Always back up your site and test the new PHP version on a staging copy before changing your live site.
 
 = What you get =

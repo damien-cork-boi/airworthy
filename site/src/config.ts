@@ -20,6 +20,8 @@ export const SITE = {
 	 * mustn't be public yet (see docs/RELEASE.md).
 	 */
 	heldScreenshots: [] as number[],
+	// The demo video on YouTube (also in the readme as [youtube …]); shown click-to-play.
+	demoVideo: 'https://www.youtube.com/watch?v=-Hkm3wv-dJ0',
 
 	/**
 	 * The top-30 findings page (/findings/top-30-plugins-php-8-4/). It names UpdraftPlus's

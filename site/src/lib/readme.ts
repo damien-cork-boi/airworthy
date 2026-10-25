@@ -40,8 +40,29 @@ export function slugify( text: string ): string {
 		.replace( /^-|-$/g, '' );
 }
 
+/**
+ * A YouTube video that loads nothing from YouTube until it's played: our own poster image
+ * and a play button; VideoPlayer.astro swaps in the privacy-enhanced (youtube-nocookie) player
+ * on click. The poster is a frame of the demo video, in public/video/.
+ */
+export function videoHtml( id: string, title = 'Airworthy demo video' ): string {
+	const safeId = id.replace( /[^A-Za-z0-9_-]/g, '' );
+	return `<figure class="video"><button type="button" class="video-facade" data-yt="${ safeId }" aria-label="Play: ${ title } (plays from YouTube)"><img src="/video/airworthy-demo.jpg" width="1280" height="720" alt="" loading="lazy" /><span class="video-play" aria-hidden="true"></span></button><figcaption>${ title }. Plays from YouTube when you press play. <a href="https://www.youtube.com/watch?v=${ safeId }">Watch on YouTube</a></figcaption></figure>`;
+}
+
+/** The YouTube ID in a youtube.com/watch?v= or youtu.be/ link, or ''. */
+export function youtubeId( url: string ): string {
+	const m = url.match( /(?:youtu\.be\/|[?&]v=)([A-Za-z0-9_-]{6,})/ );
+	return m ? m[ 1 ] : '';
+}
+
 export function md( text: string ): string {
-	return marked.parse( text.trim(), { async: false, gfm: true } ) as string;
+	// WordPress.org's [youtube URL] embed, as a click-to-play video.
+	const withVideo = text.replace( /^\[youtube\s+(\S+)\]\s*$/gm, ( _all, url ) => {
+		const id = youtubeId( url );
+		return id ? `\n${ videoHtml( id ) }\n` : '';
+	} );
+	return marked.parse( withVideo.trim(), { async: false, gfm: true } ) as string;
 }
 
 /** Inline Markdown only (no wrapping <p>). */

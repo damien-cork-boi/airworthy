@@ -1,0 +1,25 @@
+---
+/**
+ * Click-to-play YouTube videos (markup from videoHtml() in lib/readme.ts): nothing is loaded from
+ * YouTube until the visitor presses play, then the privacy-enhanced youtube-nocookie player
+ * replaces the poster and starts.
+ */
+---
+<script>
+	document.querySelectorAll<HTMLButtonElement>( 'button.video-facade' ).forEach( ( button ) => {
+		button.addEventListener( 'click', () => {
+			const id = button.dataset.yt;
+			if ( ! id ) {
+				return;
+			}
+			const frame = document.createElement( 'iframe' );
+			frame.src = `https://www.youtube-nocookie.com/embed/${ id }?autoplay=1&rel=0`;
+			frame.title = 'Airworthy demo video';
+			frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+			frame.allowFullscreen = true;
+			frame.className = 'video-frame';
+			button.replaceWith( frame );
+			frame.focus();
+		} );
+	} );
+</script>

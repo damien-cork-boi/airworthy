@@ -3,8 +3,9 @@ import Base from '../layouts/Base.astro';
 import InstallButton from '../components/InstallButton.astro';
 import ExampleResults from '../components/ExampleResults.astro';
 import Lightbox from '../components/Lightbox.astro';
+import VideoPlayer from '../components/VideoPlayer.astro';
 import { SITE, COMPANY, FINDINGS_LIVE, FINDINGS_URL } from '../config';
-import { readme, sub, boldList } from '../lib/readme';
+import { readme, sub, boldList, videoHtml, youtubeId } from '../lib/readme';
 import fs from 'node:fs';
 
 const r = readme();
@@ -103,6 +104,16 @@ const schema = {
 			) }
 		</div>
 	</section>
+
+	{ youtubeId( SITE.demoVideo ) && (
+		<section class="section">
+			<div class="wrap" style="max-width: 900px;">
+				<p class="eyebrow">See it in 40 seconds</p>
+				<h2>From "will it break?" to what to do first</h2>
+				<Fragment set:html={ videoHtml( youtubeId( SITE.demoVideo ) ) } />
+			</div>
+		</section>
+	) }
 
 	{ shotOne && (
 		<section class="section section-soft">
@@ -227,6 +238,7 @@ wp airworthy export --file=report.csv` }</code></pre>
 		</div>
 	</section>
 	<Lightbox />
+	<VideoPlayer />
 </Base>
 
 <style>

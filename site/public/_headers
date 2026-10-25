@@ -1,7 +1,7 @@
-# Response headers, applied by Cloudflare to the static files. The site has no JavaScript, forms or third-party
-# resources, so the Content Security Policy can be strict.
+# Response headers, applied by Cloudflare to the static files. The site has no forms and no third-party resources
+# except the demo video's YouTube player, which is only created when a visitor presses play (frame-src).
 /*
-  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; frame-src https://www.youtube-nocookie.com; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
