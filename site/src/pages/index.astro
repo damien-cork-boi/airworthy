@@ -15,9 +15,11 @@ const faq = r.sections[ 'frequently-asked-questions' ].subsections.filter( ( q )
 	[ 'does-airworthy-change-my-php-version-or-my-site', 'what-can-a-static-scan-catch-and-what-can-t-it', 'is-a-ready-result-a-guarantee-that-my-site-will-work', 'what-is-sent-to-wordpress-org', 'will-a-scan-slow-down-my-site' ].includes( q.slug )
 );
 const verdictClass = ( title: string ) => 'v-' + title.toLowerCase().split( ' ' )[ 0 ];
-const shotOne = r.screenshots.find( ( s ) => s.n === 1 );
+// The start screen (pick a version) goes with "How it works"; the listing leads with the results.
+const HOW_SHOT = 4;
+const shotOne = r.screenshots.find( ( s ) => s.n === HOW_SHOT );
 // The rest of the listing screenshots, as a tour (held ones stay off the site).
-const tour = r.screenshots.filter( ( s ) => s.n > 1 && ! SITE.heldScreenshots.includes( s.n ) ).map( ( s ) => ( { ...s, ...pngSize( s.n ) } ) );
+const tour = r.screenshots.filter( ( s ) => s.n !== HOW_SHOT && ! SITE.heldScreenshots.includes( s.n ) ).map( ( s ) => ( { ...s, ...pngSize( s.n ) } ) );
 function pngSize( n: number ) {
 	// Width and height from the PNG header, so the page doesn't jump as images load.
 	try {
@@ -115,8 +117,8 @@ const schema = {
 					</ol>
 				</div>
 				<figure>
-					<button type="button" class="zoom" data-src="/screenshots/screenshot-1.png" data-caption={ shotOne.caption }>
-						<img class="shot" src="/screenshots/screenshot-1.png" width={ pngSize( 1 ).width } height={ pngSize( 1 ).height } alt="The Airworthy screen in WordPress: the server's PHP version, what will be scanned, the estimated time and a PHP version picker." loading="lazy" />
+					<button type="button" class="zoom" data-src={ `/screenshots/screenshot-${ HOW_SHOT }.png` } data-caption={ shotOne.caption }>
+						<img class="shot" src={ `/screenshots/screenshot-${ HOW_SHOT }.png` } width={ pngSize( HOW_SHOT ).width } height={ pngSize( HOW_SHOT ).height } alt="The Airworthy screen in WordPress: the server's PHP version, what will be scanned, the estimated time and a PHP version picker." loading="lazy" />
 					</button>
 					<figcaption>{ shotOne.caption }</figcaption>
 				</figure>

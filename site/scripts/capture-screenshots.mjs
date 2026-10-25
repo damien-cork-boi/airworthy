@@ -1,10 +1,10 @@
-// Captures listing screenshots 3, 4, 5 and 8 from the clean demo site (engine-test/clean) at 2x,
+// Captures listing screenshots 1 (results), 2 (details), 3 (Plugins screen) and 6 (Settings) from the clean demo site (engine-test/clean) at 2x,
 // into ../assets/screenshots/. See ../assets/screenshots/README.md for how the site is set up.
 //
 // Needs: the demo site running (launch config "airworthy-clean", http://localhost:8892), a
 // development build of Airworthy on it (DEV_BUILD=1 bin/build.sh, so the server shows as PHP 7.4),
 // a finished scan, and a temporary local-only login mu-plugin answering ?aw_dev_login=1 (delete
-// it afterwards). Usage, from site/: node scripts/capture-screenshots.mjs [3] [4] [5] [8]
+// it afterwards). Usage, from site/: node scripts/capture-screenshots.mjs [1] [2] [3] [6]
 import fs from 'node:fs';
 import path from 'node:path';
 import puppeteer from 'puppeteer-core';
@@ -52,27 +52,27 @@ async function results( hash = '' ) {
 	await new Promise( ( r ) => setTimeout( r, 800 ) );
 }
 
-if ( want( 3 ) ) {
+if ( want( 1 ) ) {
 	await results();
 	// From the page title to the verdict tiles: answer, what to do first, counts.
 	const box = await clip( '.airworthy-masthead', '.airworthy-summary', 20 );
 	box.height += 16;
-	await page.screenshot( { path: path.join( assets, 'screenshot-3.png' ), clip: box, captureBeyondViewport: true } );
-	console.log( 'screenshot-3.png' );
+	await page.screenshot( { path: path.join( assets, 'screenshot-1.png' ), clip: box, captureBeyondViewport: true } );
+	console.log( 'screenshot-1.png' );
 }
 
-if ( want( 5 ) ) {
+if ( want( 6 ) ) {
 	// The Settings tab, top of the page: header, tab bar and the first settings.
 	await page.setViewport( { width: 1120, height: 820, deviceScaleFactor: 2 } );
 	await page.goto( SITE + '/wp-admin/tools.php?page=airworthy&tab=settings', { waitUntil: 'networkidle2' } );
 	await tidy();
 	const top = await clip( '.airworthy-masthead', '.airworthy-masthead', 20 );
-	await page.screenshot( { path: path.join( assets, 'screenshot-5.png' ), clip: { x: top.x, y: top.y, width: top.width, height: 820 }, captureBeyondViewport: true } );
-	console.log( 'screenshot-5.png' );
+	await page.screenshot( { path: path.join( assets, 'screenshot-6.png' ), clip: { x: top.x, y: top.y, width: top.width, height: 820 }, captureBeyondViewport: true } );
+	console.log( 'screenshot-6.png' );
 	await page.setViewport( { width: 1120, height: 900, deviceScaleFactor: 2 } );
 }
 
-if ( want( 4 ) ) {
+if ( want( 2 ) ) {
 	await results( '#plugin:old-widget-pack' );
 	await page.waitForSelector( '.airworthy-row-linked' );
 	await page.evaluate( () => document.activeElement && document.activeElement.blur() );
@@ -84,11 +84,11 @@ if ( want( 4 ) ) {
 		}
 	} );
 	const table = await page.$( 'table.airworthy-table' );
-	await table.screenshot( { path: path.join( assets, 'screenshot-4.png' ), captureBeyondViewport: true } );
-	console.log( 'screenshot-4.png' );
+	await table.screenshot( { path: path.join( assets, 'screenshot-2.png' ), captureBeyondViewport: true } );
+	console.log( 'screenshot-2.png' );
 }
 
-if ( want( 8 ) ) {
+if ( want( 3 ) ) {
 	await page.setViewport( { width: 1280, height: 900, deviceScaleFactor: 2 } );
 	// Active plugins only, without the test database driver and an upsell-heavy row.
 	await page.goto( SITE + '/wp-admin/plugins.php?plugin_status=active', { waitUntil: 'networkidle2' } );
@@ -97,8 +97,8 @@ if ( want( 8 ) ) {
 	const list = await page.$( '#the-list' );
 	const box = await list.boundingBox();
 	const head = await ( await page.$( '.wp-list-table thead' ) ).boundingBox();
-	await page.screenshot( { path: path.join( assets, 'screenshot-8.png' ), clip: { x: head.x, y: head.y, width: head.width, height: box.y + box.height - head.y }, captureBeyondViewport: true } );
-	console.log( 'screenshot-8.png' );
+	await page.screenshot( { path: path.join( assets, 'screenshot-3.png' ), clip: { x: head.x, y: head.y, width: head.width, height: box.y + box.height - head.y }, captureBeyondViewport: true } );
+	console.log( 'screenshot-3.png' );
 }
 
 if ( errors.length ) {
