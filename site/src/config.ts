@@ -25,11 +25,12 @@ export const SITE = {
 
 	/**
 	 * The top-30 findings page (/findings/top-30-plugins-php-8-4/). It names UpdraftPlus's
-	 * latent bug, which was reported privately on 28 Sep 2026: keep this false (the page isn't
-	 * built, linked or in the sitemap) until UpdraftPlus ships a fix or 28 Oct 2026, whichever
-	 * comes first. Preview locally with PREVIEW_FINDINGS=1 npm run dev.
+	 * latent bug, which was reported privately on 28 Sep 2026. Published on 28 Oct 2026, at the
+	 * end of the 30-day private-disclosure window (UpdraftPlus 1.26.14 still unfixed). Setting it
+	 * to false removes the page, its links and its sitemap entry; PREVIEW_FINDINGS=1 npm run dev
+	 * still previews it.
 	 */
-	findingsPublished: false,
+	findingsPublished: true,
 
 	email: {
 		hello: 'hello@airworthywp.com',
