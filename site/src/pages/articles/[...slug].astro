@@ -1,0 +1,65 @@
+---
+import Base from '../../layouts/Base.astro';
+import InstallButton from '../../components/InstallButton.astro';
+import { SITE, COMPANY } from '../../config';
+import { ARTICLES, ARTICLES_LIVE, articleUrl } from '../../lib/articles';
+
+// The index (/articles/) and one page per live article. With no live article this route has no
+// pages at all, so nothing is published, linked or listed in the sitemap (see lib/articles.ts).
+export function getStaticPaths() {
+	if ( ! ARTICLES_LIVE ) {
+		return [];
+	}
+	return [
+		{ params: { slug: undefined } },
+		...ARTICLES.map( ( a ) => ( { params: { slug: a.slug } } ) ),
+	];
+}
+
+const { slug } = Astro.params;
+const article = ARTICLES.find( ( a ) => a.slug === slug );
+const date = ( iso: string ) => new Date( iso + 'T12:00:00Z' ).toLocaleDateString( 'en-IE', { day: 'numeric', month: 'long', year: 'numeric' } );
+
+const schema = article && {
+	'@context': 'https://schema.org',
+	'@type': 'Article',
+	headline: article.title,
+	description: article.description,
+	datePublished: article.date,
+	author: { '@type': 'Organization', name: COMPANY.name, url: COMPANY.url },
+	publisher: { '@type': 'Organization', name: COMPANY.name, url: COMPANY.url },
+	mainEntityOfPage: SITE.url + articleUrl( article.slug ),
+};
+---
+{ article ? (
+	<Base title={ article.title } description={ article.description } schema={ schema }>
+		<div class="wrap page-head">
+			<p class="eyebrow"><a href="/articles/">Articles</a> · { date( article.date ) }</p>
+			<h1>{ article.title }</h1>
+			<p class="lede">{ article.description }</p>
+		</div>
+		<div class="wrap prose" set:html={ article.html } />
+		<div class="wrap prose">
+			<p><InstallButton /></p>
+		</div>
+	</Base>
+) : (
+	<Base title="Articles" description="Plain-English guides to PHP upgrades for WordPress site owners, from the makers of Airworthy.">
+		<div class="wrap page-head">
+			<p class="eyebrow">Articles</p>
+			<h1>PHP upgrades for WordPress, in plain English</h1>
+			<p class="lede">What changes in each new PHP version, what it means for your plugins and theme, and how to check before you switch.</p>
+		</div>
+		<div class="wrap">
+			<ul class="article-list">
+				{ ARTICLES.map( ( a ) => (
+					<li class="card">
+						<p class="eyebrow">{ date( a.date ) }</p>
+						<h3><a href={ articleUrl( a.slug ) }>{ a.title }</a></h3>
+						<p>{ a.description }</p>
+					</li>
+				) ) }
+			</ul>
+		</div>
+	</Base>
+) }

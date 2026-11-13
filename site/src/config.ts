@@ -55,5 +55,6 @@ export const FINDINGS_URL = '/findings/top-30-plugins-php-8-4/';
 export const NAV = [
 	{ href: '/docs/', label: 'Docs' },
 	{ href: '/changelog/', label: 'Changelog' },
-	{ href: '/security/', label: 'Security' },
+	// Left out of the phone header once the Articles link joins it (the footer still has it).
+	{ href: '/security/', label: 'Security', phoneHideWithArticles: true },
 ];

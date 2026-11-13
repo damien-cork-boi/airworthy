@@ -244,6 +244,10 @@ pre code {
 		display: none;
 	}
 
+	.site-nav .hide-phone {
+		display: none;
+	}
+
 	pre {
 		font-size: 0.8rem;
 		padding: 12px;
@@ -603,3 +607,16 @@ figcaption {
 	outline-offset: 3px;
 }
 
+
+.article-list {
+	list-style: none;
+	margin: 0 0 48px;
+	padding: 0;
+	display: grid;
+	gap: 16px;
+	max-width: 46rem;
+}
+
+.article-list .card h3 {
+	margin: 0.2em 0 0.4em;
+}

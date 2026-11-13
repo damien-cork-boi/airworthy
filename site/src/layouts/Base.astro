@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Logo from '../components/Logo.astro';
 import InstallButton from '../components/InstallButton.astro';
 import { SITE, COMPANY, NAV, FINDINGS_LIVE, FINDINGS_URL } from '../config';
+import { ARTICLES_LIVE } from '../lib/articles';
 
 interface Props {
 	title?: string;
@@ -53,8 +54,9 @@ const year = new Date().getFullYear();
 					<span>{ SITE.name }</span>
 				</a>
 				<nav class="site-nav" aria-label="Main">
+					{ ARTICLES_LIVE && <a href="/articles/" aria-current={ path.startsWith( '/articles/' ) ? 'page' : undefined }>Articles</a> }
 					{ NAV.map( ( item ) => (
-						<a href={ item.href } aria-current={ path.startsWith( item.href ) ? 'page' : undefined }>{ item.label }</a>
+						<a href={ item.href } class={ ARTICLES_LIVE && item.phoneHideWithArticles ? 'hide-phone' : undefined } aria-current={ path.startsWith( item.href ) ? 'page' : undefined }>{ item.label }</a>
 					) ) }
 					<InstallButton size="small" />
 				</nav>
@@ -73,6 +75,7 @@ const year = new Date().getFullYear();
 				</div>
 				<ul class="footer-links">
 					<li><a href="/docs/">Docs</a></li>
+					{ ARTICLES_LIVE && <li><a href="/articles/">Articles</a></li> }
 					{ FINDINGS_LIVE && <li><a href={ FINDINGS_URL }>Top 30 plugins on PHP 8.4</a></li> }
 					<li><a href="/changelog/">Changelog</a></li>
 					<li><a href="/security/">Security</a></li>
