@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { SITE, COMPANY } from '../config';
+import { SITE, COMPANY, PRO_LIVE } from '../config';
 import { sub } from '../lib/readme';
 
 // The plugin's privacy section comes from its readme, so it always matches the code.
@@ -16,6 +16,18 @@ const plugin = sub( 'description', 'Privacy' );
 		<h2 style="border-top: 0; margin-top: 0;">The Airworthy plugin</h2>
 		{ plugin && <Fragment set:html={ plugin.html } /> }
 		<p>Scan results are stored in your own WordPress database, visible only to administrators, and removed when you delete the plugin. We (DigitalKind) never receive them.</p>
+
+		{ PRO_LIVE && (
+			<Fragment>
+				<h2>Airworthy Pro</h2>
+				<p>Airworthy Pro is a separate add-on, sold and licensed through <a href="https://freemius.com/">Freemius</a>. The Pro features themselves work like the free plugin: they read the results already on your site, and your branding and reports stay on your site.</p>
+				<ul>
+					<li><strong>Licence check.</strong> To activate Pro and to check that your licence is valid, Pro sends your licence key and your site's address to Freemius. Nothing else about your site is sent, and the plugin's usage-data sharing is off unless you turn it on.</li>
+					<li><strong>Buying.</strong> Freemius is our reseller: it takes your payment, handles VAT and invoices, and is responsible for the personal data it collects to do so (such as your name, email address and billing details). See <a href="https://freemius.com/privacy/">Freemius's privacy policy</a>. We receive your name and email address from Freemius so that we can support you.</li>
+					<li><strong>Support file.</strong> The "Download support info" button on the Pro tab only builds a file on your site, for you to preview and send to us if you choose. It leaves out passwords, keys, customer and order data, post content and file contents, and masks site addresses, email addresses and IP addresses.</li>
+				</ul>
+			</Fragment>
+		) }
 
 		<h2>This website</h2>
 		<ul>

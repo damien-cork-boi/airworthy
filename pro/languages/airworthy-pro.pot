@@ -1,0 +1,901 @@
+# Copyright (C) 2026 DigitalKind
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Airworthy Pro 0.2.3\n"
+"Report-Msgid-Bugs-To: https://airworthywp.com/\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-16T18:52:43+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: airworthy-pro\n"
+
+#. Plugin Name of the plugin
+#: airworthy-pro.php
+#: src/Welcome.php:210
+msgid "Airworthy Pro"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: airworthy-pro.php
+msgid "https://airworthywp.com/"
+msgstr ""
+
+#. Description of the plugin
+#: airworthy-pro.php
+msgid "An upgrade plan that ticks itself off, every PHP version at once, and branded client reports. Needs the free Airworthy plugin."
+msgstr ""
+
+#. Author of the plugin
+#: airworthy-pro.php
+msgid "DigitalKind"
+msgstr ""
+
+#. Author URI of the plugin
+#: airworthy-pro.php
+msgid "https://digitalkind.ie/"
+msgstr ""
+
+#: airworthy-pro.php:44
+msgid "Airworthy Pro needs the free Airworthy plugin. Install and activate it to use client reports."
+msgstr ""
+
+#: src/Branding.php:40
+#: src/Welcome.php:67
+#: src/Welcome.php:210
+msgid "Pro"
+msgstr ""
+
+#: src/Branding.php:55
+#: src/Branding.php:156
+#: src/Report.php:61
+msgid "Client report"
+msgstr ""
+
+#: src/Branding.php:127
+msgid "Choose your logo"
+msgstr ""
+
+#: src/Branding.php:128
+msgid "Use this logo"
+msgstr ""
+
+#: src/Branding.php:157
+msgid "A report of the latest scan for your client, in plain words, with your logo, name and colour. Open it, then save it as a PDF from your browser."
+msgstr ""
+
+#: src/Branding.php:160
+#: src/Welcome.php:198
+msgid "Open the report"
+msgstr ""
+
+#. translators: 1: PHP version, 2: date.
+#: src/Branding.php:167
+#, php-format
+msgid "Uses the latest scan: PHP %1$s, checked %2$s. Run a new scan on the Scan tab to update it."
+msgstr ""
+
+#: src/Branding.php:175
+msgid "Run a scan first: the report is built from the latest finished scan."
+msgstr ""
+
+#: src/Branding.php:182
+msgid "Your branding"
+msgstr ""
+
+#: src/Branding.php:184
+msgid "Branding saved."
+msgstr ""
+
+#: src/Branding.php:188
+msgid "Agency name"
+msgstr ""
+
+#: src/Branding.php:189
+msgid "e.g. Acme Web Studio"
+msgstr ""
+
+#: src/Branding.php:190
+msgid "Shown on the cover as \"Prepared by\"."
+msgstr ""
+
+#: src/Branding.php:194
+msgid "Logo"
+msgstr ""
+
+#: src/Branding.php:198
+msgid "Choose logo"
+msgstr ""
+
+#: src/Branding.php:199
+msgid "Remove"
+msgstr ""
+
+#: src/Branding.php:201
+msgid "From your Media Library. A wide logo on a transparent or white background works best."
+msgstr ""
+
+#: src/Branding.php:205
+msgid "Brand colour"
+msgstr ""
+
+#: src/Branding.php:207
+msgid "Used for the report's headings and cover band."
+msgstr ""
+
+#: src/Branding.php:210
+msgid "Save branding"
+msgstr ""
+
+#: src/Branding.php:220
+#: src/Plan.php:144
+#: src/Plan.php:194
+#: src/Report.php:202
+#: src/Support.php:65
+#: src/Versions.php:81
+msgid "Sorry, you are not allowed to do that."
+msgstr ""
+
+#: src/Plan.php:51
+#: src/Plan.php:432
+#: src/Welcome.php:133
+msgid "Upgrade plan"
+msgstr ""
+
+#: src/Plan.php:150
+msgid "Run a scan first: the plan is built from the latest finished scan."
+msgstr ""
+
+#. translators: 1: plugin name, 2: version.
+#: src/Plan.php:274
+#, php-format
+msgid "Update %1$s to %2$s"
+msgstr ""
+
+#: src/Plan.php:275
+msgid "Updates often fix compatibility. Airworthy checks it again by itself once it's updated."
+msgstr ""
+
+#: src/Plan.php:277
+msgid "Update now"
+msgstr ""
+
+#. translators: %s: plugin name.
+#: src/Plan.php:283
+#, php-format
+msgid "Replace %s"
+msgstr ""
+
+#: src/Plan.php:284
+msgid "It was removed from WordPress.org and gets no more updates or security fixes. Find a maintained alternative, then deactivate and delete it."
+msgstr ""
+
+#: src/Plan.php:285
+msgid "Go to Plugins"
+msgstr ""
+
+#. translators: %s: plugin or theme name.
+#: src/Plan.php:290
+#, php-format
+msgid "Get %s fully checked"
+msgstr ""
+
+#: src/Plan.php:291
+msgid "Some of its files couldn't be read. Raising the server's PHP memory limit usually fixes that; then scan again."
+msgstr ""
+
+#: src/Plan.php:292
+msgid "See which files"
+msgstr ""
+
+#. translators: %s: plugin or theme name.
+#: src/Plan.php:297
+#, php-format
+msgid "Fix or replace %s"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Plan.php:299
+#, php-format
+msgid "Some of its code won't work on PHP %s and no update is out yet. Ask its author for a fix, or replace it."
+msgstr ""
+
+#: src/Plan.php:300
+msgid "See what breaks"
+msgstr ""
+
+#: src/Plan.php:326
+msgid "Run Airworthy again"
+msgstr ""
+
+#: src/Plan.php:327
+msgid "Confirm the changes above cleared the findings before going on."
+msgstr ""
+
+#: src/Plan.php:329
+#: src/Plan.php:362
+msgid "Go to Scan"
+msgstr ""
+
+#: src/Plan.php:334
+msgid "Back up the whole site"
+msgstr ""
+
+#: src/Plan.php:335
+msgid "Files and database, somewhere off the server. Tick this when it's done."
+msgstr ""
+
+#: src/Plan.php:341
+msgid "Try it on a staging copy"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Plan.php:343
+#, php-format
+msgid "Switch a staging copy to PHP %s and click through what matters: forms, checkout, logins, bookings. Tick this when it's done."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Plan.php:350
+#, php-format
+msgid "Switch the live site to PHP %s"
+msgstr ""
+
+#. translators: %s: server PHP version.
+#: src/Plan.php:352
+#, php-format
+msgid "In your hosting control panel, or ask your host. The server runs PHP %s now; this ticks itself once it changes."
+msgstr ""
+
+#: src/Plan.php:358
+msgid "Final check"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Plan.php:360
+#, php-format
+msgid "Run Airworthy once more on PHP %s, and look over the site."
+msgstr ""
+
+#: src/Plan.php:397
+msgid "Moving to"
+msgstr ""
+
+#: src/Plan.php:411
+msgid "Your upgrade plan"
+msgstr ""
+
+#: src/Plan.php:412
+msgid "A step-by-step checklist built from your results: what to update, what to replace, then back up, test, switch and check. Airworthy ticks steps off as they happen; you tick the ones it can't see, like the backup."
+msgstr ""
+
+#: src/Plan.php:414
+msgid "Build my plan"
+msgstr ""
+
+#: src/Plan.php:416
+msgid "Run a scan first: the plan is built from its results."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Plan.php:436
+#, php-format
+msgid "Moving to PHP %s"
+msgstr ""
+
+#: src/Plan.php:442
+msgid "steps done"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Plan.php:454
+#, php-format
+msgid "Upgrade complete: this site runs PHP %s and nothing needs attention."
+msgstr ""
+
+#: src/Plan.php:457
+msgid "Keep plugins updated, and check again before the next PHP version."
+msgstr ""
+
+#: src/Plan.php:469
+msgid "Mark as not done"
+msgstr ""
+
+#: src/Plan.php:469
+msgid "Mark as done"
+msgstr ""
+
+#: src/Plan.php:477
+msgid "Done: Airworthy saw it happen"
+msgstr ""
+
+#: src/Plan.php:479
+msgid "Ticked by you"
+msgstr ""
+
+#. translators: %s: date.
+#: src/Plan.php:494
+#, php-format
+msgid "Plan made %s from the scan results at the time."
+msgstr ""
+
+#: src/Plan.php:500
+msgid "Start a new plan"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:94
+#, php-format
+msgid "Will not work on PHP %s. It needs updating, fixing or replacing first."
+msgstr ""
+
+#: src/Report.php:96
+msgid "Some of its files could not be checked, so there is no verdict yet."
+msgstr ""
+
+#: src/Report.php:98
+msgid "Its authors marked some old code as intentional. Usually safe."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:101
+#, php-format
+msgid "Contains old code that never runs on PHP %s. Safe."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:104
+#, php-format
+msgid "Works on PHP %s. Will need updating before a later PHP version."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:107
+#, php-format
+msgid "No problems found for PHP %s."
+msgstr ""
+
+#: src/Report.php:118
+#: src/Versions.php:331
+msgid "Blocker"
+msgstr ""
+
+#: src/Report.php:119
+#: src/Versions.php:332
+msgid "Unknown"
+msgstr ""
+
+#: src/Report.php:120
+msgid "Suppressed by author"
+msgstr ""
+
+#: src/Report.php:121
+msgid "Guarded legacy code"
+msgstr ""
+
+#: src/Report.php:122
+#: src/Versions.php:335
+msgid "Warnings"
+msgstr ""
+
+#: src/Report.php:123
+#: src/Versions.php:336
+msgid "Ready"
+msgstr ""
+
+#. translators: %s: list of plugin names.
+#: src/Report.php:160
+#, php-format
+msgid "Update these first; updates often fix compatibility: %s."
+msgstr ""
+
+#. translators: %s: list of plugin names.
+#: src/Report.php:164
+#, php-format
+msgid "Ask the authors for a fix, or replace: %s."
+msgstr ""
+
+#. translators: %s: list of plugin names.
+#: src/Report.php:168
+#, php-format
+msgid "Replace plugins removed from WordPress.org, which get no more security fixes: %s."
+msgstr ""
+
+#. translators: %s: list of plugin names.
+#: src/Report.php:172
+#, php-format
+msgid "Have the files that could not be checked looked at: %s."
+msgstr ""
+
+#: src/Report.php:176
+msgid "Run Airworthy again to confirm those changes cleared the findings. If anything still needs attention, deal with it before going on."
+msgstr ""
+
+#: src/Report.php:178
+msgid "Back up the whole site: files and database."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:180
+#, php-format
+msgid "Try PHP %s on a staging copy first and click through what matters: forms, checkout, logins, bookings."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:182
+#, php-format
+msgid "Switch the live site to PHP %s, then run Airworthy again to confirm."
+msgstr ""
+
+#: src/Report.php:208
+msgid "That scan could not be found. Run a scan first, then open the report from its results."
+msgstr ""
+
+#. translators: 1: number of plugins/themes, 2: PHP version.
+#: src/Report.php:287
+#, php-format
+msgid "%1$d plugin or theme needs attention before the upgrade to PHP %2$s."
+msgid_plural "%1$d plugins or themes need attention before the upgrade to PHP %2$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:294
+#, php-format
+msgid "Nothing found that would break on PHP %s, but some files could not be checked."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:298
+#, php-format
+msgid "Ready for PHP %s: nothing found that would break."
+msgstr ""
+
+#. translators: 1: site name, 2: PHP version.
+#: src/Report.php:305
+#, php-format
+msgid "PHP %2$s readiness report – %1$s"
+msgstr ""
+
+#: src/Report.php:322
+msgid "Page"
+msgstr ""
+
+#: src/Report.php:326
+#: src/Report.php:488
+msgid "Made with Airworthy · airworthywp.com"
+msgstr ""
+
+#: src/Report.php:332
+msgid "Download PDF"
+msgstr ""
+
+#: src/Report.php:333
+msgid "In the print window, choose \"Save as PDF\" as the destination, and untick \"Headers and footers\" (under More settings) so only the report's own footer shows."
+msgstr ""
+
+#: src/Report.php:347
+msgid "PHP upgrade readiness report"
+msgstr ""
+
+#. translators: 1: target PHP version, 2: server PHP version.
+#: src/Report.php:355
+#, php-format
+msgid "Checked against PHP %1$s · the server runs PHP %2$s"
+msgstr ""
+
+#. translators: %s: agency name.
+#: src/Report.php:366
+#, php-format
+msgid "Prepared by %s"
+msgstr ""
+
+#: src/Report.php:373
+msgid "This scan was stopped before it finished, so this report is incomplete."
+msgstr ""
+
+#: src/Report.php:393
+msgid "Recommended next steps"
+msgstr ""
+
+#: src/Report.php:404
+msgid "Fix before the upgrade"
+msgstr ""
+
+#. translators: %s: version number.
+#: src/Report.php:414
+#, php-format
+msgid "Version %s"
+msgstr ""
+
+#. translators: %s: version number.
+#: src/Report.php:417
+#: src/Report.php:463
+#, php-format
+msgid "update available: %s"
+msgstr ""
+
+#: src/Report.php:424
+msgid "Technical detail, for your developer"
+msgstr ""
+
+#: src/Report.php:439
+msgid "Maintenance concerns"
+msgstr ""
+
+#: src/Report.php:442
+msgid "removed from WordPress.org: no more updates or security fixes. Plan to replace it."
+msgstr ""
+
+#: src/Report.php:445
+msgid "not updated in over two years. Keep an eye on it, or look for a maintained alternative."
+msgstr ""
+
+#: src/Report.php:453
+msgid "Keep an eye on"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:457
+#, php-format
+msgid "These work on PHP %s. Keeping them updated keeps them working on later versions."
+msgstr ""
+
+#: src/Report.php:473
+msgid "All good"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Report.php:477
+#, php-format
+msgid "Nothing to do for these on PHP %s."
+msgstr ""
+
+#: src/Report.php:485
+msgid "About this report"
+msgstr ""
+
+#: src/Report.php:486
+msgid "Every PHP file in the site's plugins and theme was read, without running any of it, and checked against what changes in PHP between the version the site runs now and the version checked against. Old code that can never run on the new version is recognised as safe."
+msgstr ""
+
+#: src/Report.php:487
+msgid "A check that reads code can't catch everything: some problems only show up when code runs, with the site's own data and settings, or come from the server's configuration. Use this report to plan the upgrade, not as a guarantee. Always back up and test on a staging copy before changing the PHP version of a live site."
+msgstr ""
+
+#: src/Versions.php:62
+msgid "PHP versions"
+msgstr ""
+
+#: src/Versions.php:333
+msgid "Suppressed"
+msgstr ""
+
+#: src/Versions.php:334
+msgid "Guarded"
+msgstr ""
+
+#: src/Versions.php:354
+#: src/Welcome.php:140
+msgid "Every PHP version at once"
+msgstr ""
+
+#. translators: %s: newest PHP version.
+#: src/Versions.php:361
+#, php-format
+msgid "One scan against PHP %s shows how the site does on every version from PHP 8.0 up, side by side, and the highest version it's ready for today."
+msgstr ""
+
+#: src/Versions.php:368
+msgid "A scan is running. When it finishes, run one against the newest version from here."
+msgstr ""
+
+#: src/Versions.php:370
+msgid "Check every version"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Versions.php:416
+#, php-format
+msgid "Ready for every version up to PHP %s."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/Versions.php:419
+#, php-format
+msgid "Ready for PHP %s today."
+msgstr ""
+
+#: src/Versions.php:421
+msgid "Not ready for PHP 8 yet."
+msgstr ""
+
+#. translators: 1: PHP version, 2: list of plugin names.
+#: src/Versions.php:431
+#, php-format
+msgid "PHP %1$s needs attention first: %2$s."
+msgid_plural "PHP %1$s needs attention first: %2$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: date, 2: PHP version, 3: server PHP version.
+#: src/Versions.php:447
+#, php-format
+msgid "From the scan of %1$s against PHP %2$s. The server runs PHP %3$s."
+msgstr ""
+
+#: src/Versions.php:454
+msgid "Check again"
+msgstr ""
+
+#: src/Versions.php:461
+msgid "Plugin or theme"
+msgstr ""
+
+#: src/Versions.php:469
+msgid "your server"
+msgstr ""
+
+#. translators: %s: year.
+#: src/Versions.php:474
+#, php-format
+msgid "fixes to %s"
+msgstr ""
+
+#: src/Versions.php:475
+msgid "no more fixes"
+msgstr ""
+
+#: src/Versions.php:482
+msgid "Works up to"
+msgstr ""
+
+#: src/Versions.php:485
+msgid "Need attention"
+msgstr ""
+
+#: src/Versions.php:506
+msgid "Every version"
+msgstr ""
+
+#: src/Versions.php:508
+msgid "None of these"
+msgstr ""
+
+#. translators: 1: number of plugins/themes, 2: their names.
+#: src/Versions.php:525
+#, php-format
+msgid "%1$d more is Ready on every version: %2$s."
+msgid_plural "%1$d more are Ready on every version: %2$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Versions.php:533
+msgid "Worked out from one scan against the newest version: each finding says in which PHP version its change happened. Code behind a version check is counted as guarded on every version."
+msgstr ""
+
+#: src/Welcome.php:125
+msgid "Client reports"
+msgstr ""
+
+#: src/Welcome.php:126
+msgid "A plain-words report of any scan with your logo, name and colour, ready to save as a PDF and send to your client."
+msgstr ""
+
+#: src/Welcome.php:129
+msgid "Open a report"
+msgstr ""
+
+#: src/Welcome.php:129
+msgid "Set up your branding"
+msgstr ""
+
+#: src/Welcome.php:134
+msgid "A step-by-step checklist built from your results: update these, replace those, back up, switch. It ticks itself off as you go."
+msgstr ""
+
+#: src/Welcome.php:137
+msgid "Open your plan"
+msgstr ""
+
+#: src/Welcome.php:137
+msgid "Build your plan"
+msgstr ""
+
+#. translators: 1: oldest PHP version, 2: newest PHP version.
+#: src/Welcome.php:142
+#, php-format
+msgid "One scan, PHP %1$s to %2$s side by side, and the highest version your site is ready for today."
+msgstr ""
+
+#: src/Welcome.php:145
+msgid "See every version"
+msgstr ""
+
+#: src/Welcome.php:148
+msgid "Monitoring and email alerts"
+msgstr ""
+
+#: src/Welcome.php:149
+msgid "Checks again after every update and every week, and emails you when something changes or your PHP version nears its end."
+msgstr ""
+
+#: src/Welcome.php:153
+msgid "Report history"
+msgstr ""
+
+#: src/Welcome.php:154
+msgid "Every client report kept with its date, ready to download again."
+msgstr ""
+
+#: src/Welcome.php:172
+msgid "Included"
+msgstr ""
+
+#: src/Welcome.php:173
+msgid "Coming next"
+msgstr ""
+
+#: src/Welcome.php:174
+msgid "Coming soon"
+msgstr ""
+
+#: src/Welcome.php:176
+msgid "Airworthy Pro support"
+msgstr ""
+
+#: src/Welcome.php:180
+msgid "Got it"
+msgstr ""
+
+#: src/Welcome.php:180
+msgid "(close the welcome)"
+msgstr ""
+
+#: src/Welcome.php:181
+msgid "Welcome to Airworthy Pro"
+msgstr ""
+
+#: src/Welcome.php:182
+msgid "You're all set. Here's how to get the most out of it."
+msgstr ""
+
+#: src/Welcome.php:185
+msgid "Add your branding"
+msgstr ""
+
+#: src/Welcome.php:186
+msgid "Your logo, name and colour go on every client report."
+msgstr ""
+
+#: src/Welcome.php:187
+msgid "Add branding"
+msgstr ""
+
+#: src/Welcome.php:190
+msgid "Run a scan"
+msgstr ""
+
+#: src/Welcome.php:191
+msgid "Check the site's plugins and theme against the PHP version you plan to move to."
+msgstr ""
+
+#: src/Welcome.php:192
+msgid "See the results"
+msgstr ""
+
+#: src/Welcome.php:192
+msgid "Start a scan"
+msgstr ""
+
+#: src/Welcome.php:195
+msgid "Send a client report"
+msgstr ""
+
+#: src/Welcome.php:196
+msgid "Open the report, save it as a PDF, and send it on."
+msgstr ""
+
+#: src/Welcome.php:200
+msgid "Available after your first scan."
+msgstr ""
+
+#: src/Welcome.php:211
+msgid "The free plugin tells you what will break. Pro helps you plan the upgrade, show your clients, and keep watch afterwards."
+msgstr ""
+
+#: src/Welcome.php:214
+msgid "Version"
+msgstr ""
+
+#: src/Welcome.php:216
+msgid "Licence"
+msgstr ""
+
+#: src/Welcome.php:217
+msgid "Early access"
+msgstr ""
+
+#: src/Welcome.php:236
+msgid "Priority support"
+msgstr ""
+
+#: src/Welcome.php:237
+msgid "Pro customers get help straight from the people who make Airworthy. Tell us what you're seeing, and attach the support info file: it has the versions, settings and recent scan results we need, so we can help without a round of questions."
+msgstr ""
+
+#: src/Welcome.php:239
+msgid "1. Get the support info file"
+msgstr ""
+
+#: src/Welcome.php:240
+msgid "Made on this site when you click. Nothing is sent anywhere: you download the file and attach it to your email. Preview it first to see exactly what's in it."
+msgstr ""
+
+#: src/Welcome.php:242
+msgid "Download support info"
+msgstr ""
+
+#: src/Welcome.php:243
+msgid "Preview"
+msgstr ""
+
+#: src/Welcome.php:243
+msgid "(opens in a new tab)"
+msgstr ""
+
+#: src/Welcome.php:247
+msgid "What's in it"
+msgstr ""
+
+#: src/Welcome.php:249
+msgid "Airworthy, WordPress, PHP and database versions"
+msgstr ""
+
+#: src/Welcome.php:250
+msgid "Server limits: memory, time, web server, caching"
+msgstr ""
+
+#: src/Welcome.php:251
+msgid "Airworthy's settings"
+msgstr ""
+
+#: src/Welcome.php:252
+msgid "Your theme and plugins: names, versions, active or not"
+msgstr ""
+
+#: src/Welcome.php:253
+msgid "The last five scans, files that couldn't be checked, and failed background jobs"
+msgstr ""
+
+#: src/Welcome.php:257
+msgid "What's never in it"
+msgstr ""
+
+#: src/Welcome.php:259
+msgid "Your site's address, usernames, email or IP addresses"
+msgstr ""
+
+#: src/Welcome.php:260
+msgid "Posts, orders, donations, members or any other customer data"
+msgstr ""
+
+#: src/Welcome.php:261
+msgid "Passwords, keys or the contents of wp-config.php"
+msgstr ""
+
+#: src/Welcome.php:262
+msgid "The contents of any file. File paths start from the site's folder."
+msgstr ""
+
+#: src/Welcome.php:267
+msgid "2. Email us"
+msgstr ""
+
+#: src/Welcome.php:268
+msgid "Email support"
+msgstr ""

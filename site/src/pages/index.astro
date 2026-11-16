@@ -4,7 +4,7 @@ import InstallButton from '../components/InstallButton.astro';
 import ExampleResults from '../components/ExampleResults.astro';
 import Lightbox from '../components/Lightbox.astro';
 import VideoPlayer from '../components/VideoPlayer.astro';
-import { SITE, COMPANY, FINDINGS_LIVE, FINDINGS_URL } from '../config';
+import { SITE, COMPANY, FINDINGS_LIVE, FINDINGS_URL, PRO_LIVE } from '../config';
 import { readme, sub, boldList, videoHtml, youtubeId } from '../lib/readme';
 import fs from 'node:fs';
 
@@ -198,6 +198,18 @@ wp airworthy export --file=report.csv` }</code></pre>
 		</div>
 	</section>
 
+	{ PRO_LIVE ? (
+		<section class="section section-soft">
+			<div class="wrap">
+				<div class="section-head">
+					<p class="eyebrow">Airworthy Pro</p>
+					<h2>Do the upgrade, and show your clients.</h2>
+					<p class="lede">The free plugin tells you what will break, and its results stay free. Pro adds an upgrade plan that ticks itself off, every PHP version in one scan, branded client reports and priority support.</p>
+				</div>
+				<p class="pro-cta"><a class="button button-primary" href="/pro/">See Airworthy Pro</a></p>
+			</div>
+		</section>
+	) : (
 	<section class="section section-soft">
 		<div class="wrap">
 			<div class="section-head">
@@ -226,6 +238,7 @@ wp airworthy export --file=report.csv` }</code></pre>
 			<p class="pro-cta"><a class="button button-secondary" href={ `mailto:${ SITE.email.hello }?subject=${ encodeURIComponent( 'Tell me when Airworthy Pro launches' ) }` }>Tell me when Pro launches</a></p>
 		</div>
 	</section>
+	) }
 
 	<section class="section cta">
 		<div class="wrap narrow center">

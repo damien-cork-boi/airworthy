@@ -58,3 +58,33 @@ export const NAV = [
 	// Left out of the phone header once the Articles link joins it (the footer still has it).
 	{ href: '/security/', label: 'Security', phoneHideWithArticles: true },
 ];
+
+/**
+ * Airworthy Pro on this site: the /pro/ page and the Pro paragraph in the privacy notice.
+ * Not built, linked or listed in the sitemap until `published` is true (launch: Thu 3 Dec 2026);
+ * PREVIEW_PRO=1 npm run build shows it locally. Everything marked PLACEHOLDER is still Damo's
+ * decision (plans, prices, refund) and must be settled before `published` goes true.
+ */
+export const PRO = {
+	published: false,
+	/** The Freemius checkout link. Empty until the Freemius product exists. */
+	buyUrl: '',
+	launchDate: '3 December 2026',
+	/** PLACEHOLDER (undecided since 30 Sep 2026: option A is 1 and 25 sites, option B is 1, 5 and 25). */
+	plans: [
+		{ name: 'Pro', sites: 1, eur: 59, usd: 65, for: 'Your own site, or one client\'s.' },
+		{ name: 'Freelancer', sites: 5, eur: 129, usd: 139, for: 'A handful of client sites.' },
+		{ name: 'Agency', sites: 25, eur: 249, usd: 269, for: 'An agency looking after many sites.' },
+	],
+	/** PLACEHOLDER: suggested 14 days, no questions asked. */
+	refundDays: 14,
+	/** The Pro features that aren't built yet: they show as "coming" on the Pro tab too. */
+	coming: [
+		{ title: 'Monitoring and email alerts', text: 'Checks again after every update and every week, and emails you when something changes or your PHP version nears its end.' },
+		{ title: 'Report history', text: 'Every client report kept with its date, ready to download again.' },
+	],
+};
+
+/** Whether the Pro page is built: published, or previewed locally (PREVIEW_PRO=1). */
+export const PRO_LIVE = PRO.published || '1' === import.meta.env.PREVIEW_PRO;
+

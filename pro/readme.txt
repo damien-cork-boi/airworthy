@@ -5,7 +5,7 @@ Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.2
 Requires Plugins: airworthy
-Stable tag: 0.2.1
+Stable tag: 0.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,6 +18,7 @@ Airworthy tells you which plugins and themes will break on a newer PHP version. 
 * **Upgrade plan.** A step-by-step checklist built from your results: update these, replace those, back up, try it on staging, switch PHP, check again. Airworthy ticks steps off as it sees them happen; you tick the ones it can't see, like the backup.
 * **Every PHP version at once.** One scan against the newest PHP version shows how the site does on every version from PHP 8.0 up, side by side, and the highest version it's ready for today.
 * **Client reports.** A plain-words report of any scan with your logo, name and colour, ready to save as a PDF and send to your client.
+* **Priority support, with a support file.** One button on the Pro tab builds a plain-text file about the site (versions, settings, plugins, recent scans, waiting jobs) for you to preview and send us. It leaves out passwords, keys, customer and order data, post content and file contents, and masks site addresses, email addresses and IP addresses.
 
 Airworthy Pro needs the free Airworthy plugin (https://airworthywp.com/), installed and active. It adds "Pro", "Upgrade plan", "PHP versions" and "Client report" tabs to Tools > Airworthy.
 
@@ -27,7 +28,7 @@ Airworthy Pro sends nothing anywhere. It reads the results the free plugin alrea
 
 = Support =
 
-Email hello@airworthywp.com with your site's PHP version and what you're seeing; a CSV export of the results helps.
+Email hello@airworthywp.com with your site's PHP version and what you're seeing. The "Download support info" button on the Pro tab builds the file that helps us most; a CSV export of the results helps too.
 
 == Installation ==
 
@@ -36,6 +37,14 @@ Email hello@airworthywp.com with your site's PHP version and what you're seeing;
 3. You'll land on the Pro tab, with three steps to get started.
 
 == Changelog ==
+
+= 0.2.3 =
+* Priority support card: a "Download support info" button (with a preview) builds a plain-text file of versions, settings, plugins, recent scans and waiting jobs for you to send us. Passwords, keys, customer and order data, post content and file contents are left out; site addresses, email addresses and IP addresses are masked.
+* The Pro tab reads its latest scan through one prepared query.
+
+= 0.2.2 =
+* Icons on Pro's tabs, a "Got it" button on the welcome banner, and the feature list's PHP range now follows the free plugin's list of versions (it said 8.0 to 8.5).
+* Colour picker swatches are Airworthy's blues.
 
 = 0.2.1 =
 * Pro's database reads go through one place; readme added.

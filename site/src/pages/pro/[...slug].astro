@@ -1,0 +1,236 @@
+---
+import Base from '../../layouts/Base.astro';
+import InstallButton from '../../components/InstallButton.astro';
+import { SITE, COMPANY, PRO, PRO_LIVE } from '../../config';
+
+// /pro/ only exists once PRO.published is true (see config.ts): until then this route has no
+// pages, so nothing is published, linked or listed in the sitemap.
+export function getStaticPaths() {
+	return PRO_LIVE ? [ { params: { slug: undefined } } ] : [];
+}
+
+const title = 'Airworthy Pro';
+const description = 'Do the PHP upgrade, and show your clients. An upgrade plan that ticks itself off, every PHP version in one scan, and client reports with your own branding. The check and its results stay free.';
+const features = [
+	{
+		title: 'Upgrade plan',
+		text: 'A step-by-step checklist built from your results: update these, replace those, back up, try it on staging, switch PHP, check again. Airworthy ticks off the steps it can see happen; you tick the ones it can\'t, like the backup.',
+	},
+	{
+		title: 'Every PHP version at once',
+		text: 'One scan shows how the site does on every PHP version side by side, and the highest version it is ready for today. You also see the version each plugin starts to break on.',
+	},
+	{
+		title: 'Client reports with your branding',
+		text: 'A plain-words report of any scan with your logo, name and colour, ready to save as a PDF and send to your client. It explains what was found and what to do next, so the client doesn\'t need to read code.',
+	},
+	{
+		title: 'Priority support, with a support file',
+		text: 'One button builds a plain-text file about the site (versions, settings, plugins, recent scans and what jobs are waiting) that you can send us, so we can see what you see. It never includes passwords, keys, customer or order data, post content, or file contents, and addresses, email addresses and IPs are masked. You can preview it before you send anything.',
+	},
+];
+const money = ( n: number ) => n.toLocaleString( 'en-IE' );
+const faq = [
+	{
+		q: 'Do I need Pro to check my site?',
+		a: 'No. The check and its results stay free, with no account and no limit on scans. Pro adds extras on top: the plan, the all-versions view, client reports and priority support.',
+	},
+	{
+		q: 'Does Pro work on its own?',
+		a: 'No. It is an add-on for the free Airworthy plugin, which has to be installed and active.',
+	},
+	{
+		q: 'What happens when my licence ends?',
+		a: 'Everything you have installed keeps working: reports, the plan and the all-versions view. What stops is updates, support and, once they arrive, monitoring alerts. Renewing starts them again. Your data stays on your site either way.',
+	},
+	{
+		q: 'Can I get a refund?',
+		a: `Yes. If Pro isn't for you, ask within ${ PRO.refundDays } days and you get your money back, no questions asked.`,
+	},
+	{
+		q: 'Does Airworthy Pro change my site or send my site\'s code anywhere?',
+		a: 'No. Pro reads the results the free plugin already has on your site, and your branding stays on your site. The licence check sends your licence key and your site address to Freemius, our licensing and payments provider; nothing else leaves your site.',
+	},
+];
+const schema = {
+	'@context': 'https://schema.org',
+	'@type': 'Product',
+	name: title,
+	description,
+	brand: { '@type': 'Brand', name: SITE.name },
+	manufacturer: { '@type': 'Organization', name: COMPANY.name, url: COMPANY.url },
+};
+---
+<Base title={ title } description={ description } schema={ schema }>
+	<div class="wrap page-head">
+		<p class="eyebrow">Airworthy Pro</p>
+		<h1>Do the PHP upgrade, and show your clients</h1>
+		<p class="lede">
+			The free Airworthy plugin tells you what will break. Pro helps you act on it: a plan that ticks itself off,
+			every PHP version in one scan, and reports your clients can read. <strong>The check and its results stay free.</strong>
+		</p>
+		<p class="cta-row">
+			<a class="button button-primary" href="#pricing">See plans and prices</a>
+			<a class="button button-secondary" href="/">What the free plugin does</a>
+		</p>
+	</div>
+
+	<section class="section section-soft">
+		<div class="wrap">
+			<div class="section-head">
+				<h2>What Pro adds</h2>
+			</div>
+			<div class="grid features">
+				{ features.map( ( f ) => (
+					<div class="card">
+						<h3>{ f.title }</h3>
+						<p>{ f.text }</p>
+					</div>
+				) ) }
+			</div>
+			{ PRO.coming.length > 0 && (
+				<div class="pro-coming">
+					<h3>Coming</h3>
+					<ul>
+						{ PRO.coming.map( ( f ) => <li><strong>{ f.title }.</strong> { f.text }</li> ) }
+					</ul>
+				</div>
+			) }
+		</div>
+	</section>
+
+	<section class="section" id="pricing">
+		<div class="wrap">
+			<div class="section-head">
+				<h2>Plans and prices</h2>
+				<p>One price a year, per plan. The plans differ in how many sites you can use Pro on. Renewal costs the same as the first year.</p>
+			</div>
+			<div class="grid plans">
+				{ PRO.plans.map( ( p ) => (
+					<div class="card plan">
+						<h3>{ p.name }</h3>
+						<p class="plan-price"><span class="plan-eur">€{ money( p.eur ) }</span> <span class="plan-per">a year</span><br /><span class="plan-usd">or ${ money( p.usd ) } a year</span></p>
+						<p><strong>{ 1 === p.sites ? '1 site' : `Up to ${ p.sites } sites` }.</strong> { p.for }</p>
+					</div>
+				) ) }
+			</div>
+			<p class="cta-row">
+				{ PRO.buyUrl ? (
+					<a class="button button-primary" href={ PRO.buyUrl }>Buy Airworthy Pro</a>
+				) : (
+					<span class="button" aria-disabled="true">Available from { PRO.launchDate }</span>
+				) }
+			</p>
+
+			<div class="callout">
+				<h3>What happens when your licence ends</h3>
+				<p>
+					<strong>What you already have keeps working.</strong> Your reports, your plan and the all-versions view do not
+					switch off. <strong>Updates, support and (when they arrive) monitoring alerts stop</strong> until you renew.
+					Renewing starts them again. The Pro tab in your WordPress admin shows a note 30 days and 7 days before your licence ends, and again once it has.
+				</p>
+				<p>
+					<strong>{ PRO.refundDays }-day refund.</strong> Ask within { PRO.refundDays } days of buying and you get your money back, no questions asked.
+					Payments, VAT and invoices are handled by Freemius, our reseller.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="section section-soft">
+		<div class="wrap">
+			<div class="section-head">
+				<h2>Questions</h2>
+			</div>
+			<div class="prose" style="max-width: 46rem;">
+				{ faq.map( ( f ) => (
+					<details class="faq-item">
+						<summary>{ f.q }</summary>
+						<p>{ f.a }</p>
+					</details>
+				) ) }
+			</div>
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="wrap">
+			<div class="section-head">
+				<h2>Start with the free plugin</h2>
+				<p>Pro needs it, and it answers the main question on its own: what will break if you upgrade PHP.</p>
+			</div>
+			<p><InstallButton /></p>
+		</div>
+	</section>
+</Base>
+
+<style>
+	.cta-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		margin: 24px 0 0;
+	}
+
+	.pro-coming {
+		margin-top: 28px;
+		max-width: 46rem;
+	}
+
+	.pro-coming h3 {
+		margin-bottom: 0.4em;
+	}
+
+	.plans {
+		margin-top: 8px;
+	}
+
+	.plan-price {
+		margin: 6px 0 12px;
+	}
+
+	.plan-eur {
+		font-size: 2rem;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+	}
+
+	.plan-per,
+	.plan-usd {
+		color: var(--muted);
+	}
+
+	.callout {
+		margin-top: 36px;
+		padding: 22px 24px;
+		max-width: 46rem;
+		background: var(--bg-soft);
+		border: 1px solid var(--line);
+		border-left: 4px solid var(--brand);
+		border-radius: var(--radius);
+	}
+
+	.callout h3 {
+		margin-top: 0;
+	}
+
+	.callout p:last-child {
+		margin-bottom: 0;
+	}
+
+	.faq-item {
+		border-top: 1px solid var(--line);
+		padding: 14px 0;
+	}
+
+	.faq-item summary {
+		cursor: pointer;
+		font-weight: 600;
+		font-size: 1.05rem;
+	}
+
+	.faq-item p {
+		margin: 10px 0 0;
+		color: var(--muted);
+	}
+</style>
