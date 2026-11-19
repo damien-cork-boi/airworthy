@@ -3,7 +3,7 @@ title: Is your WordPress site ready for PHP 8.6?
 slug: is-your-wordpress-site-ready-for-php-8-6
 description: PHP 8.6 removes no functions, so most sites will keep working, but it deprecates a number of older features and tightens some behaviour. What changes, and how to check your plugins and theme before you switch.
 date: 2026-11-19
-draft: true
+draft: false
 ---
 
 PHP 8.6 comes out today, 19 November 2026. If your host offers it, should you switch? Here is what changes for WordPress sites, in plain English, and how to check yours in a few minutes.
