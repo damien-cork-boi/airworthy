@@ -8,7 +8,7 @@ Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-PHP compatibility checker for your PHP upgrade: see which plugins and themes are ready for PHP 8, which need fixing, and which look abandoned.
+PHP compatibility checker for PHP 8.0 to 8.6: see which plugins and themes are ready, which need fixing, and which look abandoned.
 
 == Description ==
 
