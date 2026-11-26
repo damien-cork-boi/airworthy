@@ -24,7 +24,7 @@ Airworthy Pro needs the free Airworthy plugin (https://airworthywp.com/), instal
 
 = Privacy =
 
-Airworthy Pro reads the results the free plugin already has on your site, and the branding you enter is stored on your site. The one thing it sends out is the licence check: when you activate your licence, and now and then to look for updates, your licence key, your site's address and the plugin and WordPress versions go to Freemius (freemius.com), the company that sells and licenses Airworthy Pro for us. Sharing anything more, such as your site title or the list of your other plugins, is off unless you turn it on yourself. Your scan results never leave your site.
+Airworthy Pro reads the results the free plugin already has on your site, and the branding you enter is stored on your site. The one thing it sends out is the licence check: when you activate your licence, and now and then to look for updates, your licence key, your site's address and the version numbers of Pro and its licensing code go to Freemius (freemius.com), the company that sells and licenses Airworthy Pro for us. Sharing anything more, such as your WordPress and PHP versions or your site title, is off unless you turn it on yourself. Your scan results never leave your site.
 
 = Support =
 
