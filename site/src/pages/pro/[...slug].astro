@@ -103,13 +103,13 @@ const schema = {
 		<div class="wrap">
 			<div class="section-head">
 				<h2>Plans and prices</h2>
-				<p>One price a year, per plan. The plans differ in how many sites you can use Pro on. Renewal costs the same as the first year.</p>
+				<p>One price a year, per plan. The plans differ in how many sites you can use Pro on. Renewal costs the same as the first year. Prices are before VAT, which Freemius adds at checkout where it applies.</p>
 			</div>
 			<div class="grid plans">
 				{ PRO.plans.map( ( p ) => (
 					<div class="card plan">
 						<h3>{ p.name }</h3>
-						<p class="plan-price"><span class="plan-eur">€{ money( p.eur ) }</span> <span class="plan-per">a year</span><br /><span class="plan-usd">or ${ money( p.usd ) } a year</span></p>
+						<p class="plan-price"><span class="plan-eur">€{ money( p.eur ) }</span> <span class="plan-per">a year</span><br /><span class="plan-usd">or ${ money( p.usd ) } or £{ money( p.gbp ) } a year</span></p>
 						<p><strong>{ 1 === p.sites ? '1 site' : `Up to ${ p.sites } sites` }.</strong> { p.for }</p>
 					</div>
 				) ) }

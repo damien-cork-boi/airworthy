@@ -72,9 +72,9 @@ export const PRO = {
 	launchDate: '3 December 2026',
 	/** Decided 26 Nov 2026 (wiki: Pro pricing research): founding prices, same on renewal; in Freemius as one "Pro" plan with 1, 5 and 25 site prices, yearly. */
 	plans: [
-		{ name: 'Pro', sites: 1, eur: 39, usd: 45, for: 'Your own site, or one client\'s.' },
-		{ name: 'Freelancer', sites: 5, eur: 99, usd: 109, for: 'A handful of client sites.' },
-		{ name: 'Agency', sites: 25, eur: 199, usd: 219, for: 'An agency looking after many sites.' },
+		{ name: 'Pro', sites: 1, eur: 39, usd: 45, gbp: 35, for: 'Your own site, or one client\'s.' },
+		{ name: 'Freelancer', sites: 5, eur: 99, usd: 109, gbp: 85, for: 'A handful of client sites.' },
+		{ name: 'Agency', sites: 25, eur: 199, usd: 219, gbp: 175, for: 'An agency looking after many sites.' },
 	],
 	/** Set in Freemius 26 Nov 2026: 14 days, Flexible (no questions asked). */
 	refundDays: 14,

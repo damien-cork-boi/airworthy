@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import { SITE, COMPANY } from '../config';
+import { SITE, COMPANY, PRO, PRO_LIVE } from '../config';
+const money = ( n: number ) => n.toLocaleString( 'en-IE' );
 ---
 <Base title="Legal notice" description="Company details for airworthywp.com and the Airworthy plugin.">
 	<div class="wrap page-head">
@@ -28,6 +29,64 @@ import { SITE, COMPANY } from '../config';
 
 		<h2>Limitation of liability</h2>
 		<p>To the fullest extent permitted by law, DigitalKind Limited is not liable for any loss or damage arising from the use of Airworthy or of this website, including loss of data, revenue or business, downtime, or damage caused by changing your PHP version or by any action taken on the basis of Airworthy's results. Nothing in this notice limits or excludes any liability that cannot be limited or excluded under applicable law.</p>
+
+		{ PRO_LIVE && (
+			<Fragment>
+				<h2 id="pro-terms">Airworthy Pro: terms of sale</h2>
+				<p><em>Interim terms, last updated 27 November 2026. They are being reviewed by a solicitor and may be replaced by a fuller version; if so we will tell you as set out under "Changes to these terms" below.</em></p>
+				<p>These terms apply to paid licences for Airworthy Pro. They do not apply to the free Airworthy plugin on WordPress.org, which is covered by its own licence and by the notice above.</p>
+
+				<h3>1. Who sells what</h3>
+				<p>Freemius, Inc. ("Freemius") is our reseller and merchant of record. It takes your payment, works out and collects VAT and sales tax, issues your invoice and handles your payment details. { COMPANY.name } (details above) supplies the licence key, the updates and the support. Freemius's own terms and privacy policy also apply to your purchase.</p>
+
+				<h3>2. What you are buying</h3>
+				<p>A yearly licence to use Airworthy Pro on a set number of websites:</p>
+				<ul>
+					{ PRO.plans.map( ( p ) => (
+						<li><strong>{ p.name }</strong>: { 1 === p.sites ? '1 website' : `up to ${ p.sites } websites` }, €{ money( p.eur ) } / ${ money( p.usd ) } / £{ money( p.gbp ) } a year before VAT.</li>
+					) ) }
+				</ul>
+				<p>A website counts towards your limit once Airworthy Pro is activated on a live address. Local and staging addresses (such as localhost) don't count. Agencies and freelancers can use Pro on client websites up to the limit. The licence key stays yours and can't be transferred to a client.</p>
+
+				<h3>3. Prices, VAT and ordering</h3>
+				<p>Prices are per year and are shown before VAT. Freemius adds VAT at checkout where it applies and shows you the total before you pay. Our contract with you starts when Freemius takes your payment and a licence key is emailed to you. You activate Pro by entering the key in WordPress, under Tools &gt; Airworthy.</p>
+
+				<h3>4. Early access</h3>
+				<p>Some Pro features are not built yet: monitoring and email alerts, and report history (the Pro page lists what is coming). If you buy during early access you get them when they are released, at no extra charge, and your renewal price stays the same as your first-year price.</p>
+
+				<h3>5. Renewal and cancelling</h3>
+				<p>Your licence renews every year at the price you were shown at checkout, unless you cancel first. You can cancel at any time in your Freemius account or by emailing <a href={ `mailto:${ SITE.email.hello }` }>{ SITE.email.hello }</a>. Cancelling stops future charges and your licence stays active until the end of the year you have paid for. You will be reminded before each renewal, and the Pro tab in WordPress shows a note 30 days and 7 days before your licence ends, and again after it has. If we ever change a plan's price, the new price applies only from your next renewal and we tell you at least 30 days before.</p>
+
+				<h3>6. If your licence ends</h3>
+				<p>Airworthy Pro keeps working on the sites where it is installed: your reports, upgrade plans and the all-versions view stay. What stops is new versions, support and (once they exist) monitoring alerts. Renewing starts them again.</p>
+
+				<h3>7. Refunds</h3>
+				<p>Ask within { PRO.refundDays } days of buying, or of a renewal, and you get all your money back, no questions asked. Ask through Freemius or by email. The money goes back to the card or account you paid with, normally within 5 to 10 business days, and the licence ends. If you are a consumer in the EU or the UK, this does not affect your legal rights.</p>
+
+				<h3>8. Support</h3>
+				<p>Email <a href={ `mailto:${ SITE.email.hello }` }>{ SITE.email.hello }</a> while your licence is active. We aim to reply within 2 business days (Irish working days). Support covers installing, setting up and troubleshooting Airworthy Pro. It doesn't cover fixing conflicts with other plugins or themes, changing your hosting, or upgrading your server's PHP version.</p>
+
+				<h3>9. What Airworthy Pro does and doesn't promise</h3>
+				<p>Airworthy Pro is a planning tool. It reads your plugins and theme without running them, so it can't catch everything, and a "Ready" result is not a guarantee that your site will work on a new PHP version. It only reads files: it never changes your site, your plugins or your server's PHP version. Back up your site and try the new PHP version on a staging copy first. We are not responsible for problems caused by a PHP upgrade, by other plugins or themes, or by your hosting, including problems a scan did not predict.</p>
+
+				<h3>10. The code, and what you pay for</h3>
+				<p>Airworthy Pro's code is free software under the GNU General Public License, and you keep every right that licence gives you. What you pay for is your licence key and its activation, updates, support and, when they exist, monitoring and alerts. Keys are for your own use up to your plan's limit. Sharing or reselling a key, or getting around the licence check to receive updates or support without a subscription, is not allowed and ends updates and support for that key. It does not affect your rights under the GPL.</p>
+
+				<h3>11. Your data</h3>
+				<p>Your scan results stay on your own site. We do not receive your site's files or scan results. To activate Pro and check your licence, Pro sends your licence key, your site's address and the plugin and WordPress versions to Freemius; anything more is optional and off unless you turn it on. When you buy, Freemius handles your name, email, billing address and payment details, and we receive your name, email and licence details so we can support you. See our <a href="/privacy/">privacy page</a> and Freemius's privacy policy.</p>
+
+				<h3>12. Your legal rights, and our liability</h3>
+				<p><strong>Consumers.</strong> Nothing here limits your rights under Irish and EU consumer law, including the Consumer Rights Act 2022. Digital content and services are supplied with reasonable care and skill and as described. If they aren't, you are entitled to have them brought into line with what was promised or, where that isn't possible, to a price reduction or a refund. We are liable for direct, foreseeable losses caused by our breach of contract or lack of reasonable care and skill.</p>
+				<p><strong>Businesses.</strong> Airworthy Pro is supplied with reasonable care and skill, and otherwise as it is, to the extent the law allows. We are not liable for lost profits, revenue, business interruption, data or goodwill, or for indirect or knock-on loss. Our total liability in any 12 months is limited to the fees you paid for Airworthy Pro in the 12 months before the claim.</p>
+				<p>Nothing in these terms limits liability for death or personal injury caused by negligence, for fraud, or for anything else that can't be limited by law.</p>
+
+				<h3>13. Changes to these terms, and ending Pro</h3>
+				<p>We may update these terms, for example when the law or the product changes. We will email you about changes that matter at least 30 days before they take effect. They don't apply to a period you have already paid for unless the law requires it, and if you disagree you can cancel before your next renewal. If we stop selling or supporting Airworthy Pro we will give at least 90 days' notice and either keep updates and support going to the end of your paid year or refund the unused part.</p>
+
+				<h3>14. Law and complaints</h3>
+				<p>These terms are governed by Irish law. For business customers the Irish courts have exclusive jurisdiction. Consumers keep the protection of the mandatory consumer rules of the country where they live and can go to their local courts. Send complaints to <a href={ `mailto:${ SITE.email.hello }` }>{ SITE.email.hello }</a>. Consumers can also contact the Competition and Consumer Protection Commission (<a href="https://www.ccpc.ie/">ccpc.ie</a>) or their local European Consumer Centre.</p>
+			</Fragment>
+		) }
 
 		<h2>Trademarks</h2>
 		<p>WordPress is a trademark of the WordPress Foundation. PHP is a trademark of the PHP Group. Airworthy is not affiliated with or endorsed by either. Plugin names mentioned on this site belong to their owners.</p>
