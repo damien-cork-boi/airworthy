@@ -70,13 +70,13 @@ export const PRO = {
 	/** The Freemius checkout link. Empty until the Freemius product exists. */
 	buyUrl: '',
 	launchDate: '3 December 2026',
-	/** PLACEHOLDER (undecided since 30 Sep 2026: option A is 1 and 25 sites, option B is 1, 5 and 25). */
+	/** Decided 26 Nov 2026 (wiki: Pro pricing research): founding prices, same on renewal; in Freemius as one "Pro" plan with 1, 5 and 25 site prices, yearly. */
 	plans: [
-		{ name: 'Pro', sites: 1, eur: 59, usd: 65, for: 'Your own site, or one client\'s.' },
-		{ name: 'Freelancer', sites: 5, eur: 129, usd: 139, for: 'A handful of client sites.' },
-		{ name: 'Agency', sites: 25, eur: 249, usd: 269, for: 'An agency looking after many sites.' },
+		{ name: 'Pro', sites: 1, eur: 39, usd: 45, for: 'Your own site, or one client\'s.' },
+		{ name: 'Freelancer', sites: 5, eur: 99, usd: 109, for: 'A handful of client sites.' },
+		{ name: 'Agency', sites: 25, eur: 199, usd: 219, for: 'An agency looking after many sites.' },
 	],
-	/** PLACEHOLDER: suggested 14 days, no questions asked. */
+	/** Set in Freemius 26 Nov 2026: 14 days, Flexible (no questions asked). */
 	refundDays: 14,
 	/** The Pro features that aren't built yet: they show as "coming" on the Pro tab too. */
 	coming: [
