@@ -5,7 +5,7 @@ Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.2
 Requires Plugins: airworthy
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,11 @@ Email hello@airworthywp.com with your site's PHP version and what you're seeing.
 3. You'll land on the Pro tab, with three steps to get started.
 
 == Changelog ==
+
+= 0.3.1 =
+* Licensing code (Freemius SDK) updated to 2.13.5, which tightens how a few messages are escaped.
+* The Airworthy icon now shows on the licence activation screen.
+* The privacy text now says exactly what the licence check sends: your licence key, your site's address and the version numbers of Pro and its licensing code.
 
 = 0.3.0 =
 * Licensing through Freemius. Activate your licence on the Pro tab. Until a site has a licence, only the Pro tab loads, with the steps to activate. When a licence ends, Airworthy Pro keeps working; updates, support and monitoring alerts stop. The Pro tab tells you 30 days and 7 days before the end, and after it.
