@@ -5,7 +5,7 @@ Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.2
 Requires Plugins: airworthy
-Stable tag: 0.2.3
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,7 +24,7 @@ Airworthy Pro needs the free Airworthy plugin (https://airworthywp.com/), instal
 
 = Privacy =
 
-Airworthy Pro sends nothing anywhere. It reads the results the free plugin already has on your site, and the branding you enter is stored on your site.
+Airworthy Pro reads the results the free plugin already has on your site, and the branding you enter is stored on your site. The one thing it sends out is the licence check: when you activate your licence, and now and then to look for updates, your licence key, your site's address and the plugin and WordPress versions go to Freemius (freemius.com), the company that sells and licenses Airworthy Pro for us. Sharing anything more, such as your site title or the list of your other plugins, is off unless you turn it on yourself. Your scan results never leave your site.
 
 = Support =
 
@@ -37,6 +37,10 @@ Email hello@airworthywp.com with your site's PHP version and what you're seeing.
 3. You'll land on the Pro tab, with three steps to get started.
 
 == Changelog ==
+
+= 0.3.0 =
+* Licensing through Freemius. Activate your licence on the Pro tab. Until a site has a licence, only the Pro tab loads, with the steps to activate. When a licence ends, Airworthy Pro keeps working; updates, support and monitoring alerts stop. The Pro tab tells you 30 days and 7 days before the end, and after it.
+* Local and staging addresses don't use up a site on your licence.
 
 = 0.2.3 =
 * Priority support card: a "Download support info" button (with a preview) builds a plain-text file of versions, settings, plugins, recent scans and waiting jobs for you to send us. Passwords, keys, customer and order data, post content and file contents are left out; site addresses, email addresses and IP addresses are masked.

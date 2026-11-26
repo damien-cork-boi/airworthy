@@ -2,21 +2,21 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Airworthy Pro 0.2.3\n"
-"Report-Msgid-Bugs-To: https://airworthywp.com/\n"
+"Project-Id-Version: Airworthy Pro 0.3.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/airworthy-pro\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-16T18:52:43+00:00\n"
+"POT-Creation-Date: 2026-11-26T22:51:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: airworthy-pro\n"
 
 #. Plugin Name of the plugin
 #: airworthy-pro.php
-#: src/Welcome.php:210
+#: src/Welcome.php:244
 msgid "Airworthy Pro"
 msgstr ""
 
@@ -40,13 +40,13 @@ msgstr ""
 msgid "https://digitalkind.ie/"
 msgstr ""
 
-#: airworthy-pro.php:44
+#: airworthy-pro.php:101
 msgid "Airworthy Pro needs the free Airworthy plugin. Install and activate it to use client reports."
 msgstr ""
 
 #: src/Branding.php:40
 #: src/Welcome.php:67
-#: src/Welcome.php:210
+#: src/Welcome.php:244
 msgid "Pro"
 msgstr ""
 
@@ -138,6 +138,38 @@ msgstr ""
 #: src/Support.php:65
 #: src/Versions.php:81
 msgid "Sorry, you are not allowed to do that."
+msgstr ""
+
+#: src/Licence.php:72
+msgid "Activate your licence to use Airworthy Pro. Your licence key is in the email you got when you bought it."
+msgstr ""
+
+#: src/Licence.php:100
+msgid "Lifetime licence: updates and support included."
+msgstr ""
+
+#. translators: %s: date.
+#: src/Licence.php:108
+#, php-format
+msgid "Your licence ended on %s. Airworthy Pro still works, but updates, support and monitoring alerts are off. Renew to switch them back on."
+msgstr ""
+
+#. translators: %s: date.
+#: src/Licence.php:115
+#, php-format
+msgid "Your licence ends on %s, within a week. Renew to keep updates, support and monitoring alerts. If you don't, Airworthy Pro keeps working."
+msgstr ""
+
+#. translators: %s: date.
+#: src/Licence.php:122
+#, php-format
+msgid "Your licence ends on %s. Renew to keep updates, support and monitoring alerts. If you don't, Airworthy Pro keeps working."
+msgstr ""
+
+#. translators: %s: date.
+#: src/Licence.php:128
+#, php-format
+msgid "Renews on %s. If you don't renew, Airworthy Pro keeps working; updates, support and monitoring alerts stop."
 msgstr ""
 
 #: src/Plan.php:51
@@ -804,98 +836,124 @@ msgstr ""
 msgid "Available after your first scan."
 msgstr ""
 
-#: src/Welcome.php:211
+#: src/Welcome.php:210
+msgid "Your licence"
+msgstr ""
+
+#. translators: 1: plan name, 2: sites used, 3: sites allowed.
+#: src/Welcome.php:217
+#, php-format
+msgid "Plan: %1$s. Sites using this licence: %2$d of %3$s."
+msgstr ""
+
+#: src/Welcome.php:220
+msgid "unlimited"
+msgstr ""
+
+#: src/Welcome.php:224
+msgid "This is a local or staging address, so it doesn't use up a site."
+msgstr ""
+
+#: src/Welcome.php:229
+msgid "Activate your licence"
+msgstr ""
+
+#: src/Welcome.php:231
+msgid "Manage your licence"
+msgstr ""
+
+#: src/Welcome.php:245
 msgid "The free plugin tells you what will break. Pro helps you plan the upgrade, show your clients, and keep watch afterwards."
 msgstr ""
 
-#: src/Welcome.php:214
+#: src/Welcome.php:248
 msgid "Version"
 msgstr ""
 
-#: src/Welcome.php:216
+#: src/Welcome.php:250
 msgid "Licence"
 msgstr ""
 
-#: src/Welcome.php:217
+#: src/Welcome.php:251
 msgid "Early access"
 msgstr ""
 
-#: src/Welcome.php:236
+#: src/Welcome.php:270
 msgid "Priority support"
 msgstr ""
 
-#: src/Welcome.php:237
+#: src/Welcome.php:271
 msgid "Pro customers get help straight from the people who make Airworthy. Tell us what you're seeing, and attach the support info file: it has the versions, settings and recent scan results we need, so we can help without a round of questions."
 msgstr ""
 
-#: src/Welcome.php:239
+#: src/Welcome.php:273
 msgid "1. Get the support info file"
 msgstr ""
 
-#: src/Welcome.php:240
+#: src/Welcome.php:274
 msgid "Made on this site when you click. Nothing is sent anywhere: you download the file and attach it to your email. Preview it first to see exactly what's in it."
 msgstr ""
 
-#: src/Welcome.php:242
+#: src/Welcome.php:276
 msgid "Download support info"
 msgstr ""
 
-#: src/Welcome.php:243
+#: src/Welcome.php:277
 msgid "Preview"
 msgstr ""
 
-#: src/Welcome.php:243
+#: src/Welcome.php:277
 msgid "(opens in a new tab)"
 msgstr ""
 
-#: src/Welcome.php:247
+#: src/Welcome.php:281
 msgid "What's in it"
 msgstr ""
 
-#: src/Welcome.php:249
+#: src/Welcome.php:283
 msgid "Airworthy, WordPress, PHP and database versions"
 msgstr ""
 
-#: src/Welcome.php:250
+#: src/Welcome.php:284
 msgid "Server limits: memory, time, web server, caching"
 msgstr ""
 
-#: src/Welcome.php:251
+#: src/Welcome.php:285
 msgid "Airworthy's settings"
 msgstr ""
 
-#: src/Welcome.php:252
+#: src/Welcome.php:286
 msgid "Your theme and plugins: names, versions, active or not"
 msgstr ""
 
-#: src/Welcome.php:253
+#: src/Welcome.php:287
 msgid "The last five scans, files that couldn't be checked, and failed background jobs"
 msgstr ""
 
-#: src/Welcome.php:257
+#: src/Welcome.php:291
 msgid "What's never in it"
 msgstr ""
 
-#: src/Welcome.php:259
+#: src/Welcome.php:293
 msgid "Your site's address, usernames, email or IP addresses"
 msgstr ""
 
-#: src/Welcome.php:260
+#: src/Welcome.php:294
 msgid "Posts, orders, donations, members or any other customer data"
 msgstr ""
 
-#: src/Welcome.php:261
+#: src/Welcome.php:295
 msgid "Passwords, keys or the contents of wp-config.php"
 msgstr ""
 
-#: src/Welcome.php:262
+#: src/Welcome.php:296
 msgid "The contents of any file. File paths start from the site's folder."
 msgstr ""
 
-#: src/Welcome.php:267
+#: src/Welcome.php:301
 msgid "2. Email us"
 msgstr ""
 
-#: src/Welcome.php:268
+#: src/Welcome.php:302
 msgid "Email support"
 msgstr ""

@@ -175,7 +175,7 @@ final class Welcome {
 		);
 		$support  = 'mailto:' . self::SUPPORT_EMAIL . '?subject=' . rawurlencode( __( 'Airworthy Pro support', 'airworthy-pro' ) );
 		?>
-		<?php if ( $welcome ) : ?>
+		<?php if ( $welcome && Licence::can_use() ) : ?>
 			<div class="airworthy-card airworthy-pro-welcome">
 				<a class="airworthy-pro-welcome-close" href="<?php echo esc_url( self::url() ); ?>"><?php esc_html_e( 'Got it', 'airworthy-pro' ); ?><span class="screen-reader-text"> <?php esc_html_e( '(close the welcome)', 'airworthy-pro' ); ?></span></a>
 				<p class="airworthy-pro-eyebrow"><?php esc_html_e( 'Welcome to Airworthy Pro', 'airworthy-pro' ); ?></p>
@@ -203,6 +203,40 @@ final class Welcome {
 				</ol>
 			</div>
 		<?php endif; ?>
+
+		<?php if ( Licence::configured() ) : ?>
+			<?php $licence = Licence::summary(); ?>
+			<div class="airworthy-card airworthy-pro-licence airworthy-pro-licence-<?php echo esc_attr( $licence['state'] ); ?>">
+				<h2><?php esc_html_e( 'Your licence', 'airworthy-pro' ); ?></h2>
+				<p><?php echo esc_html( $licence['message'] ); ?></p>
+				<?php if ( '' !== $licence['plan'] ) : ?>
+					<p class="airworthy-muted">
+						<?php
+						printf(
+							/* translators: 1: plan name, 2: sites used, 3: sites allowed. */
+							esc_html__( 'Plan: %1$s. Sites using this licence: %2$d of %3$s.', 'airworthy-pro' ),
+							esc_html( $licence['plan'] ),
+							(int) $licence['sites_used'],
+							$licence['sites_quota'] ? (int) $licence['sites_quota'] : esc_html__( 'unlimited', 'airworthy-pro' )
+						);
+						?>
+						<?php if ( $licence['is_local'] ) : ?>
+							<?php esc_html_e( 'This is a local or staging address, so it doesn\'t use up a site.', 'airworthy-pro' ); ?>
+						<?php endif; ?>
+					</p>
+				<?php endif; ?>
+				<?php if ( Licence::STATE_NONE === $licence['state'] && '' !== $licence['activate_url'] ) : ?>
+					<p><a class="button button-primary" href="<?php echo esc_url( $licence['activate_url'] ); ?>"><?php esc_html_e( 'Activate your licence', 'airworthy-pro' ); ?></a></p>
+				<?php elseif ( '' !== $licence['account_url'] ) : ?>
+					<p><a class="button" href="<?php echo esc_url( $licence['account_url'] ); ?>"><?php esc_html_e( 'Manage your licence', 'airworthy-pro' ); ?></a></p>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
+		<?php
+		if ( ! Licence::can_use() ) {
+			return;
+		}
+		?>
 
 		<div class="airworthy-card airworthy-pro-home">
 			<div class="airworthy-pro-home-head">

@@ -3,6 +3,7 @@
 /dist/
 /tools/
 vendor/
+!/pro/vendor/
 
 # Step 1 throwaway test assets (large / generated)
 /engine-test/real-plugins/
