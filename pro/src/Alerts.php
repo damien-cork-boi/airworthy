@@ -341,7 +341,40 @@ final class Alerts {
 			$ok = wp_mail( $address, $subject, $page, array( 'Content-Type: text/html; charset=UTF-8' ) ) && $ok;
 		}
 		remove_action( 'phpmailer_init', $alt );
-		return $ok;
+		$hook = self::webhook( $subject, $text );
+		return $ok && false !== $hook; // No webhook set (null) is fine; a failed post is not.
+	}
+
+	/**
+	 * Posts the alert to the chat address in the settings, if there is one. Slack and Discord both
+	 * accept this JSON ("text" and "content"). Only an https address that is not on the server's own
+	 * network is called.
+	 *
+	 * @param string $subject Subject line.
+	 * @param string $text    Plain-text body.
+	 * @return bool|null True when posted, false when it failed, null when no address is set.
+	 */
+	public static function webhook( $subject, $text ) {
+		$url = Monitor::get()['webhook'];
+		if ( '' === $url ) {
+			return null;
+		}
+		$message = mb_substr( '✈️ ' . $subject . "\n\n" . trim( $text ), 0, 1800 );
+		$res     = wp_safe_remote_post(
+			$url,
+			array(
+				'timeout'    => 8,
+				'user-agent' => 'Airworthy Pro',
+				'headers'    => array( 'Content-Type' => 'application/json' ),
+				'body'       => wp_json_encode(
+					array(
+						'text'    => $message,
+						'content' => $message,
+					)
+				),
+			)
+		);
+		return ! is_wp_error( $res ) && (int) wp_remote_retrieve_response_code( $res ) < 300;
 	}
 
 	/**

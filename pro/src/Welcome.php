@@ -166,6 +166,13 @@ final class Welcome {
 				'link_text' => __( 'Check a zip', 'airworthy-pro' ),
 			),
 			array(
+				'title'     => __( 'Fix brief for a developer or an AI', 'airworthy-pro' ),
+				'text'      => __( 'Pick a plugin or theme with problems and get a ready-to-paste brief: each problem with its file, line and the line itself, how to fix it, and rules that keep the fix small.', 'airworthy-pro' ),
+				'status'    => 'included',
+				'link'      => Brief::url(),
+				'link_text' => __( 'Write a brief', 'airworthy-pro' ),
+			),
+			array(
 				'title'  => __( 'Report history', 'airworthy-pro' ),
 				'text'   => __( 'Every client report kept with its date, ready to download again.', 'airworthy-pro' ),
 				'status' => 'soon',

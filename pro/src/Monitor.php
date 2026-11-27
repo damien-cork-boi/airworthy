@@ -87,6 +87,7 @@ final class Monitor {
 			'frequency'      => 'weekly',
 			'target'         => 'auto',
 			'recipients'     => '',
+			'webhook'        => '',
 			'alert_blockers' => true,
 			'alert_warnings' => false,
 			'alert_support'  => true,
@@ -123,6 +124,10 @@ final class Monitor {
 			}
 		}
 		$out['recipients'] = implode( ', ', array_slice( $list, 0, 5 ) );
+
+		// A Slack, Discord or other incoming-webhook address: https only.
+		$hook           = isset( $input['webhook'] ) ? esc_url_raw( trim( (string) $input['webhook'] ), array( 'https' ) ) : '';
+		$out['webhook'] = ( '' !== $hook && wp_http_validate_url( $hook ) ) ? $hook : '';
 		return $out;
 	}
 

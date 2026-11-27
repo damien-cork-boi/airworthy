@@ -179,6 +179,12 @@ final class MonitorTab {
 			</fieldset>
 
 			<fieldset class="airworthy-setting">
+				<legend><label for="airworthy-pro-webhook">💬 <?php esc_html_e( 'Also post to Slack, Discord or Teams (optional)', 'airworthy-pro' ); ?></label></legend>
+				<input type="url" id="airworthy-pro-webhook" class="regular-text" name="airworthy_pro_monitor[webhook]" value="<?php echo esc_attr( $s['webhook'] ); ?>" placeholder="https://hooks.slack.com/services/..." />
+				<p class="description"><?php esc_html_e( 'Paste an incoming-webhook address and every alert is posted there as well as emailed. It sends the alert text (your site\'s name and the plugin names in it) to that address, so only use one you trust. Must start with https.', 'airworthy-pro' ); ?></p>
+			</fieldset>
+
+			<fieldset class="airworthy-setting">
 				<legend>🔔 <?php esc_html_e( 'Email me when', 'airworthy-pro' ); ?></legend>
 				<label class="airworthy-choice"><input type="checkbox" name="airworthy_pro_monitor[alert_blockers]" value="1" <?php checked( $s['alert_blockers'] ); ?> /> <span><?php esc_html_e( 'a plugin or theme newly becomes a Blocker', 'airworthy-pro' ); ?></span></label>
 				<label class="airworthy-choice"><input type="checkbox" name="airworthy_pro_monitor[alert_warnings]" value="1" <?php checked( $s['alert_warnings'] ); ?> /> <span><?php esc_html_e( 'something gets new Warnings (off by default: warnings are rarely urgent)', 'airworthy-pro' ); ?></span></label>
