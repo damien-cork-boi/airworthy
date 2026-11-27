@@ -433,6 +433,7 @@ figcaption {
 	width: 100%;
 	display: block;
 	overflow-x: auto;
+	margin-bottom: 1.2em;
 }
 
 .prose th,
