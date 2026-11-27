@@ -36,7 +36,7 @@ const plural = ( n: number, one: string, many: string ) => `${ n } ${ 1 === n ? 
 const date = ( iso: string ) => new Date( iso + 'T12:00:00Z' ).toLocaleDateString( 'en-IE', { day: 'numeric', month: 'long', year: 'numeric' } );
 
 const title = 'We checked the 30 most popular WordPress plugins against PHP 8.4';
-const description = `A basic compatibility scan flags ${ flagged.length } of the 30 most popular WordPress plugins as breaking on PHP 8.4. One really does, and has since been fixed. One has a bug in code it doesn't use. The other ${ falseAlarms.length } are false alarms, and those plugins are fine.`;
+const description = `We scanned the 30 most popular WordPress plugins for PHP 8.4. A basic scan flags ${ flagged.length } as broken; only 1 really is. Per-plugin results and method.`;
 const schema = {
 	'@context': 'https://schema.org',
 	'@type': 'Article',
@@ -48,7 +48,7 @@ const schema = {
 	mainEntityOfPage: SITE.url + FINDINGS_URL,
 };
 ---
-<Base title="Top 30 plugins on PHP 8.4" description={ description } schema={ schema }>
+<Base title="Top 30 WordPress plugins tested on PHP 8.4" description={ description } schema={ schema }>
 	<div class="wrap page-head">
 		<p class="eyebrow">Findings · { date( data.tested ) }</p>
 		<h1>{ title }</h1>

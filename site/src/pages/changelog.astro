@@ -7,7 +7,7 @@ const r = readme();
 const releases = r.sections.changelog?.subsections || [];
 const notices = Object.fromEntries( ( r.sections[ 'upgrade-notice' ]?.subsections || [] ).map( ( n ) => [ n.title, n.html ] ) );
 ---
-<Base title="Changelog" description="What changed in each Airworthy release.">
+<Base title="Release notes and changelog" description="What changed in each Airworthy release: PHP 8.6 checks, the readiness score, checking updates before you install them, and more.">
 	<div class="wrap page-head">
 		<p class="eyebrow">Changelog</p>
 		<h1>What's new</h1>

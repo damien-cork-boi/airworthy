@@ -1,7 +1,7 @@
 ---
 title: Is your WordPress site ready for PHP 8.6?
 slug: is-your-wordpress-site-ready-for-php-8-6
-description: PHP 8.6 removes no functions, so most sites will keep working, but it deprecates a number of older features and tightens some behaviour. What changes, and how to check your plugins and theme before you switch.
+description: PHP 8.6 removes no functions, so most sites keep working, but it deprecates older features. What changes, and how to check your plugins first.
 date: 2026-11-19
 draft: false
 ---
