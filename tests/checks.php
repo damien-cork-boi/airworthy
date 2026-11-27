@@ -237,11 +237,38 @@ $check( 'Pro card: Don\'t show again ends it', 200 === $status && ! $procard::sh
 list( $status ) = $call( 'POST', '/pro-card', array( 'choice' => 'buy-now' ) );
 $check( 'Pro card: unknown answers are refused', 400 === $status, (string) $status );
 delete_user_meta( $admin_id, $procard::META );
-add_filter( 'airworthy_show_pro_card', '__return_false' );
-$check( 'Pro card: the airworthy_show_pro_card filter hides it', ! $procard::should_show() && null === $procard::config() );
-remove_filter( 'airworthy_show_pro_card', '__return_false' );
+add_filter( 'airworthy_show_pro_promotions', '__return_false' );
+$check( 'Pro card: the airworthy_show_pro_promotions filter hides it', ! $procard::should_show() && null === $procard::config() );
+remove_filter( 'airworthy_show_pro_promotions', '__return_false' );
 $check( 'Pro card: back after the filter is removed (unless Pro is active)', $shown === $procard::should_show() );
 delete_user_meta( $admin_id, $procard::META );
+
+// The Tools menu item: shown to users who can scan unless Pro is active, a site turned it off,
+// or the user chose Don't show again; Not now keeps it (it is quiet).
+$check( 'Pro menu item: visible when Pro is not active', $shown === $procard::menu_visible() );
+$check( 'Pro menu item: links to the Pro page with its own utm placement', 0 === strpos( $procard::MENU_URL, 'https://airworthywp.com/pro/' ) && false !== strpos( $procard::MENU_URL, 'utm_campaign=pro-menu' ) );
+$call( 'POST', '/pro-card', array( 'choice' => 'later' ) );
+$check( 'Pro menu item: Not now keeps it', $shown === $procard::menu_visible() );
+$call( 'POST', '/pro-card', array( 'choice' => 'never' ) );
+$check( 'Pro menu item: Don\'t show again hides it', ! $procard::menu_visible() );
+delete_user_meta( $admin_id, $procard::META );
+add_filter( 'airworthy_show_pro_promotions', '__return_false' );
+$check( 'Pro menu item: the filter hides it', ! $procard::menu_visible() );
+remove_filter( 'airworthy_show_pro_promotions', '__return_false' );
+// The entry is added to the menu array as an external address, after Airworthy.
+global $submenu;
+$saved_submenu = isset( $submenu['tools.php'] ) ? $submenu['tools.php'] : null;
+$submenu['tools.php'] = array( array( 'Import', 'import', 'import.php' ), array( 'Airworthy', 'manage_options', 'airworthy' ), array( 'Plugin Check', 'manage_options', 'plugin-check' ) );
+if ( ! is_multisite() ) {
+	$procard::add_menu();
+	$items = array_values( $submenu['tools.php'] );
+	$check( 'Pro menu item: added right after Airworthy as an external link (nothing added when Pro is active)', $shown ? ( 4 === count( $items ) && 'airworthy' === $items[1][2] && $procard::MENU_URL === $items[2][2] && 'Airworthy Pro' === $items[2][0] && 'plugin-check' === $items[3][2] ) : 3 === count( $items ) );
+}
+if ( null === $saved_submenu ) {
+	unset( $submenu['tools.php'] );
+} else {
+	$submenu['tools.php'] = $saved_submenu;
+}
 
 // The findings list and its filters, against counts taken straight from the table.
 $in_table = static function ( $where ) use ( $wpdb, $t, $scan_id, $comp_id ) {
