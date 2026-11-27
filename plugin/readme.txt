@@ -154,7 +154,7 @@ Scans run in the background in short batches of about 20 seconds, using WordPres
 
 = Which PHP versions can I check against? =
 
-PHP 8.0, 8.1, 8.2, 8.3, 8.4, 8.5 and 8.6. Versions that no longer get security fixes are marked as ended; you can still check them, but results for them are less precise. Until PHP 8.6 is released on 19 November 2026, it's marked as a release candidate and is never suggested by default.
+PHP 8.0, 8.1, 8.2, 8.3, 8.4, 8.5 and 8.6. Versions that no longer get security fixes are marked as ended; you can still check them, but results for them are less precise. PHP 8.6 was released on 19 November 2026.
 
 = Which PHP version should I check against? =
 

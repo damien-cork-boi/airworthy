@@ -20,10 +20,13 @@ const plugin = sub( 'description', 'Privacy' );
 		{ PRO_LIVE && (
 			<Fragment>
 				<h2>Airworthy Pro</h2>
-				<p>Airworthy Pro is a separate add-on, sold and licensed through <a href="https://freemius.com/">Freemius</a>. The Pro features themselves work like the free plugin: they read the results already on your site, and your branding and reports stay on your site.</p>
+				<p>Airworthy Pro is a separate add-on, sold and licensed through <a href="https://freemius.com/">Freemius</a>. The Pro features themselves work like the free plugin: they read the results already on your site, and your branding and reports stay on your site. The exceptions are the licence check and the optional chat alerts described below.</p>
 				<ul>
 					<li><strong>Licence check.</strong> To activate Pro and to check that your licence is valid, Pro sends your licence key, your site's address and the version numbers of Pro and its licensing code to Freemius. Your WordPress and PHP versions, your site title and other usage data are not sent unless you opt in to that, which is off by default.</li>
 					<li><strong>Buying.</strong> Freemius, Inc. is our merchant of record. When you buy, personal data such as your name, email address, billing details and transaction information is collected by or shared with Freemius, and stored to process payments, manage subscriptions and licences, and provide billing support. See <a href="https://freemius.com/privacy/">Freemius's privacy policy</a>. We receive your name and email address from Freemius so that we can support you.</li>
+					<li><strong>Chat alerts (optional).</strong> If you paste a Slack, Discord or Teams webhook address into the Monitoring tab, each alert is posted to that address as well as emailed. The text contains your site's name and the names of the plugins involved. It goes only to the address you chose, never to us, and it is off until you add one.</li>
+					<li><strong>After-the-switch watch.</strong> While the watch runs, Pro records PHP errors on your site and asks your own site's pages (home page, login, and so on) to load, to see whether they still work. The records, with file paths and the name of the plugin behind each error, are stored in your own database and are not sent to us or anyone else.</li>
+					<li><strong>Check a zip.</strong> A plugin or theme zip you upload is read on your own server, without running it, and deleted afterwards. It is not sent anywhere.</li>
 					<li><strong>Support file.</strong> The "Download support info" button on the Pro tab only builds a file on your site, for you to preview and send to us if you choose. It leaves out passwords, keys, customer and order data, post content and file contents, and masks site addresses, email addresses and IP addresses.</li>
 				</ul>
 			</Fragment>
