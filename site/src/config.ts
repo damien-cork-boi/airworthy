@@ -85,7 +85,6 @@ export const PRO = {
 	refundDays: 14,
 	/** The Pro features that aren't built yet: they show as "coming" on the Pro tab too. */
 	coming: [
-		{ title: 'Monitoring and email alerts', text: 'Checks again after every update and every week, and emails you when something changes or your PHP version nears its end.' },
 		{ title: 'Report history', text: 'Every client report kept with its date, ready to download again.' },
 	],
 };

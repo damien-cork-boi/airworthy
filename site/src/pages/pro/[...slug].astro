@@ -19,6 +19,21 @@ const features = [
 		text: 'A checklist built from your results: update, replace, back up, switch. It ticks itself off as you rescan.',
 	},
 	{
+		icon: 'clock',
+		title: 'Monitoring and email alerts',
+		text: 'Re-checks on a schedule and after every update, and emails you only when something new would break.',
+	},
+	{
+		icon: 'eye',
+		title: 'After-the-switch watch',
+		text: 'Records PHP errors for 1 to 3 days after the switch, names the plugin behind each, and checks your pages.',
+	},
+	{
+		icon: 'upload',
+		title: 'Check a zip first',
+		text: 'Upload a plugin or theme zip and see if it works on your PHP version, before you install it.',
+	},
+	{
 		icon: 'layers',
 		title: 'Every PHP version at once',
 		text: 'One scan, PHP 8.0 to 8.6 side by side, and the highest version you are ready for today.',
@@ -38,7 +53,7 @@ const money = ( n: number ) => n.toLocaleString( 'en-IE' );
 const faq = [
 	{
 		q: 'Do I need Pro to check my site?',
-		a: 'No. The check and its results stay free, with no account and no limit on scans. Pro adds extras on top: the plan, the all-versions view, client reports and priority support.',
+		a: 'No. The check and its results stay free, with no account and no limit on scans. Pro adds extras on top: monitoring, the plan, the watch after the switch, the all-versions view, client reports and priority support.',
 	},
 	{
 		q: 'Does Pro work on its own?',
@@ -46,7 +61,7 @@ const faq = [
 	},
 	{
 		q: 'What happens when my licence ends?',
-		a: 'Everything you have installed keeps working: reports, the plan and the all-versions view. What stops is updates, support and, once they arrive, monitoring alerts. Renewing starts them again. Your data stays on your site either way.',
+		a: 'Everything you have installed keeps working: reports, the plan and the all-versions view. What stops is updates, support and monitoring alerts. Renewing starts them again. Your data stays on your site either way.',
 	},
 	{
 		q: 'Can I get a refund?',
@@ -72,7 +87,7 @@ const schema = {
 		<h1>Do the PHP upgrade, and show your clients</h1>
 		<p class="lede">
 			The free Airworthy plugin tells you what will break. Pro helps you act on it: a plan that ticks itself off,
-			every PHP version in one scan, and reports your clients can read. <strong>The check and its results stay free.</strong>
+			monitoring with email alerts, a watch for the days after the switch, every PHP version in one scan, and reports your clients can read. <strong>The check and its results stay free.</strong>
 		</p>
 		<p class="cta-row">
 			<a class="button button-primary" href="#pricing">See plans and prices</a>
@@ -136,7 +151,7 @@ const schema = {
 				<h3>What happens when your licence ends</h3>
 				<p>
 					<strong>What you already have keeps working.</strong> Your reports, your plan and the all-versions view do not
-					switch off. <strong>Updates, support and (when they arrive) monitoring alerts stop</strong> until you renew.
+					switch off. <strong>Updates, support and monitoring alerts stop</strong> until you renew.
 					Renewing starts them again. The Pro tab in your WordPress admin shows a note 30 days and 7 days before your licence ends, and again once it has.
 				</p>
 				<p>
