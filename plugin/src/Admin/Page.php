@@ -181,7 +181,7 @@ final class Page {
 	 * @param string $relative Asset path relative to the plugin folder.
 	 * @return string
 	 */
-	private static function asset_version( $relative ) {
+	public static function asset_version( $relative ) {
 		return AIRWORTHY_VERSION . '.' . (int) @filemtime( AIRWORTHY_DIR . $relative ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Missing file: version 0.
 	}
 

@@ -8,7 +8,8 @@ supported way in; everything else is internal and may change.
 | `airworthy_admin_tabs` | filter | Adds tabs to the Airworthy screen after Scan and Settings: return `slug => label`. |
 | `airworthy_render_tab_{slug}` | action | Draws that tab's content (inside the Airworthy screen's wrapper, after the tabs). |
 | `airworthy_admin_badge` | filter | A short badge after the screen's title (Pro returns "Pro"). |
-| `airworthy_show_pro_promotions` | filter | Return `false` to hide every mention of Airworthy Pro in the free plugin for everyone: the dismissible card on the results screen and the "Airworthy Pro" item in the Tools menu. Neither shows when Pro is active, and each user can dismiss them. |
+| `airworthy_show_pro_promotions` | filter | Return `false` to hide every mention of Airworthy Pro in the free plugin for everyone: the dismissible card on the results screen, the "Airworthy Pro" item in the Tools menu and the one line in the dashboard widget. Neither shows when Pro is active, and each user can dismiss them. |
+| `airworthy_dashboard_widget` | filter | Return `false` to remove Airworthy's "PHP upgrade readiness" widget from the dashboard for everyone. Users who can scan see it by default and can hide it in Screen Options. |
 | `airworthy_results_actions` | filter | Adds buttons next to Export CSV on the results: `array( 'label' => …, 'url' => … )`, where `__SCAN__` in the URL becomes the scan ID. Links open in a new tab. |
 
 Data: add-ons read results through the REST API (`/airworthy/v1/scans/{id}`, `/scans/{id}/components/{component}/issues`), for example with `rest_do_request()`, so they get exactly what the admin screen shows and the same permission checks.

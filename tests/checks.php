@@ -270,6 +270,32 @@ if ( null === $saved_submenu ) {
 	$submenu['tools.php'] = $saved_submenu;
 }
 
+// The dashboard widget: for users who can scan, the same plain-English status as Site Health,
+// and one dismissible Pro line when the latest scan has Blockers (never when Pro is active).
+$widget = \Airworthy\Admin\DashboardWidget::class;
+delete_user_meta( $admin_id, $procard::META );
+$check( 'Dashboard widget: on for a user who can scan', $widget::enabled() );
+wp_set_current_user( $editor_id );
+$check( 'Dashboard widget: off for an editor', ! $widget::enabled() && ! $widget::pro_line_visible() );
+wp_set_current_user( $admin_id );
+add_filter( 'airworthy_dashboard_widget', '__return_false' );
+$check( 'Dashboard widget: the airworthy_dashboard_widget filter removes it', ! $widget::enabled() );
+remove_filter( 'airworthy_dashboard_widget', '__return_false' );
+ob_start();
+$widget::render();
+$html = (string) ob_get_clean();
+$check( 'Dashboard widget: shows the status with a link to the Airworthy screen', false !== strpos( $html, 'airworthy-widget' ) && false !== strpos( $html, esc_url( \Airworthy\Admin\Page::url() ) ), substr( $html, 0, 200 ) );
+$latest = \Airworthy\Admin\SiteHealth::latest_scan();
+$expect = $shown && $latest && (int) $latest->count_blocker > 0 && version_compare( $latest->target_php, \Airworthy\Targets::minor( \Airworthy\Env::php_version() ), '>' );
+$check( 'Dashboard widget: the Pro line shows only for Blockers, with Pro not active', $expect === $widget::pro_line_visible() && $expect === ( false !== strpos( $html, 'airworthy-widget-hide' ) ) );
+$check( 'Dashboard widget: the Pro line links with its own utm placement', 0 === strpos( $widget::PRO_URL, 'https://airworthywp.com/pro/' ) && false !== strpos( $widget::PRO_URL, 'utm_campaign=pro-widget' ) );
+$call( 'POST', '/pro-card', array( 'choice' => 'never' ) );
+$check( 'Dashboard widget: Don\'t show again removes the Pro line', ! $widget::pro_line_visible() );
+delete_user_meta( $admin_id, $procard::META );
+add_filter( 'airworthy_show_pro_promotions', '__return_false' );
+$check( 'Dashboard widget: the promotions filter removes the Pro line', ! $widget::pro_line_visible() );
+remove_filter( 'airworthy_show_pro_promotions', '__return_false' );
+
 // The findings list and its filters, against counts taken straight from the table.
 $in_table = static function ( $where ) use ( $wpdb, $t, $scan_id, $comp_id ) {
 	return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$t['issues']} WHERE scan_id = %d AND component_id = %d $where", $scan_id, $comp_id ) ); // phpcs:ignore

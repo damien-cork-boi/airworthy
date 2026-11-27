@@ -46,6 +46,7 @@ final class Plugin {
 			( new Admin\Page() )->register();
 			Admin\Notice::register();
 			Admin\ProCard::register();
+			Admin\DashboardWidget::register();
 			Admin\PluginsScreen::register();
 			Admin\Export::register();
 			Settings::register();
