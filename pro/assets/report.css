@@ -400,3 +400,11 @@ h2 {
 		display: none;
 	}
 }
+
+.review-note {
+	margin: 6px 0 0;
+	padding: 6px 10px;
+	border-left: 3px solid #2271b1;
+	background: #f3f7fb;
+	font-size: 0.95em;
+}

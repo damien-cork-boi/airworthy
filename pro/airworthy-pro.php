@@ -3,7 +3,7 @@
  * Plugin Name:       Airworthy Pro
  * Plugin URI:        https://airworthywp.com/
  * Description:       An upgrade plan that ticks itself off, every PHP version at once, and branded client reports. Needs the free Airworthy plugin.
- * Version:           0.6.0
+ * Version:           0.7.0
  * Requires at least: 6.9
  * Requires PHP:      7.2
  * Requires Plugins:  airworthy
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AIRWORTHY_PRO_VERSION', '0.6.0' );
+define( 'AIRWORTHY_PRO_VERSION', '0.7.0' );
 define( 'AIRWORTHY_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AIRWORTHY_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -46,6 +46,7 @@ require_once AIRWORTHY_PRO_DIR . 'src/Watch.php';
 require_once AIRWORTHY_PRO_DIR . 'src/WatchTab.php';
 require_once AIRWORTHY_PRO_DIR . 'src/ZipTab.php';
 require_once AIRWORTHY_PRO_DIR . 'src/Brief.php';
+require_once AIRWORTHY_PRO_DIR . 'src/Reviews.php';
 
 // While an after-the-switch watch runs, start recording as early as possible.
 AirworthyPro\Watch::boot();
@@ -106,7 +107,7 @@ if ( ! function_exists( 'airworthy_pro_fs' ) ) {
  * Removes Airworthy Pro's own data when the plugin is deleted (called by Freemius' after_uninstall).
  */
 function airworthy_pro_uninstall_cleanup() {
-	foreach ( array( 'airworthy_pro_history', 'airworthy_pro_monitor', 'airworthy_pro_monitor_state', 'airworthy_pro_watch', 'airworthy_pro_watch_errors', 'airworthy_pro_watch_on' ) as $option ) {
+	foreach ( array( 'airworthy_pro_reviews', 'airworthy_pro_history', 'airworthy_pro_monitor', 'airworthy_pro_monitor_state', 'airworthy_pro_watch', 'airworthy_pro_watch_errors', 'airworthy_pro_watch_on' ) as $option ) {
 		delete_option( $option );
 		delete_site_option( $option );
 	}
@@ -148,6 +149,7 @@ add_action(
 		AirworthyPro\WatchTab::register();
 		AirworthyPro\ZipTab::register();
 		AirworthyPro\Brief::register();
+		AirworthyPro\Reviews::register();
 	},
 	20
 );

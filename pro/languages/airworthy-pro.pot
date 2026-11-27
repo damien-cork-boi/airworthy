@@ -2,21 +2,21 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Airworthy Pro 0.6.0\n"
+"Project-Id-Version: Airworthy Pro 0.7.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/airworthy-pro\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-27T13:16:10+00:00\n"
+"POT-Creation-Date: 2026-11-27T13:36:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: airworthy-pro\n"
 
 #. Plugin Name of the plugin
 #: airworthy-pro.php
-#: src/Welcome.php:267
+#: src/Welcome.php:274
 msgid "Airworthy Pro"
 msgstr ""
 
@@ -40,7 +40,7 @@ msgstr ""
 msgid "https://digitalkind.ie/"
 msgstr ""
 
-#: airworthy-pro.php:130
+#: airworthy-pro.php:131
 msgid "Airworthy Pro needs the free Airworthy plugin. Install and activate it to use client reports."
 msgstr ""
 
@@ -330,7 +330,7 @@ msgstr ""
 
 #: src/Branding.php:40
 #: src/Welcome.php:67
-#: src/Welcome.php:267
+#: src/Welcome.php:274
 msgid "Pro"
 msgstr ""
 
@@ -353,7 +353,7 @@ msgid "A report of the latest scan for your client, in plain words, with your lo
 msgstr ""
 
 #: src/Branding.php:160
-#: src/Welcome.php:221
+#: src/Welcome.php:228
 msgid "Open the report"
 msgstr ""
 
@@ -420,6 +420,7 @@ msgstr ""
 #: src/Plan.php:144
 #: src/Plan.php:194
 #: src/Report.php:202
+#: src/Reviews.php:376
 #: src/Support.php:65
 #: src/Versions.php:81
 #: src/WatchTab.php:543
@@ -1189,7 +1190,7 @@ msgid "Page"
 msgstr ""
 
 #: src/Report.php:326
-#: src/Report.php:488
+#: src/Report.php:492
 msgid "Made with Airworthy · airworthywp.com"
 msgstr ""
 
@@ -1237,57 +1238,168 @@ msgstr ""
 
 #. translators: %s: version number.
 #: src/Report.php:417
-#: src/Report.php:463
+#: src/Report.php:467
 #, php-format
 msgid "update available: %s"
 msgstr ""
 
-#: src/Report.php:424
+#: src/Report.php:428
 msgid "Technical detail, for your developer"
 msgstr ""
 
-#: src/Report.php:439
+#: src/Report.php:443
 msgid "Maintenance concerns"
 msgstr ""
 
-#: src/Report.php:442
+#: src/Report.php:446
 msgid "removed from WordPress.org: no more updates or security fixes. Plan to replace it."
 msgstr ""
 
-#: src/Report.php:445
+#: src/Report.php:449
 msgid "not updated in over two years. Keep an eye on it, or look for a maintained alternative."
 msgstr ""
 
-#: src/Report.php:453
+#: src/Report.php:457
 msgid "Keep an eye on"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: src/Report.php:457
+#: src/Report.php:461
 #, php-format
 msgid "These work on PHP %s. Keeping them updated keeps them working on later versions."
 msgstr ""
 
-#: src/Report.php:473
+#: src/Report.php:477
 msgid "All good"
 msgstr ""
 
 #. translators: %s: PHP version.
-#: src/Report.php:477
+#: src/Report.php:481
 #, php-format
 msgid "Nothing to do for these on PHP %s."
 msgstr ""
 
-#: src/Report.php:485
+#: src/Report.php:489
 msgid "About this report"
 msgstr ""
 
-#: src/Report.php:486
+#: src/Report.php:490
 msgid "Every PHP file in the site's plugins and theme was read, without running any of it, and checked against what changes in PHP between the version the site runs now and the version checked against. Old code that can never run on the new version is recognised as safe."
 msgstr ""
 
-#: src/Report.php:487
+#: src/Report.php:491
 msgid "A check that reads code can't catch everything: some problems only show up when code runs, with the site's own data and settings, or come from the server's configuration. Use this report to plan the upgrade, not as a guarantee. Always back up and test on a staging copy before changing the PHP version of a live site."
+msgstr ""
+
+#: src/Reviews.php:55
+#: src/Reviews.php:280
+msgid "Reviews"
+msgstr ""
+
+#: src/Reviews.php:100
+msgid "We are fixing it"
+msgstr ""
+
+#: src/Reviews.php:101
+msgid "Waiting for the developer"
+msgstr ""
+
+#: src/Reviews.php:102
+msgid "Accepted: we are leaving it"
+msgstr ""
+
+#: src/Reviews.php:281
+msgid "A scan says what is wrong. Here you record what you decided about each plugin or theme with something to look at: you are fixing it, you are waiting for the developer, or you have looked and are leaving it. Add a note so the next person, or you in six months, knows why. A review belongs to the version you looked at: when the plugin is updated, it is marked out of date so it gets looked at again. Reviews never change what Airworthy finds."
+msgstr ""
+
+#: src/Reviews.php:283
+msgid "Saved."
+msgstr ""
+
+#: src/Reviews.php:285
+msgid "Review removed."
+msgstr ""
+
+#: src/Reviews.php:288
+msgid "Run a scan first on the Scan tab. The list comes from its results."
+msgstr ""
+
+#: src/Reviews.php:290
+msgid "Nothing to review: no plugin or theme in your last scan has problems or unchecked files."
+msgstr ""
+
+#. translators: %d: number.
+#: src/Reviews.php:293
+#, php-format
+msgid "%d to review"
+msgid_plural "%d to review"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number.
+#: src/Reviews.php:294
+#, php-format
+msgid "%d being fixed"
+msgstr ""
+
+#. translators: %d: number.
+#: src/Reviews.php:295
+#, php-format
+msgid "%d waiting for a developer"
+msgstr ""
+
+#. translators: %d: number.
+#: src/Reviews.php:296
+#, php-format
+msgid "%d accepted"
+msgstr ""
+
+#. translators: %d: number.
+#: src/Reviews.php:298
+#, php-format
+msgid "%d review is out of date (the plugin was updated)"
+msgid_plural "%d reviews are out of date (the plugins were updated)"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: version reviewed, 2: installed version.
+#: src/Reviews.php:327
+#, php-format
+msgid "Out of date: this review is for version %1$s, and %2$s is installed now. Look again, then save."
+msgstr ""
+
+#. translators: 1: person, 2: date.
+#: src/Reviews.php:341
+#, php-format
+msgid "Last saved by %1$s on %2$s."
+msgstr ""
+
+#: src/Reviews.php:342
+msgid "someone"
+msgstr ""
+
+#: src/Reviews.php:350
+msgid "Status"
+msgstr ""
+
+#: src/Reviews.php:352
+msgid "Not reviewed yet"
+msgstr ""
+
+#: src/Reviews.php:359
+msgid "Note"
+msgstr ""
+
+#: src/Reviews.php:360
+msgid "Why? For example: \"Only used on the old events page, which we are retiring in March.\""
+msgstr ""
+
+#: src/Reviews.php:363
+msgid "Show this status and note in the client report"
+msgstr ""
+
+#: src/Reviews.php:365
+msgid "Save"
 msgstr ""
 
 #: src/Versions.php:62
@@ -1878,216 +1990,228 @@ msgid "Check a zip"
 msgstr ""
 
 #: src/Welcome.php:169
-msgid "Fix brief for a developer or an AI"
+msgid "Reviews with notes"
 msgstr ""
 
 #: src/Welcome.php:170
-msgid "Pick a plugin or theme with problems and get a ready-to-paste brief: each problem with its file, line and the line itself, how to fix it, and rules that keep the fix small."
+msgid "Record what you decided about each plugin or theme with a problem: fixing it, waiting for the developer, or accepted. Add a note, and choose whether the client report shows it."
 msgstr ""
 
 #: src/Welcome.php:173
-msgid "Write a brief"
+msgid "Open reviews"
 msgstr ""
 
 #: src/Welcome.php:176
-msgid "Report history"
+msgid "Fix brief for a developer or an AI"
 msgstr ""
 
 #: src/Welcome.php:177
+msgid "Pick a plugin or theme with problems and get a ready-to-paste brief: each problem with its file, line and the line itself, how to fix it, and rules that keep the fix small."
+msgstr ""
+
+#: src/Welcome.php:180
+msgid "Write a brief"
+msgstr ""
+
+#: src/Welcome.php:183
+msgid "Report history"
+msgstr ""
+
+#: src/Welcome.php:184
 msgid "Every client report kept with its date, ready to download again."
 msgstr ""
 
-#: src/Welcome.php:195
+#: src/Welcome.php:202
 msgid "Included"
 msgstr ""
 
-#: src/Welcome.php:196
+#: src/Welcome.php:203
 msgid "Coming next"
 msgstr ""
 
-#: src/Welcome.php:197
+#: src/Welcome.php:204
 msgid "Coming soon"
 msgstr ""
 
-#: src/Welcome.php:199
+#: src/Welcome.php:206
 msgid "Airworthy Pro support"
 msgstr ""
 
-#: src/Welcome.php:203
+#: src/Welcome.php:210
 msgid "Got it"
 msgstr ""
 
-#: src/Welcome.php:203
+#: src/Welcome.php:210
 msgid "(close the welcome)"
 msgstr ""
 
-#: src/Welcome.php:204
+#: src/Welcome.php:211
 msgid "Welcome to Airworthy Pro"
 msgstr ""
 
-#: src/Welcome.php:205
+#: src/Welcome.php:212
 msgid "You're all set. Here's how to get the most out of it."
 msgstr ""
 
-#: src/Welcome.php:208
+#: src/Welcome.php:215
 msgid "Add your branding"
 msgstr ""
 
-#: src/Welcome.php:209
+#: src/Welcome.php:216
 msgid "Your logo, name and colour go on every client report."
 msgstr ""
 
-#: src/Welcome.php:210
+#: src/Welcome.php:217
 msgid "Add branding"
 msgstr ""
 
-#: src/Welcome.php:213
+#: src/Welcome.php:220
 msgid "Run a scan"
 msgstr ""
 
-#: src/Welcome.php:214
+#: src/Welcome.php:221
 msgid "Check the site's plugins and theme against the PHP version you plan to move to."
 msgstr ""
 
-#: src/Welcome.php:215
+#: src/Welcome.php:222
 msgid "See the results"
 msgstr ""
 
-#: src/Welcome.php:215
+#: src/Welcome.php:222
 msgid "Start a scan"
 msgstr ""
 
-#: src/Welcome.php:218
+#: src/Welcome.php:225
 msgid "Send a client report"
 msgstr ""
 
-#: src/Welcome.php:219
+#: src/Welcome.php:226
 msgid "Open the report, save it as a PDF, and send it on."
 msgstr ""
 
-#: src/Welcome.php:223
+#: src/Welcome.php:230
 msgid "Available after your first scan."
 msgstr ""
 
-#: src/Welcome.php:233
+#: src/Welcome.php:240
 msgid "Your licence"
 msgstr ""
 
 #. translators: 1: plan name, 2: sites used, 3: sites allowed.
-#: src/Welcome.php:240
+#: src/Welcome.php:247
 #, php-format
 msgid "Plan: %1$s. Sites using this licence: %2$d of %3$s."
 msgstr ""
 
-#: src/Welcome.php:243
+#: src/Welcome.php:250
 msgid "unlimited"
 msgstr ""
 
-#: src/Welcome.php:247
+#: src/Welcome.php:254
 msgid "This is a local or staging address, so it doesn't use up a site."
 msgstr ""
 
-#: src/Welcome.php:252
+#: src/Welcome.php:259
 msgid "Activate your licence"
 msgstr ""
 
-#: src/Welcome.php:254
+#: src/Welcome.php:261
 msgid "Manage your licence"
 msgstr ""
 
-#: src/Welcome.php:268
+#: src/Welcome.php:275
 msgid "The free plugin tells you what will break. Pro helps you plan the upgrade, show your clients, and keep watch afterwards."
 msgstr ""
 
-#: src/Welcome.php:271
+#: src/Welcome.php:278
 msgid "Version"
 msgstr ""
 
-#: src/Welcome.php:273
+#: src/Welcome.php:280
 msgid "Licence"
 msgstr ""
 
-#: src/Welcome.php:274
+#: src/Welcome.php:281
 msgid "Early access"
 msgstr ""
 
-#: src/Welcome.php:293
+#: src/Welcome.php:300
 msgid "Priority support"
 msgstr ""
 
-#: src/Welcome.php:294
+#: src/Welcome.php:301
 msgid "Pro customers get help straight from the people who make Airworthy. Tell us what you're seeing, and attach the support info file: it has the versions, settings and recent scan results we need, so we can help without a round of questions."
 msgstr ""
 
-#: src/Welcome.php:296
+#: src/Welcome.php:303
 msgid "1. Get the support info file"
 msgstr ""
 
-#: src/Welcome.php:297
+#: src/Welcome.php:304
 msgid "Made on this site when you click. Nothing is sent anywhere: you download the file and attach it to your email. Preview it first to see exactly what's in it."
 msgstr ""
 
-#: src/Welcome.php:299
+#: src/Welcome.php:306
 msgid "Download support info"
 msgstr ""
 
-#: src/Welcome.php:300
+#: src/Welcome.php:307
 msgid "Preview"
 msgstr ""
 
-#: src/Welcome.php:300
+#: src/Welcome.php:307
 msgid "(opens in a new tab)"
 msgstr ""
 
-#: src/Welcome.php:304
+#: src/Welcome.php:311
 msgid "What's in it"
 msgstr ""
 
-#: src/Welcome.php:306
+#: src/Welcome.php:313
 msgid "Airworthy, WordPress, PHP and database versions"
 msgstr ""
 
-#: src/Welcome.php:307
+#: src/Welcome.php:314
 msgid "Server limits: memory, time, web server, caching"
 msgstr ""
 
-#: src/Welcome.php:308
+#: src/Welcome.php:315
 msgid "Airworthy's settings"
 msgstr ""
 
-#: src/Welcome.php:309
+#: src/Welcome.php:316
 msgid "Your theme and plugins: names, versions, active or not"
 msgstr ""
 
-#: src/Welcome.php:310
+#: src/Welcome.php:317
 msgid "The last five scans, files that couldn't be checked, and failed background jobs"
 msgstr ""
 
-#: src/Welcome.php:314
+#: src/Welcome.php:321
 msgid "What's never in it"
 msgstr ""
 
-#: src/Welcome.php:316
+#: src/Welcome.php:323
 msgid "Your site's address, usernames, email or IP addresses"
 msgstr ""
 
-#: src/Welcome.php:317
+#: src/Welcome.php:324
 msgid "Posts, orders, donations, members or any other customer data"
 msgstr ""
 
-#: src/Welcome.php:318
+#: src/Welcome.php:325
 msgid "Passwords, keys or the contents of wp-config.php"
 msgstr ""
 
-#: src/Welcome.php:319
+#: src/Welcome.php:326
 msgid "The contents of any file. File paths start from the site's folder."
 msgstr ""
 
-#: src/Welcome.php:324
+#: src/Welcome.php:331
 msgid "2. Email us"
 msgstr ""
 
-#: src/Welcome.php:325
+#: src/Welcome.php:332
 msgid "Email support"
 msgstr ""
 

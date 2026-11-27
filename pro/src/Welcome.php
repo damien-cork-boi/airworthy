@@ -166,6 +166,13 @@ final class Welcome {
 				'link_text' => __( 'Check a zip', 'airworthy-pro' ),
 			),
 			array(
+				'title'     => __( 'Reviews with notes', 'airworthy-pro' ),
+				'text'      => __( 'Record what you decided about each plugin or theme with a problem: fixing it, waiting for the developer, or accepted. Add a note, and choose whether the client report shows it.', 'airworthy-pro' ),
+				'status'    => 'included',
+				'link'      => Reviews::url(),
+				'link_text' => __( 'Open reviews', 'airworthy-pro' ),
+			),
+			array(
 				'title'     => __( 'Fix brief for a developer or an AI', 'airworthy-pro' ),
 				'text'      => __( 'Pick a plugin or theme with problems and get a ready-to-paste brief: each problem with its file, line and the line itself, how to fix it, and rules that keep the fix small.', 'airworthy-pro' ),
 				'status'    => 'included',

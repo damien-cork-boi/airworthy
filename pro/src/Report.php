@@ -419,6 +419,10 @@ final class Report {
 							?>
 						</p>
 						<p><?php echo esc_html( self::verdict_line( $c['verdict'], $target ) ); ?></p>
+						<?php $review_note = Reviews::client_note( $c ); ?>
+						<?php if ( '' !== $review_note ) : ?>
+							<p class="review-note"><?php echo esc_html( $review_note ); ?></p>
+						<?php endif; ?>
 						<?php if ( ! empty( $findings[ $c['id'] ] ) ) : ?>
 							<div class="tech">
 								<p class="tech-title"><?php esc_html_e( 'Technical detail, for your developer', 'airworthy-pro' ); ?></p>
