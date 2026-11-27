@@ -45,8 +45,10 @@ for path in "${INCLUDE[@]}"; do
 	mkdir -p "$TARGET/$(dirname "$path")"
 	# Built libraries (plugin/vendor, a top-level vendor) aren't source. The test fixtures'
 	# own vendor/ folders are: the scanner must scan bundled library code too.
+	# The tests of Airworthy Pro (tests/pro-*.php) stay private with Pro.
 	case "$path" in
 		engine-test/*) skip=() ;;
+		tests) skip=( --exclude vendor --exclude 'pro-*.php' ) ;;
 		*) skip=( --exclude vendor ) ;;
 	esac
 	rsync -a "${skip[@]+"${skip[@]}"}" --exclude node_modules --exclude .DS_Store --exclude secret.php "$ROOT/$path" "$TARGET/$(dirname "$path")/"
@@ -81,7 +83,7 @@ open(p, "w").write(s)
 EOF
 
 echo "==> Checking nothing private was copied"
-if grep -rIilE "Advanced_Data_Table|rackspace|opencloud|ObjectStore|reversed implode|wedops|marryhq|/Users/|build-pro|pro/src|airworthy-pro[.\"/]|plugin-check-pro" "$TARGET" --exclude-dir=.git; then
+if grep -rIilE "Advanced_Data_Table|rackspace|opencloud|ObjectStore|reversed implode|wedops|marryhq|/Users/|build-pro|pro/src|AirworthyPro|airworthy-pro[.\"/]|plugin-check-pro" "$TARGET" --exclude-dir=.git; then
 	echo "ERROR: the files above mention something private (see bin/export-public.sh)." >&2
 	exit 1
 fi
