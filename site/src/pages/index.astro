@@ -3,13 +3,24 @@ import Base from '../layouts/Base.astro';
 import InstallButton from '../components/InstallButton.astro';
 import ExampleResults from '../components/ExampleResults.astro';
 import Lightbox from '../components/Lightbox.astro';
+import Icon from '../components/Icon.astro';
 import VideoPlayer from '../components/VideoPlayer.astro';
 import { SITE, COMPANY, FINDINGS_LIVE, FINDINGS_URL, PRO_LIVE } from '../config';
 import { readme, sub, boldList, videoHtml, youtubeId } from '../lib/readme';
 import fs from 'node:fs';
 
 const r = readme();
-const features = boldList( sub( 'description', 'What you get' )?.markdown || '' );
+// Short, scannable cards (the full list stays in the docs and on the WordPress.org listing).
+const features = [
+	{ icon: 'check', title: 'A verdict for every plugin', text: 'Six clear verdicts, each with one plain sentence.' },
+	{ icon: 'funnel', title: 'Fewer false alarms', text: 'Old fallback code that never runs is marked Guarded, not broken.' },
+	{ icon: 'list', title: 'Know what to do first', text: 'The next steps that matter most, in order.' },
+	{ icon: 'chat', title: 'Plain-English reasons', text: 'What changed in PHP, what happens, and how to fix it.' },
+	{ icon: 'clock', title: 'Know how long you have', text: 'See when your PHP version stops getting security fixes.' },
+	{ icon: 'shield', title: 'Security update alerts', text: 'Told when your PHP is missing the latest security release.' },
+	{ icon: 'plug', title: 'Results on the Plugins screen', text: 'Each plugin\'s verdict, right in your plugin list.' },
+	{ icon: 'server', title: 'Safe on any host', text: 'Runs inside WordPress, in short batches: no shell access, no timeouts.' },
+];
 const verdicts = boldList( sub( 'frequently-asked-questions', 'What does each verdict mean?' )?.markdown || '' );
 const cli = sub( 'description', 'WP-CLI' );
 const faq = r.sections[ 'frequently-asked-questions' ].subsections.filter( ( q ) =>
@@ -73,8 +84,9 @@ const schema = {
 			<div class="grid features">
 				{ features.map( ( f ) => (
 					<div class="card">
+						<Icon name={ f.icon } />
 						<h3>{ f.title }</h3>
-						<p set:html={ f.html } />
+						<p>{ f.text }</p>
 					</div>
 				) ) }
 			</div>

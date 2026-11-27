@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import InstallButton from '../../components/InstallButton.astro';
+import Icon from '../../components/Icon.astro';
 import { SITE, COMPANY, PRO, PRO_LIVE, PRO_BUY_OPEN, checkoutUrl } from '../../config';
 
 // /pro/ only exists once PRO.published is true (see config.ts): until then this route has no
@@ -13,20 +14,24 @@ const title = 'Airworthy Pro';
 const description = 'Do the PHP upgrade, and show your clients. An upgrade plan that ticks itself off, every PHP version in one scan, and client reports with your own branding. The check and its results stay free.';
 const features = [
 	{
+		icon: 'list',
 		title: 'Upgrade plan',
-		text: 'A step-by-step checklist built from your results: update these, replace those, back up, try it on staging, switch PHP, check again. Airworthy ticks off the steps it can see happen; you tick the ones it can\'t, like the backup.',
+		text: 'A checklist built from your results: update, replace, back up, switch. It ticks itself off as you rescan.',
 	},
 	{
+		icon: 'layers',
 		title: 'Every PHP version at once',
-		text: 'One scan shows how the site does on every PHP version side by side, and the highest version it is ready for today. You also see the version each plugin starts to break on.',
+		text: 'One scan, PHP 8.0 to 8.6 side by side, and the highest version you are ready for today.',
 	},
 	{
+		icon: 'file',
 		title: 'Client reports with your branding',
-		text: 'A plain-words report of any scan with your logo, name and colour, ready to save as a PDF and send to your client. It explains what was found and what to do next, so the client doesn\'t need to read code.',
+		text: 'A plain-words report with your logo, name and colour, ready to save as a PDF for your client.',
 	},
 	{
+		icon: 'lifebuoy',
 		title: 'Priority support, with a support file',
-		text: 'One button builds a plain-text file about the site (versions, settings, plugins, recent scans and what jobs are waiting) that you can send us, so we can see what you see. It never includes passwords, keys, customer or order data, post content, or file contents, and addresses, email addresses and IPs are masked. You can preview it before you send anything.',
+		text: 'One button builds a support file about the site, with no passwords or content, for you to send us.',
 	},
 ];
 const money = ( n: number ) => n.toLocaleString( 'en-IE' );
@@ -83,6 +88,7 @@ const schema = {
 			<div class="grid features">
 				{ features.map( ( f ) => (
 					<div class="card">
+						<Icon name={ f.icon } />
 						<h3>{ f.title }</h3>
 						<p>{ f.text }</p>
 					</div>
@@ -183,6 +189,10 @@ const schema = {
 
 	.pro-coming h3 {
 		margin-bottom: 0.4em;
+	}
+
+	.grid.features {
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
 	}
 
 	.plans {

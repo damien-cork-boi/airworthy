@@ -620,3 +620,16 @@ figcaption {
 .article-list .card h3 {
 	margin: 0.2em 0 0.4em;
 }
+
+
+/* Small icon above a feature card's heading. */
+.icon-badge {
+	display: inline-grid;
+	place-items: center;
+	width: 42px;
+	height: 42px;
+	margin-bottom: 14px;
+	border-radius: 11px;
+	background: var(--brand-soft);
+	color: var(--brand);
+}
