@@ -242,8 +242,8 @@ final class Monitor {
 	 * The daily tick: a scan when one is due, and the PHP support reminders.
 	 */
 	public static function tick() {
-		if ( ! self::enabled() ) {
-			return;
+		if ( ! self::enabled() || ! Licence::alerts_allowed() ) {
+			return; // Off, or the licence has ended: scheduled checks and emails stop.
 		}
 		self::support_reminders();
 		// An hour of slack so a daily schedule doesn't slip a day when the tick runs a little late.
@@ -368,7 +368,7 @@ final class Monitor {
 			$trigger = 'update';
 		}
 		$record = History::record( $scan_id, $trigger );
-		if ( ! $record || ! self::enabled() || 'manual' === $trigger ) {
+		if ( ! $record || ! self::enabled() || 'manual' === $trigger || ! Licence::alerts_allowed() ) {
 			return; // Someone ran it by hand: they're looking at the screen, no email.
 		}
 		$s    = self::get();

@@ -152,6 +152,20 @@ final class Welcome {
 				'link_text' => Monitor::enabled() ? __( 'See the history', 'airworthy-pro' ) : __( 'Turn on monitoring', 'airworthy-pro' ),
 			),
 			array(
+				'title'     => __( 'After-the-switch watch', 'airworthy-pro' ),
+				'text'      => __( 'Start it before your host switches PHP. It notices the switch, records every PHP error for one to three days, names the plugin behind each, and checks your main pages before and after.', 'airworthy-pro' ),
+				'status'    => 'included',
+				'link'      => WatchTab::url(),
+				'link_text' => 'idle' === Watch::state()['status'] ? __( 'Start a watch', 'airworthy-pro' ) : __( 'See the watch', 'airworthy-pro' ),
+			),
+			array(
+				'title'     => __( 'Check a zip before you install', 'airworthy-pro' ),
+				'text'      => __( 'Upload a plugin or theme zip and see whether it would work on the PHP version you are heading for, and whether it is better or worse than the one you have installed.', 'airworthy-pro' ),
+				'status'    => 'included',
+				'link'      => ZipTab::url(),
+				'link_text' => __( 'Check a zip', 'airworthy-pro' ),
+			),
+			array(
 				'title'  => __( 'Report history', 'airworthy-pro' ),
 				'text'   => __( 'Every client report kept with its date, ready to download again.', 'airworthy-pro' ),
 				'status' => 'soon',

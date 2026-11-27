@@ -100,13 +100,14 @@ final class MonitorTab {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only shows a saved message.
 		$notice  = isset( $_GET['notice'] ) ? sanitize_key( wp_unslash( $_GET['notice'] ) ) : '';
 		$on      = ! empty( $s['enabled'] );
+		$paused  = $on && ! Licence::alerts_allowed();
 		$next    = Monitor::next_run();
 		$running = $state['pending'] && (int) \Airworthy\Scan\Queue::active_scan_id() === (int) $state['pending']['scan_id'];
 		?>
 		<div class="airworthy-card airworthy-pro-monitor">
 			<h2>
 				<?php esc_html_e( 'Monitoring', 'airworthy-pro' ); ?>
-				<span class="airworthy-pro-pill <?php echo $on ? 'is-on' : 'is-off'; ?>"><?php echo $on ? esc_html__( 'On', 'airworthy-pro' ) : esc_html__( 'Off', 'airworthy-pro' ); ?></span>
+				<span class="airworthy-pro-pill <?php echo $on && ! $paused ? 'is-on' : 'is-off'; ?>"><?php echo $paused ? esc_html__( 'Paused', 'airworthy-pro' ) : ( $on ? esc_html__( 'On', 'airworthy-pro' ) : esc_html__( 'Off', 'airworthy-pro' ) ); ?></span>
 			</h2>
 			<p class="airworthy-muted"><?php esc_html_e( 'Airworthy checks your plugins and themes again on a schedule, and after any plugin or theme update, and emails you when something new would break. It only emails when something got worse.', 'airworthy-pro' ); ?></p>
 
@@ -114,7 +115,9 @@ final class MonitorTab {
 
 			<ul class="airworthy-pro-facts">
 				<li><span aria-hidden="true">🎯</span> <?php echo esc_html( sprintf( /* translators: %s: PHP version. */ __( 'Checks against PHP %s', 'airworthy-pro' ), Monitor::target() ) ); ?></li>
-				<?php if ( $on ) : ?>
+				<?php if ( $paused ) : ?>
+					<li class="is-warn"><span aria-hidden="true">⏸️</span> <?php esc_html_e( 'Your licence has ended, so scheduled checks and emails are paused. "Check now" and the history still work. Renew to switch them back on.', 'airworthy-pro' ); ?></li>
+				<?php elseif ( $on ) : ?>
 					<li><span aria-hidden="true">🗓️</span>
 						<?php
 						echo esc_html(

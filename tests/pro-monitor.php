@@ -166,6 +166,29 @@ $ok = Alerts::send_test();
 $check( 'Test email: sends one message to the chosen address', $ok && 1 === count( $mails ) );
 $check( 'Test email: has a plain-text version', ! empty( $mails ) );
 
+// ── The licence has ended: scheduled checks and emails stop, the rest keeps working ─────────
+add_filter( 'airworthy_pro_alerts_allowed', '__return_false' );
+Monitor::save( Monitor::clean( array( 'enabled' => '1', 'recipients' => 'owner@example.com' ) ) );
+Monitor::set_state( array( 'last_run' => 0, 'pending' => null ) );
+$mails = array();
+Monitor::tick();
+$check( 'Licence ended: the scheduled check does not start', 0 === Monitor::state()['last_run'] && null === Monitor::state()['pending'] );
+$rec = array(
+	'snapshot' => array( 'target' => '8.4', 'counts' => array( 'blocker' => 1, 'unknown' => 0, 'suppressed' => 0, 'guarded' => 0, 'warnings' => 0, 'ready' => 0 ), 'at' => gmdate( 'Y-m-d H:i:s' ) ),
+	'diff'     => array( 'blockers' => array( array( 'name' => 'Acme', 'from' => 'ready', 'to' => 'blocker', 'old_version' => '1', 'version' => '2' ) ), 'fixed' => array(), 'worse' => array(), 'better' => array(), 'added' => array(), 'removed' => array(), 'updated' => array(), 'target_changed' => false ),
+	'previous' => null,
+);
+$check( 'Licence ended: no alert email is sent', ! Alerts::send_changes( $rec, 'scheduled' ) && 0 === count( $mails ) );
+$check( 'Licence ended: the test email still works', Alerts::send_test() && 1 === count( $mails ) );
+wp_set_current_user( get_users( array( 'role' => 'administrator', 'number' => 1 ) )[0]->ID );
+ob_start();
+MonitorTab::render();
+$paused = ob_get_clean();
+$check( 'Licence ended: the tab says monitoring is paused', false !== strpos( $paused, 'Paused' ) && false !== strpos( $paused, 'licence has ended' ) );
+remove_filter( 'airworthy_pro_alerts_allowed', '__return_false' );
+Monitor::save( Monitor::clean( array( 'enabled' => '' ) ) );
+$mails = array();
+
 // ── Support reminders ────────────────────────────────────────────────────────────────────────
 $check( 'Support: the reminder thresholds are 90, 30 and 7 days', array( 90, 30, 7 ) === Monitor::SUPPORT_REMINDERS );
 

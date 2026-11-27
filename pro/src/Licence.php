@@ -52,6 +52,21 @@ final class Licence {
 	}
 
 	/**
+	 * Whether Pro may send alert emails and run scheduled checks on its own: yes until the
+	 * licence has ended. Everything else keeps working after expiry. Tests switch it with the
+	 * airworthy_pro_alerts_allowed filter.
+	 *
+	 * @return bool
+	 */
+	public static function alerts_allowed() {
+		static $expired = null;
+		if ( null === $expired ) {
+			$expired = self::configured() && self::STATE_EXPIRED === self::summary()['state'];
+		}
+		return (bool) apply_filters( 'airworthy_pro_alerts_allowed', ! $expired );
+	}
+
+	/**
 	 * What to show about the licence.
 	 *
 	 * @return array{state:string,plan:string,expires:int,sites_used:int,sites_quota:int,is_local:bool,account_url:string,activate_url:string,message:string}

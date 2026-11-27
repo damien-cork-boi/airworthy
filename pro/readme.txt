@@ -5,27 +5,29 @@ Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.2
 Requires Plugins: airworthy
-Stable tag: 0.4.0
+Stable tag: 0.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Monitoring with email alerts, an upgrade plan that ticks itself off, every PHP version at once, and branded client reports. An add-on for the free Airworthy plugin.
+Monitoring with email alerts, an after-the-switch watch, a zip checker, an upgrade plan that ticks itself off, every PHP version at once, and branded client reports. An add-on for the free Airworthy plugin.
 
 == Description ==
 
 Airworthy tells you which plugins and themes will break on a newer PHP version. Airworthy Pro helps you do the upgrade, show your clients, and plan ahead.
 
 * **Monitoring and email alerts.** Airworthy checks the site again on a schedule (daily, weekly or monthly) and after any plugin or theme update, and emails you when something new would break on your PHP version. A history shows what changed since the last check: new Blockers, fixed ones, plugins added or removed. It also emails once when your PHP version is 90, 30 and 7 days from the end of security fixes, or is missing the latest security release.
+* **After-the-switch watch.** Start it before your host switches PHP. Airworthy notes how your home page, newest post, login page and REST API answer today (and the cart and checkout with WooCommerce), notices the switch by itself, then for 24, 48 or 72 hours records the PHP errors, warnings and deprecations your site raises, names the plugin or theme behind each, and tells you which are new on the new PHP version and which were already there. It checks your pages again after the switch and emails you if something breaks, and when the watch is over.
+* **Check a zip before you install it.** Upload a plugin or theme zip and Airworthy tells you whether it would work on the PHP version you are heading for, and whether it is better or worse than the version you have installed. Nothing is installed or run, and the files are deleted when the check ends.
 * **Upgrade plan.** A step-by-step checklist built from your results: update these, replace those, back up, try it on staging, switch PHP, check again. Airworthy ticks steps off as it sees them happen; you tick the ones it can't see, like the backup.
 * **Every PHP version at once.** One scan against the newest PHP version shows how the site does on every version from PHP 8.0 up, side by side, and the highest version it's ready for today.
 * **Client reports.** A plain-words report of any scan with your logo, name and colour, ready to save as a PDF and send to your client.
 * **Priority support, with a support file.** One button on the Pro tab builds a plain-text file about the site (versions, settings, plugins, recent scans, waiting jobs) for you to preview and send us. It leaves out passwords, keys, customer and order data, post content and file contents, and masks site addresses, email addresses and IP addresses.
 
-Airworthy Pro needs the free Airworthy plugin (https://airworthywp.com/), installed and active. It adds "Pro", "Upgrade plan", "PHP versions", "Monitoring" and "Client report" tabs to Tools > Airworthy.
+Airworthy Pro needs the free Airworthy plugin (https://airworthywp.com/), installed and active. It adds "Pro", "Upgrade plan", "PHP versions", "Monitoring", "After the switch", "Check a zip" and "Client report" tabs to Tools > Airworthy.
 
 = Privacy =
 
-Airworthy Pro reads the results the free plugin already has on your site, and the branding you enter is stored on your site. The one thing it sends out is the licence check: when you activate your licence, and now and then to look for updates, your licence key, your site's address and the version numbers of Pro and its licensing code go to Freemius (freemius.com), the company that sells and licenses Airworthy Pro for us. Sharing anything more, such as your WordPress and PHP versions or your site title, is off unless you turn it on yourself. Your scan results never leave your site.
+Airworthy Pro reads the results the free plugin already has on your site, and the branding you enter is stored on your site. The after-the-switch watch, only while you run one, stores the PHP errors your site raises (with the server's folder names and web-address queries removed) and asks your site for its own pages; none of it leaves your site, and deleting the plugin removes it. The one thing it sends out is the licence check: when you activate your licence, and now and then to look for updates, your licence key, your site's address and the version numbers of Pro and its licensing code go to Freemius (freemius.com), the company that sells and licenses Airworthy Pro for us. Sharing anything more, such as your WordPress and PHP versions or your site title, is off unless you turn it on yourself. Your scan results never leave your site.
 
 = Support =
 
@@ -38,6 +40,11 @@ Email hello@airworthywp.com with your site's PHP version and what you're seeing.
 3. You'll land on the Pro tab, with three steps to get started.
 
 == Changelog ==
+
+= 0.5.0 =
+* After-the-switch watch. A new "After the switch" tab. Start a watch before PHP is switched: Airworthy checks your main pages, notices the switch on its own, records PHP errors for 24, 48 or 72 hours with the plugin or theme behind each, checks the pages again, and says what is new on the new PHP version, what was already there, and whether a page stopped working. Emails you if something breaks, and a summary at the end. "I already switched" starts a watch from now.
+* Check a zip. A new "Check a zip" tab: upload a plugin or theme zip, pick the PHP version, and see whether it would work and how it compares with the version you have installed. It needs the next release of the free Airworthy plugin.
+* After a licence ends, scheduled monitoring checks and alert emails now pause, as the licence terms say. "Check now", the history, reports, the plan and the watch's own results keep working.
 
 = 0.4.0 =
 * Monitoring and email alerts. A new Monitoring tab: choose daily, weekly or monthly checks, which PHP version to check against and who gets the emails. Airworthy also checks right after a plugin or theme update. It emails only when something got worse: a plugin or theme newly becomes a Blocker, optionally new Warnings, or your PHP version is close to the end of security fixes or is missing the latest security release. A check that could not finish is reported too. Checks you start by hand are saved but never emailed.

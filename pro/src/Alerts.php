@@ -153,6 +153,146 @@ final class Alerts {
 	}
 
 	/**
+	 * A fatal error showed up after the PHP switch.
+	 *
+	 * @param array $report From Watch::report().
+	 * @return bool
+	 */
+	public static function send_watch_fatal( array $report ) {
+		$php = $report['state']['php_to'];
+		/* translators: 1: PHP version, 2: site name. */
+		$subject = sprintf( __( 'Airworthy: a fatal error since the switch to PHP %1$s on %2$s', 'airworthy-pro' ), $php, self::site() );
+		$rows    = array_filter(
+			$report['new'],
+			static function ( $r ) {
+				return in_array( $r['level'], array( 'fatal', 'error' ), true );
+			}
+		);
+		$intro   = __( 'Airworthy is watching your site after the PHP switch and saw an error that stops code from running. It did not happen on the old PHP version.', 'airworthy-pro' );
+		$html    = '<p style="margin:0 0 10px">🔴 <strong>' . esc_html( $intro ) . '</strong></p>' . self::watch_list( $rows, 5 ) . self::button( WatchTab::url(), __( 'See the watch', 'airworthy-pro' ) );
+		$text    = '🔴 ' . $intro . "\n\n" . self::watch_list_text( $rows, 5 ) . "\n" . WatchTab::url() . "\n";
+		return self::deliver( $subject, __( 'A fatal error after the switch', 'airworthy-pro' ), $html, $text, false, WatchTab::url(), __( 'you started an after-the-switch watch', 'airworthy-pro' ) );
+	}
+
+	/**
+	 * The watch is over: what it found.
+	 *
+	 * @param array $report From Watch::report().
+	 * @return bool
+	 */
+	public static function send_watch_done( array $report ) {
+		$php    = $report['state']['php_to'];
+		$symbol = array(
+			'ok'   => '✅',
+			'warn' => '🟡',
+			'bad'  => '🔴',
+		);
+		$sym    = isset( $symbol[ $report['level'] ] ) ? $symbol[ $report['level'] ] : '✅';
+		/* translators: 1: PHP version, 2: site name, 3: the result in a few words. */
+		$subject = sprintf( __( 'Airworthy: the PHP %1$s watch is over on %2$s: %3$s', 'airworthy-pro' ), $php, self::site(), strtolower( $report['headline'] ) );
+
+		$parts = array();
+		$text  = $sym . ' ' . $report['headline'] . "\n\n";
+		$html  = '<p style="margin:0 0 10px;font-size:16px">' . $sym . ' <strong>' . esc_html( $report['headline'] ) . '</strong></p>';
+		/* translators: 1: PHP version, 2: hours. */
+		$line  = sprintf( __( 'Airworthy watched this site for %2$d hours after the switch to PHP %1$s.', 'airworthy-pro' ), $php, (int) $report['state']['window'] );
+		$html .= '<p style="margin:0 0 12px;color:#4f5d6e">' . esc_html( $line ) . '</p>';
+		$text .= $line . "\n\n";
+
+		if ( $report['new'] ) {
+			$html .= '<h2 style="margin:18px 0 6px;font-size:16px">' . esc_html__( 'New on this PHP version', 'airworthy-pro' ) . '</h2>' . self::watch_list( $report['new'], 8 );
+			$text .= __( 'New on this PHP version', 'airworthy-pro' ) . ":\n" . self::watch_list_text( $report['new'], 8 ) . "\n";
+		} else {
+			$none  = __( 'No new errors or warnings were recorded.', 'airworthy-pro' );
+			$html .= '<p style="margin:0 0 8px">' . esc_html( $none ) . '</p>';
+			$text .= $none . "\n\n";
+		}
+		foreach ( $report['pages'] as $p ) {
+			if ( in_array( $p['change'], array( 'worse', 'slower' ), true ) ) {
+				$parts[] = self::page_line( $p );
+			}
+		}
+		if ( $parts ) {
+			$html .= '<h2 style="margin:18px 0 6px;font-size:16px">' . esc_html__( 'Pages', 'airworthy-pro' ) . '</h2><ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.6">';
+			foreach ( $parts as $part ) {
+				$html .= '<li>' . esc_html( $part ) . '</li>';
+			}
+			$html .= '</ul>';
+			$text .= __( 'Pages', 'airworthy-pro' ) . ":\n- " . implode( "\n- ", $parts ) . "\n\n";
+		}
+		$html .= self::button( WatchTab::url(), __( 'See the full report', 'airworthy-pro' ) );
+		$text .= WatchTab::url() . "\n";
+		return self::deliver( $subject, __( 'Your after-the-switch watch is over', 'airworthy-pro' ), $html, $text, false, WatchTab::url(), __( 'you started an after-the-switch watch', 'airworthy-pro' ) );
+	}
+
+	/**
+	 * A page that changed, in a sentence.
+	 *
+	 * @param array $p Row from Pages::compare().
+	 * @return string
+	 */
+	public static function page_line( array $p ) {
+		if ( 'slower' === $p['change'] ) {
+			/* translators: 1: page name, 2: milliseconds before, 3: milliseconds after. */
+			return sprintf( __( '%1$s is slower: %2$d ms before, %3$d ms now', 'airworthy-pro' ), $p['label'], (int) $p['before']['ms'], (int) $p['after']['ms'] );
+		}
+		$states = array(
+			'ok'          => __( 'answers normally', 'airworthy-pro' ),
+			'missing'     => __( 'says the page was not found', 'airworthy-pro' ),
+			'shows_error' => __( 'shows an error on the page', 'airworthy-pro' ),
+			'error'       => __( 'fails with a server error', 'airworthy-pro' ),
+		);
+		$now    = $p['after'] && isset( $states[ $p['after']['state'] ] ) ? $states[ $p['after']['state'] ] : '';
+		/* translators: 1: page name, 2: what it does now. */
+		return sprintf( __( '%1$s now %2$s', 'airworthy-pro' ), $p['label'], $now );
+	}
+
+	/**
+	 * A list of recorded errors as HTML.
+	 *
+	 * @param array $rows  Rows from Watch::report().
+	 * @param int   $limit How many to show.
+	 * @return string
+	 */
+	private static function watch_list( array $rows, $limit ) {
+		$html = '<ul style="margin:0 0 8px;padding-left:20px;font-size:14px;line-height:1.6">';
+		foreach ( array_slice( array_values( $rows ), 0, $limit ) as $r ) {
+			$html .= '<li>' . esc_html( self::watch_row_text( $r ) ) . '</li>';
+		}
+		if ( count( $rows ) > $limit ) {
+			/* translators: %d: number of further items. */
+			$html .= '<li>' . esc_html( sprintf( __( 'and %d more', 'airworthy-pro' ), count( $rows ) - $limit ) ) . '</li>';
+		}
+		return $html . '</ul>';
+	}
+
+	/**
+	 * A list of recorded errors as text.
+	 *
+	 * @param array $rows  Rows.
+	 * @param int   $limit How many to show.
+	 * @return string
+	 */
+	private static function watch_list_text( array $rows, $limit ) {
+		$out = '';
+		foreach ( array_slice( array_values( $rows ), 0, $limit ) as $r ) {
+			$out .= '- ' . self::watch_row_text( $r ) . "\n";
+		}
+		return $out;
+	}
+
+	/**
+	 * One recorded error in a sentence.
+	 *
+	 * @param array $r Row.
+	 * @return string
+	 */
+	public static function watch_row_text( array $r ) {
+		/* translators: 1: plugin or theme, 2: message, 3: file and line, 4: how many times. */
+		return sprintf( _n( '%1$s: %2$s (%3$s, %4$d time)', '%1$s: %2$s (%3$s, %4$d times)', max( 1, (int) $r['to'] ), 'airworthy-pro' ), $r['name'], $r['msg'], $r['file'] . ':' . $r['line'], (int) $r['to'] );
+	}
+
+	/**
 	 * A test message, so the owner can see the emails arrive.
 	 *
 	 * @return bool
@@ -162,7 +302,7 @@ final class Alerts {
 		$subject = sprintf( __( 'Airworthy: test email from %s', 'airworthy-pro' ), self::site() );
 		$body    = __( 'This is a test. If you can read it, Airworthy\'s monitoring emails will reach this address.', 'airworthy-pro' );
 		$html    = '<p style="margin:0 0 14px">✅ ' . esc_html( $body ) . '</p>' . self::button( self::monitor_url(), __( 'Monitoring settings', 'airworthy-pro' ) );
-		return self::deliver( $subject, __( 'Test email', 'airworthy-pro' ), $html, '✅ ' . $body . "\n\n" . self::monitor_url() . "\n" );
+		return self::deliver( $subject, __( 'Test email', 'airworthy-pro' ), $html, '✅ ' . $body . "\n\n" . self::monitor_url() . "\n", true );
 	}
 
 	/**
@@ -171,19 +311,25 @@ final class Alerts {
 	 * @param string $subject Subject.
 	 * @param string $title   Heading inside the email.
 	 * @param string $html    Body HTML.
-	 * @param string $text    Plain-text version.
+	 * @param string $text       Plain-text version.
+	 * @param bool   $force      Send even when alerts are paused (the test email).
+	 * @param string $footer_url Where "change or stop it" points; the Monitoring tab by default.
+	 * @param string $footer_why Why they get it, as in "monitoring is on".
 	 * @return bool Whether WordPress accepted it for every recipient.
 	 */
-	private static function deliver( $subject, $title, $html, $text ) {
+	private static function deliver( $subject, $title, $html, $text, $force = false, $footer_url = '', $footer_why = '' ) {
 		$to = self::recipients();
-		if ( ! $to ) {
-			return false;
+		if ( ! $to || ( ! $force && ! Licence::alerts_allowed() ) ) {
+			return false; // Nobody to tell, or the licence has ended (alerts stop; the test email still works).
 		}
+		$footer_url  = '' !== $footer_url ? $footer_url : self::monitor_url();
+		$footer_why  = '' !== $footer_why ? $footer_why : __( 'monitoring is on', 'airworthy-pro' );
 		$footer_text = sprintf(
-			/* translators: 1: site address, 2: settings link. */
-			__( 'You get this because monitoring is on for %1$s. Change or stop it here: %2$s', 'airworthy-pro' ),
+			/* translators: 1: why they get it, 2: site address, 3: settings link. */
+			__( 'You get this because %1$s for %2$s. Change or stop it here: %3$s', 'airworthy-pro' ),
+			$footer_why,
 			wp_parse_url( home_url(), PHP_URL_HOST ),
-			self::monitor_url()
+			$footer_url
 		);
 		$page = self::wrap( $title, $html, $footer_text );
 		$alt  = static function ( $mailer ) use ( $text, $footer_text ) {
