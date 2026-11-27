@@ -42,6 +42,10 @@ $check( 'Unknown targets are refused', ! Targets::is_valid( '9.0' ) && ! Targets
 $check( 'Support table checked within the last 13 months', ( time() - $day( Targets::TABLE_CHECKED ) ) < 395 * DAY_IN_SECONDS, 'Update Targets::SECURITY_UNTIL (docs/RELEASE.md)' );
 
 // --- Verdict order.
+$check( 'Readiness: no Blocker and nothing unchecked is 100%', 100 === Verdict::readiness( array( 'ready' => 40, 'warnings' => 6, 'guarded' => 2, 'suppressed' => 2 ) )['percent'] );
+$check( 'Readiness: Blockers and Unknown count against it, the rest count for it', array( 'percent' => 92, 'ready' => 46, 'total' => 50 ) === Verdict::readiness( array( 'blocker' => 3, 'unknown' => 1, 'warnings' => 6, 'ready' => 40 ) ) );
+$check( 'Readiness: rounded down, so 100% always means all of them', 99 === Verdict::readiness( array( 'blocker' => 1, 'ready' => 199 ) )['percent'] && 0 === Verdict::readiness( array( 'blocker' => 5 ) )['percent'] );
+$check( 'Readiness: nothing scanned gives no score', null === Verdict::readiness( array() )['percent'] );
 $check( 'Verdict: plain error is Blocker', Verdict::BLOCKER === Verdict::from_counts( array( 'errors' => 1, 'files_failed' => 1 ) ) );
 $check( 'Verdict: Requires PHP too high is Blocker', Verdict::BLOCKER === Verdict::from_counts( array( 'requires_php_too_high' => 1 ) ) );
 $check( 'Verdict: unreadable file is Unknown', Verdict::UNKNOWN === Verdict::from_counts( array( 'files_skipped' => 1, 'suppressed' => 2 ) ) );
@@ -200,6 +204,10 @@ if ( is_multisite() ) {
 wp_set_current_user( $admin_id );
 list( $status, $data ) = $call( 'GET', "/scans/$scan_id" );
 $check( 'REST: administrators can read results', 200 === $status, (string) $status );
+$sum = array_sum( $data['counts'] );
+$check( 'REST: a scan carries its readiness score, matching its counts', isset( $data['readiness'] ) && $data['readiness'] === Verdict::readiness( $data['counts'] ) && $data['readiness']['total'] === $sum, wp_json_encode( $data['readiness'] ?? null ) );
+$widget_line = \Airworthy\Admin\DashboardWidget::score_line();
+$check( 'Dashboard widget: shows the score line from the latest finished scan', '' !== $widget_line && false !== strpos( $widget_line, '%' ) );
 list( $status, $data ) = $call( 'GET', "/scans/$scan_id/components/$comp_id/issues" );
 $paths = wp_json_encode( $data );
 $check( 'REST: findings list relative paths only', 200 === $status && false === strpos( $paths, WP_CONTENT_DIR ) && false === strpos( $paths, ABSPATH ), substr( $paths, 0, 200 ) );
@@ -459,6 +467,127 @@ $ph = \Airworthy\Admin\SiteHealth::run_patch( '8.3.35', $rel, $b_unknown );
 $check( 'Site Health: an unreadable build date is recommended, never critical', 'recommended' === $ph['status'] && false !== strpos( $ph['label'], 'can\'t tell' ), $ph['label'] );
 $ph = \Airworthy\Admin\SiteHealth::run_patch( '8.1.33', $rel, $b_unknown );
 $check( 'Site Health: a version that gets no fix is critical when the release is', 'critical' === $ph['status'] && false !== strpos( $ph['label'], 'no longer gets' ), $ph['label'] );
+
+// "Does updating fix it?": looking inside a waiting update before it is installed.
+$uc     = \Airworthy\Scan\UpdateCheck::class;
+$latest = $uc::latest_scan();
+$check( 'Update check: only https zips from downloads.wordpress.org are fetched', $uc::allowed_package( 'https://downloads.wordpress.org/plugin/foo.1.2.zip' ) && $uc::allowed_package( 'https://downloads.wordpress.org/theme/twentytwentyfive.1.0.zip' ) && ! $uc::allowed_package( 'http://downloads.wordpress.org/plugin/foo.zip' ) && ! $uc::allowed_package( 'https://example.com/plugin/foo.zip' ) && ! $uc::allowed_package( 'https://downloads.wordpress.org.evil.example/plugin/foo.zip' ) && ! $uc::allowed_package( 'https://downloads.wordpress.org/other/foo.zip' ) && ! $uc::allowed_package( '' ) );
+$set_updates = static function ( $package ) {
+	set_site_transient( 'update_plugins', (object) array( 'last_checked' => time(), 'response' => array( 'fx-implode/fx-implode.php' => (object) array( 'slug' => 'fx-implode', 'new_version' => '9.9.9', 'package' => $package ) ), 'no_update' => array() ) );
+};
+$set_updates( 'https://downloads.wordpress.org/plugin/fx-implode.9.9.9.zip' );
+$all = \Airworthy\Scan\Updates::all();
+$check( 'Update check: an update from WordPress.org is marked checkable', ! empty( $all['plugin|fx-implode']['checkable'] ), wp_json_encode( $all['plugin|fx-implode'] ?? null ) );
+$set_updates( 'https://vendor.example.com/fx-implode.zip' );
+$all = \Airworthy\Scan\Updates::all();
+$check( 'Update check: an update from anywhere else is not', isset( $all['plugin|fx-implode'] ) && false === $all['plugin|fx-implode']['checkable'] );
+$r = $uc::run( 'plugin', 'fx-implode' );
+$check( 'Update check: an update from another server is not looked inside', 'problem' === $r['status'] && 'unavailable' === $r['code'], wp_json_encode( $r ) );
+$r = $uc::run( 'plugin', 'no-such-plugin' );
+$check( 'Update check: no update waiting says so', 'problem' === $r['status'] && 'no_update' === $r['code'] );
+$set_updates( 'https://downloads.wordpress.org/plugin/fx-implode.9.9.9.zip' );
+$consent_was = get_site_option( 'airworthy_wporg_consent', null );
+update_site_option( 'airworthy_wporg_consent', 'no' );
+$r = $uc::run( 'plugin', 'fx-implode' );
+$check( 'Update check: nothing is downloaded without WordPress.org consent', 'problem' === $r['status'] && 'needs_consent' === $r['code'], wp_json_encode( $r ) );
+if ( null === $consent_was ) {
+	delete_site_option( 'airworthy_wporg_consent' );
+} else {
+	update_site_option( 'airworthy_wporg_consent', $consent_was );
+}
+list( $status, $data ) = $call( 'POST', '/updates/check', array( 'type' => 'plugin', 'slug' => 'no-such-plugin' ) );
+$check( 'Update check: REST answers an administrator', 200 === $status && 'problem' === $data['status'], (string) $status );
+wp_set_current_user( $editor_id );
+list( $status ) = $call( 'POST', '/updates/check', array( 'type' => 'plugin', 'slug' => 'fx-implode' ) );
+$check( 'Update check: REST is closed to users who cannot scan', in_array( $status, array( 401, 403 ), true ), (string) $status );
+wp_set_current_user( $admin_id );
+
+if ( class_exists( 'ZipArchive' ) ) {
+	// Its own finished scan, so these checks do not depend on what the earlier steps left behind.
+	$now = gmdate( 'Y-m-d H:i:s' );
+	$wpdb->insert( $t['scans'], array( 'target_php' => '8.4', 'from_php' => '', 'status' => 'complete', 'created_at' => $now, 'finished_at' => $now ) ); // phpcs:ignore
+	$fake_scan = (int) $wpdb->insert_id;
+	foreach ( array( 'fx-implode' => array( 'blocker', 1 ), 'fx-ready' => array( 'ready', 0 ) ) as $fake_slug => $fake ) {
+		$wpdb->insert( $t['components'], array( 'scan_id' => $fake_scan, 'type' => 'plugin', 'slug' => $fake_slug, 'name' => $fake_slug, 'version' => '1.0', 'rel_path' => "$fake_slug/$fake_slug.php", 'status' => 'done', 'verdict' => $fake[0], 'errors' => $fake[1] ) ); // phpcs:ignore
+	}
+	$latest = $uc::latest_scan();
+	$check( 'Update check: the latest finished scan is the one the check compares with', (int) $latest->id === $fake_scan );
+	$make_zip = static function ( array $files ) {
+		$path = wp_tempnam( 'aw-test-zip' );
+		$za   = new ZipArchive();
+		$za->open( $path, ZipArchive::OVERWRITE );
+		foreach ( $files as $name => $code ) {
+			$za->addFromString( $name, $code );
+		}
+		$za->close();
+		return $path;
+	};
+	$run_job  = static function ( $zip, array $meta ) use ( $uc, $latest ) {
+		$job = $uc::from_zip( $zip, (string) $latest->target_php, (string) $latest->from_php, $meta );
+		if ( is_wp_error( $job ) ) {
+			return $job;
+		}
+		$r = array();
+		for ( $i = 0; $i < 80; $i++ ) {
+			$r = $uc::advance( $job );
+			if ( 'running' !== $r['status'] ) {
+				break;
+			}
+		}
+		return $r;
+	};
+	$fixed_code = "<?php\n/**\n * Plugin Name: FX Implode\n */\nfunction fx_implode_cell( \$values ) {\n\treturn '<td>' . implode( ', ', (array) \$values ) . '</td>';\n}\n";
+	$broken     = "<?php\n/**\n * Plugin Name: FX Implode\n */\nfunction fx_implode_cell( \$values ) {\n\treturn '<td>' . implode( (array) \$values, ', ' ) . '</td>';\n}\n";
+	$scans_before = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t['scans']}" ); // phpcs:ignore
+	$comps_before = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t['components']}" ); // phpcs:ignore
+	$meta         = array( 'type' => 'plugin', 'slug' => 'fx-implode', 'version' => '9.9.9' );
+
+	$zip = $make_zip( array( 'fx-implode/fx-implode.php' => $fixed_code ) );
+	$r   = $run_job( $zip, $meta );
+	wp_delete_file( $zip );
+	$check( 'Update check: a fixed update says it fixes the Blocker', is_array( $r ) && 'done' === $r['status'] && 'fixes' === $r['outcome'] && 'blocker' === $r['before']['verdict'] && 'ready' === $r['after']['verdict'], wp_json_encode( $r ) );
+	$check( 'Update check: the answer is a sentence naming the version and PHP version', is_array( $r ) && false !== strpos( $r['message'], '9.9.9' ) && false !== strpos( $r['message'], (string) $latest->target_php ), wp_json_encode( $r['message'] ?? null ) );
+
+	$zip = $make_zip( array( 'fx-implode/fx-implode.php' => $broken ) );
+	$r   = $run_job( $zip, $meta );
+	wp_delete_file( $zip );
+	$check( 'Update check: an update that is still broken says nothing changes, and shows where', is_array( $r ) && 'done' === $r['status'] && 'same' === $r['outcome'] && ! empty( $r['samples'] ) && 'fx-implode.php' === $r['samples'][0]['file'], wp_json_encode( $r ) );
+
+	$zip = $make_zip( array( 'fx-ready/fx-ready.php' => $broken ) );
+	$r   = $run_job( $zip, array( 'type' => 'plugin', 'slug' => 'fx-ready', 'version' => '2.0' ) );
+	wp_delete_file( $zip );
+	$check( 'Update check: an update that would break a working plugin is called worse', is_array( $r ) && 'done' === $r['status'] && 'worse' === $r['outcome'] && false !== strpos( $r['message'], 'Careful' ), wp_json_encode( $r ) );
+
+	$zip = $make_zip( array( 'brand-new/brand-new.php' => $fixed_code ) );
+	$r   = $run_job( $zip, array() );
+	wp_delete_file( $zip );
+	$check( 'Update check: a zip with no installed counterpart is judged on its own', is_array( $r ) && 'done' === $r['status'] && 'ok' === $r['outcome'] && null === $r['before'], wp_json_encode( $r ) );
+
+	$zip = $make_zip( array( '../evil.php' => '<?php // x' ) );
+	$r   = $uc::from_zip( $zip, (string) $latest->target_php, '', array() );
+	wp_delete_file( $zip );
+	$check( 'Update check: a zip with a path that climbs out is refused', is_wp_error( $r ) );
+	$notzip = wp_tempnam( 'aw-test-notzip' );
+	file_put_contents( $notzip, 'not a zip' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+	$r = $uc::from_zip( $notzip, (string) $latest->target_php, '', array() );
+	wp_delete_file( $notzip );
+	$check( 'Update check: a file that is not a zip is refused', is_wp_error( $r ) );
+
+	$check( 'Update check: nothing was saved to the scan tables', $scans_before === (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t['scans']}" ) && $comps_before === (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t['components']}" ) ); // phpcs:ignore
+	$left = glob( trailingslashit( get_temp_dir() ) . $uc::TEMP_PREFIX . '*' );
+	$check( 'Update check: the unpacked folders are deleted when the check ends', empty( $left ), wp_json_encode( $left ) );
+	wp_clear_scheduled_hook( $uc::CLEANUP_HOOK );
+
+	$out = $uc::outcome( array( 'verdict' => 'blocker', 'errors' => 12, 'warnings' => 0 ), array( 'verdict' => 'blocker', 'errors' => 3, 'warnings' => 0, 'unchecked' => 0 ) );
+	$check( 'Update check: fewer problems but still a Blocker is "better"', 'better' === $out );
+	$unchecked = $uc::result( array( 'meta' => array(), 'target' => '8.4', 'counts' => array( 'errors' => 0, 'guarded' => 0, 'suppressed' => 0, 'warnings' => 0, 'files_failed' => 2, 'files_skipped' => 0 ), 'samples' => array() ) );
+	$check( 'Update check: files that could not be checked make the answer "unknown", not "ok"', 'unknown' === $unchecked['outcome'] && 2 === $unchecked['after']['unchecked'] && false !== strpos( $unchecked['message'], 'could not be checked' ), wp_json_encode( $unchecked['message'] ) );
+	$wpdb->delete( $t['components'], array( 'scan_id' => $fake_scan ) ); // phpcs:ignore
+	$wpdb->delete( $t['scans'], array( 'id' => $fake_scan ) ); // phpcs:ignore
+} else {
+	echo "SKIP  no ZipArchive: zip checks not run\n";
+}
+delete_site_transient( 'update_plugins' );
 
 wp_delete_user( (int) $editor_id );
 if ( isset( $site_admin ) ) {

@@ -909,8 +909,68 @@
 				{ href: c.update.url, 'aria-label': sprintf( /* translators: %s: plugin or theme name. */ __( 'Update %s now', 'airworthy' ), c.name ) },
 				__( 'Update now', 'airworthy' )
 			) : null,
-			fixable ? el( 'span', { class : 'airworthy-muted' }, __( 'The update may clear these findings; Airworthy checks again after you update.', 'airworthy' ) ) : null
+			fixable ? el( 'span', { class : 'airworthy-muted' }, __( 'The update may clear these findings; Airworthy checks again after you update.', 'airworthy' ) ) : null,
+			c.update.checkable ? updateCheck( c ) : null
 		);
+	}
+
+	/**
+	 * "Check the update first": downloads the waiting update from WordPress.org, runs the same
+	 * checks on it without installing anything, and says whether updating fixes the findings.
+	 * The server does the work in steps; this asks again until it is done.
+	 */
+	function updateCheck( c ) {
+		var out    = el( 'span', { class: 'airworthy-update-result', role: 'status' } );
+		var list   = el( 'ul', { class: 'airworthy-update-samples' } );
+		var button = el(
+			'button',
+			{
+				type: 'button',
+				class: 'button-link airworthy-update-check',
+				onclick: function () {
+					run();
+				},
+			},
+			__( 'Check the update first', 'airworthy' )
+		);
+		var show   = function ( text, kind ) {
+			out.textContent = text;
+			out.className   = 'airworthy-update-result' + ( kind ? ' is-' + kind : '' );
+		};
+		var done   = function ( text, kind ) {
+			button.disabled = false;
+			show( text, kind );
+			announce( text );
+		};
+		var handle = function ( r ) {
+			if ( 'running' === r.status ) {
+				show( sprintf( /* translators: %d: percent. */ __( 'Checking the update… %d%%', 'airworthy' ), r.percent ), 'busy' );
+				return apiFetch( { path: REST + '/updates/check/continue', method: 'POST', data: { job: r.job } } ).then( handle );
+			}
+			if ( 'done' === r.status ) {
+				var kind = 'fixes' === r.outcome || 'ok' === r.outcome ? 'good' : ( 'worse' === r.outcome || 'blocker' === r.outcome ? 'bad' : '' );
+				done( ( 'good' === kind ? '✓ ' : ( 'bad' === kind ? '! ' : '' ) ) + r.message, kind );
+				list.textContent = '';
+				( 'good' === kind ? [] : ( r.samples || [] ).slice( 0, 3 ) ).forEach(
+					function ( smp ) {
+						list.appendChild( el( 'li', null, el( 'code', null, smp.file + ':' + smp.line ), ' ' + smp.message ) );
+					}
+				);
+				return;
+			}
+			done( r.message || __( 'The check could not be run. Try again.', 'airworthy' ), 'bad' );
+		};
+		var run    = function () {
+			button.disabled  = true;
+			list.textContent = '';
+			show( __( 'Checking the update…', 'airworthy' ), 'busy' );
+			apiFetch( { path: REST + '/updates/check', method: 'POST', data: { type: c.type, slug: c.slug } } ).then( handle ).catch(
+				function () {
+					done( __( 'The check could not be run. Try again.', 'airworthy' ), 'bad' );
+				}
+			);
+		};
+		return el( 'span', { class: 'airworthy-update-check-box' }, button, out, list );
 	}
 
 	/**
@@ -1309,11 +1369,25 @@
 							scan.target_php
 						) :
 						__( 'Test on a staging copy before you switch all the same: some problems only show up when code runs.', 'airworthy' ) ) );
+			// "92% ready": the share of plugins and themes with no Blocker and nothing left unchecked.
+			var readiness = scan.readiness && null !== scan.readiness.percent ? scan.readiness : null;
+			var scoreEl   = readiness ? el(
+				'div',
+				{
+					class: 'airworthy-score',
+					/* translators: 1: number ready, 2: number of plugins and themes. */
+					title: sprintf( __( '%1$d of %2$d plugins and themes have no Blocker and nothing left unchecked.', 'airworthy' ), readiness.ready, readiness.total ),
+				},
+				el( 'strong', null, readiness.percent + '%' ),
+				/* translators: %s: PHP version. */
+				el( 'span', null, sprintf( __( 'ready for PHP %s', 'airworthy' ), scan.target_php ) )
+			) : null;
 			headline = el(
 				'div',
 				{ class: 'airworthy-headline airworthy-headline-' + kind },
 				el( 'span', { class: 'airworthy-headline-icon', 'aria-hidden': 'true' }, 'good' === kind ? '✓' : ( 'bad' === kind ? '!' : '?' ) ),
-				el( 'div', null, el( 'strong', null, title ), el( 'p', null, sub ) )
+				el( 'div', { class: 'airworthy-headline-body' }, el( 'strong', null, title ), el( 'p', null, sub ) ),
+				scoreEl
 			);
 		}
 
@@ -1892,6 +1966,12 @@
 			'',
 			overall,
 		];
+		if ( 'complete' === scan.status && scan.readiness && null !== scan.readiness.percent ) {
+			lines.push(
+				/* translators: 1: percent, 2: number ready, 3: number of plugins and themes, 4: PHP version. */
+				sprintf( __( 'Readiness: %1$d%% (%2$d of %3$d plugins and themes ready for PHP %4$s)', 'airworthy' ), scan.readiness.percent, scan.readiness.ready, scan.readiness.total, scan.target_php )
+			);
+		}
 
 		resultGroups( scan, components ).forEach(
 			function ( g ) {

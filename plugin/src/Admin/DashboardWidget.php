@@ -7,6 +7,7 @@
 
 namespace Airworthy\Admin;
 
+use Airworthy\Scan\Verdict;
 use Airworthy\Capabilities;
 use Airworthy\Env;
 use Airworthy\Targets;
@@ -94,6 +95,39 @@ final class DashboardWidget {
 	}
 
 	/**
+	 * "92% of your plugins and themes are ready for PHP 8.4", from the latest finished scan.
+	 *
+	 * @return string Empty when there is no finished scan.
+	 */
+	public static function score_line() {
+		$scan = SiteHealth::latest_scan();
+		if ( ! $scan ) {
+			return '';
+		}
+		$r = Verdict::readiness(
+			array(
+				Verdict::BLOCKER    => $scan->count_blocker,
+				Verdict::UNKNOWN    => $scan->count_unknown,
+				Verdict::SUPPRESSED => $scan->count_suppressed,
+				Verdict::GUARDED    => $scan->count_guarded,
+				Verdict::WARNINGS   => $scan->count_warnings,
+				Verdict::READY      => $scan->count_ready,
+			)
+		);
+		if ( null === $r['percent'] ) {
+			return '';
+		}
+		return sprintf(
+			/* translators: 1: percent, 2: number ready, 3: number of plugins and themes, 4: PHP version. */
+			__( '📊 %1$d%% ready for PHP %4$s (%2$d of %3$d plugins and themes)', 'airworthy' ),
+			$r['percent'],
+			$r['ready'],
+			$r['total'],
+			$scan->target_php
+		);
+	}
+
+	/**
 	 * Draws the widget.
 	 */
 	public static function render() {
@@ -102,6 +136,10 @@ final class DashboardWidget {
 		?>
 		<div class="airworthy-widget is-<?php echo esc_attr( $status ); ?>">
 			<p><span class="airworthy-dot" aria-hidden="true"></span><strong><?php echo esc_html( $result['label'] ); ?></strong></p>
+			<?php $score = self::score_line(); ?>
+			<?php if ( '' !== $score ) : ?>
+				<p class="airworthy-widget-score"><?php echo esc_html( $score ); ?></p>
+			<?php endif; ?>
 			<?php echo wp_kses_post( $result['description'] ); ?>
 			<?php echo wp_kses_post( $result['actions'] ); ?>
 			<?php if ( self::pro_line_visible() ) : ?>
