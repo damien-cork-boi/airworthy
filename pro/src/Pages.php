@@ -43,10 +43,9 @@ final class Pages {
 
 		$posts = get_posts(
 			array(
-				'numberposts'      => 1,
-				'post_status'      => 'publish',
-				'post_type'        => 'post',
-				'suppress_filters' => true,
+				'numberposts' => 1,
+				'post_status' => 'publish',
+				'post_type'   => 'post',
 			)
 		);
 		if ( $posts ) {

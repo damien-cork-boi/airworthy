@@ -9,7 +9,7 @@ Stable tag: 0.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Monitoring with email alerts, an after-the-switch watch, a zip checker, an upgrade plan that ticks itself off, every PHP version at once, and branded client reports. An add-on for the free Airworthy plugin.
+Monitoring with email alerts, an after-the-switch watch, a zip checker, an upgrade plan and client reports. Add-on for the free Airworthy plugin.
 
 == Description ==
 
