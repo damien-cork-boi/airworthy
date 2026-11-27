@@ -180,6 +180,10 @@ No. Every verdict, finding, explanation and export is free, on as many sites as 
 
 Yes. Airworthy is free and GPL-licensed, with no limit on sites and no account. Agencies often run it from WP-CLI (`wp airworthy scan --target=8.4 --fail-on=blocker`) across all their sites, and use Copy summary or the CSV export for each client.
 
+= Is there a paid version? =
+
+Yes, but only for extras. Airworthy Pro is a separate add-on, sold at https://airworthywp.com/pro/, that turns your results into an ordered upgrade plan that ticks itself off, shows every PHP version side by side, and makes branded reports you can send to clients. The check and its results stay free: nothing in this plugin is limited, locked or time-limited, and it needs no account or licence.
+
 = Does Airworthy protect my site from PHP security vulnerabilities, such as CVE-2026-109618 and CVE-2026-109619? =
 
 No. Airworthy doesn't patch PHP or block attacks; only a PHP update from your host does that. What it does is tell you whether your server's PHP has the latest PHP security fixes it knows of (currently the release of 21 October 2026, which fixed those two), on its start screen, in the results and in Tools > Site Health. A version number alone can't settle that: hosts on CloudLinux, cPanel, Plesk, Debian, Ubuntu or Red Hat ship the fixes as an update that keeps the old version number. So Airworthy also reads when your PHP was built. Built on or after the release day, it very likely has the fixes (Airworthy says so, and suggests confirming with your host). Built before, on one of those hosts, Airworthy asks you to get your host to apply the PHP update. Built before anywhere else, it's flagged as missing the fixes. When the build date can't be read, Airworthy says it can't tell from the version alone and to ask your host. The release data is bundled with the plugin, so Airworthy learns about a new PHP security release when it is itself updated.
