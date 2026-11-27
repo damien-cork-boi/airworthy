@@ -5,6 +5,7 @@
 //     banner-772x250.png, banner-1544x500.png   from source/banner.html
 //   Website (public/):
 //     favicon.svg (copy of icon.svg), apple-touch-icon.png (180x180), og.png (1200x630)
+//   Social profile header (../assets/mastodon-header-1500x500.png): the banner layout at 3:1
 //
 // Usage: npm run brand   (needs Google Chrome installed; set CHROME_PATH if it isn't found)
 import fs from 'node:fs';
@@ -45,6 +46,7 @@ const banner = 'file://' + path.join( assets, 'source', 'banner.html' );
 await render( banner + '?layout=banner', path.join( assets, 'banner-772x250.png' ), 772, 250, 1 );
 await render( banner + '?layout=banner', path.join( assets, 'banner-1544x500.png' ), 772, 250, 2 );
 await render( banner + '?layout=og', path.join( site, 'public', 'og.png' ), 1200, 630, 1 );
+await render( banner + '?layout=banner', path.join( assets, 'mastodon-header-1500x500.png' ), 750, 250, 2 ); // Mastodon asks for 1500x500.
 
 fs.rmSync( path.join( assets, 'source', 'icon-render.html' ) );
 fs.copyFileSync( path.join( assets, 'icon.svg' ), path.join( site, 'public', 'favicon.svg' ) );
