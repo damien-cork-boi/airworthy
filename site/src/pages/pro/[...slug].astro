@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import InstallButton from '../../components/InstallButton.astro';
-import { SITE, COMPANY, PRO, PRO_LIVE } from '../../config';
+import { SITE, COMPANY, PRO, PRO_LIVE, PRO_BUY_OPEN, checkoutUrl } from '../../config';
 
 // /pro/ only exists once PRO.published is true (see config.ts): until then this route has no
 // pages, so nothing is published, linked or listed in the sitemap.
@@ -111,16 +111,20 @@ const schema = {
 						<h3>{ p.name }</h3>
 						<p class="plan-price"><span class="plan-eur">€{ money( p.eur ) }</span> <span class="plan-per">a year</span><br /><span class="plan-usd">or ${ money( p.usd ) } or £{ money( p.gbp ) } a year</span></p>
 						<p><strong>{ 1 === p.sites ? '1 site' : `Up to ${ p.sites } sites` }.</strong> { p.for }</p>
+						{ PRO_BUY_OPEN && (
+							<p class="plan-buy">
+								<a class="button button-primary" href={ checkoutUrl( p.sites, 'eur' ) }>{ 1 === p.sites ? 'Buy for 1 site' : `Buy for up to ${ p.sites } sites` }</a>
+								<span class="plan-currency">or pay in <a href={ checkoutUrl( p.sites, 'usd' ) }>dollars</a> or <a href={ checkoutUrl( p.sites, 'gbp' ) }>pounds</a></span>
+							</p>
+						) }
 					</div>
 				) ) }
 			</div>
-			<p class="cta-row">
-				{ PRO.buyUrl ? (
-					<a class="button button-primary" href={ PRO.buyUrl }>Buy Airworthy Pro</a>
-				) : (
+			{ ! PRO_BUY_OPEN && (
+				<p class="cta-row">
 					<span class="button" aria-disabled="true">Available from { PRO.launchDate }</span>
-				) }
-			</p>
+				</p>
+			) }
 
 			<div class="callout">
 				<h3>What happens when your licence ends</h3>
@@ -193,6 +197,17 @@ const schema = {
 		font-size: 2rem;
 		font-weight: 700;
 		letter-spacing: -0.02em;
+	}
+
+	.plan-buy {
+		margin-top: 18px;
+	}
+
+	.plan-currency {
+		display: block;
+		margin-top: 8px;
+		font-size: 0.875rem;
+		color: var(--muted);
 	}
 
 	.plan-per,

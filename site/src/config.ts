@@ -66,9 +66,14 @@ export const NAV = [
  * decision (plans, prices, refund) and must be settled before `published` goes true.
  */
 export const PRO = {
-	published: false,
-	/** The Freemius checkout link. Empty until the Freemius product exists. */
-	buyUrl: '',
+	published: true,
+	/**
+	 * Whether the plan cards show Buy buttons (true at launch, with `published`) instead of
+	 * "Available from ...". PREVIEW_PRO_BUY=1 shows them locally.
+	 */
+	buyOpen: true,
+	/** The Airworthy Pro product in the DigitalKind Freemius store; the public key is public by design (never the secret key). */
+	checkout: { product: '46502', plan: '81956', publicKey: 'pk_6c85095e4d83a637d3cab1fb13735' },
 	launchDate: '3 December 2026',
 	/** Decided 26 Nov 2026 (wiki: Pro pricing research): founding prices, same on renewal; in Freemius as one "Pro" plan with 1, 5 and 25 site prices, yearly. */
 	plans: [
@@ -87,4 +92,17 @@ export const PRO = {
 
 /** Whether the Pro page is built: published, or previewed locally (PREVIEW_PRO=1). */
 export const PRO_LIVE = PRO.published || '1' === import.meta.env.PREVIEW_PRO;
+
+/** Whether the plan cards show Buy buttons: open at launch, or previewed locally (PREVIEW_PRO_BUY=1). */
+export const PRO_BUY_OPEN = PRO.buyOpen || '1' === import.meta.env.PREVIEW_PRO_BUY;
+
+/**
+ * The Freemius hosted checkout for a number of sites, yearly. A plain link, no script, so the
+ * site's content security policy needs no change. Checkout opens in dollars unless told
+ * otherwise, so the currency is always set (visitors can still change it there).
+ */
+export function checkoutUrl( licenses: number, currency: 'eur' | 'usd' | 'gbp' = 'eur' ) {
+	const c = PRO.checkout;
+	return `https://checkout.freemius.com/mode/page/plugin/${ c.product }/plan/${ c.plan }/?public_key=${ c.publicKey }&licenses=${ licenses }&billing_cycle=annual&currency=${ currency }`;
+}
 
