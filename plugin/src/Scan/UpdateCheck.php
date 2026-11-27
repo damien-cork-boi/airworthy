@@ -181,7 +181,16 @@ final class UpdateCheck {
 	 */
 	private static function begin( array $pkg, $type, $slug, $scan, $key ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
+		// Like the WordPress.org lookups: Airworthy's own user agent, not WordPress's default, which contains the site's address.
+		$agent = static function ( $args, $url ) use ( $pkg ) {
+			if ( $url === $pkg['url'] ) {
+				$args['user-agent'] = 'Airworthy/' . AIRWORTHY_VERSION;
+			}
+			return $args;
+		};
+		add_filter( 'http_request_args', $agent, 99, 2 );
 		$zip = download_url( $pkg['url'], 120 );
+		remove_filter( 'http_request_args', $agent, 99 );
 		if ( is_wp_error( $zip ) ) {
 			return new \WP_Error( 'download', __( 'The update could not be downloaded from WordPress.org just now. Try again in a minute.', 'airworthy' ) );
 		}

@@ -512,6 +512,28 @@ if ( class_exists( 'ZipArchive' ) ) {
 	}
 	$latest = $uc::latest_scan();
 	$check( 'Update check: the latest finished scan is the one the check compares with', (int) $latest->id === $fake_scan );
+	// The download names Airworthy, not the site: WordPress's default user agent contains the site's address.
+	$seen_agent = null;
+	$spy        = static function ( $pre, $args, $url ) use ( &$seen_agent ) {
+		if ( 0 === strpos( $url, 'https://downloads.wordpress.org/' ) ) {
+			$seen_agent = $args['user-agent'];
+			return new WP_Error( 'test', 'stopped by the test' );
+		}
+		return $pre;
+	};
+	update_site_option( 'airworthy_wporg_consent', 'yes' );
+	$set_updates( 'https://downloads.wordpress.org/plugin/fx-implode.9.9.9.zip' );
+	add_filter( 'pre_http_request', $spy, 10, 3 );
+	$uc::run( 'plugin', 'fx-implode' );
+	remove_filter( 'pre_http_request', $spy, 10 );
+	$check( 'Update check: the download is made as "Airworthy", without the site address', is_string( $seen_agent ) && 0 === strpos( $seen_agent, 'Airworthy/' ) && false === stripos( $seen_agent, (string) wp_parse_url( home_url(), PHP_URL_HOST ) ), (string) $seen_agent );
+	if ( null === $consent_was ) {
+		delete_site_option( 'airworthy_wporg_consent' );
+	} else {
+		update_site_option( 'airworthy_wporg_consent', $consent_was );
+	}
+	delete_transient( 'airworthy_uc_' . md5( 'plugin|fx-implode|9.9.9|8.4|' . $fake_scan ) );
+
 	$make_zip = static function ( array $files ) {
 		$path = wp_tempnam( 'aw-test-zip' );
 		$za   = new ZipArchive();
