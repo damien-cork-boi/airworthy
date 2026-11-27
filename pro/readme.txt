@@ -5,7 +5,7 @@ Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 7.2
 Requires Plugins: airworthy
-Stable tag: 0.7.0
+Stable tag: 0.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,6 +18,7 @@ Airworthy tells you which plugins and themes will break on a newer PHP version. 
 * **Monitoring and email alerts.** Airworthy checks the site again on a schedule (daily, weekly or monthly) and after any plugin or theme update, and emails you when something new would break on your PHP version. A history shows what changed since the last check: new Blockers, fixed ones, plugins added or removed. It also emails once when your PHP version is 90, 30 and 7 days from the end of security fixes, or is missing the latest security release.
 * **After-the-switch watch.** Start it before your host switches PHP. Airworthy notes how your home page, newest post, login page and REST API answer today (and the cart and checkout with WooCommerce), notices the switch by itself, then for 24, 48 or 72 hours records the PHP errors, warnings and deprecations your site raises, names the plugin or theme behind each, and tells you which are new on the new PHP version and which were already there. It checks your pages again after the switch and emails you if something breaks, and when the watch is over.
 * **Check a zip before you install it.** Upload a plugin or theme zip and Airworthy tells you whether it would work on the PHP version you are heading for, and whether it is better or worse than the version you have installed. Nothing is installed or run, and the files are deleted when the check ends.
+* **Network overview (multisite).** On a network, one screen shows which sites are ready for the PHP version you checked and which plugin to fix first because it is on the most sites, with a CSV to download. It reads your last scan and each site's list of active plugins and theme; nothing is scanned again.
 * **Reviews with notes.** Record what you decided about each plugin or theme with a problem: you are fixing it, waiting for the developer, or accepting it, with a note on why. A review belongs to the version you looked at and is marked out of date when the plugin is updated. You choose, per note, whether the client report shows it.
 * **Fix brief.** Pick a plugin or theme with problems and Airworthy writes a plain-text brief for a developer or an AI assistant: each problem with its file, line and the line itself, why PHP objects, how to fix it, and rules that keep the fix small. It is built on your site and nothing is sent anywhere.
 * **Chat alerts.** Add a Slack, Discord or Teams incoming-webhook address and every monitoring alert is posted there as well as emailed.
@@ -26,7 +27,7 @@ Airworthy tells you which plugins and themes will break on a newer PHP version. 
 * **Client reports.** A plain-words report of any scan with your logo, name and colour, ready to save as a PDF and send to your client.
 * **Priority support, with a support file.** One button on the Pro tab builds a plain-text file about the site (versions, settings, plugins, recent scans, waiting jobs) for you to preview and send us. It leaves out passwords, keys, customer and order data, post content and file contents, and masks site addresses, email addresses and IP addresses.
 
-Airworthy Pro needs the free Airworthy plugin (https://airworthywp.com/), installed and active. It adds "Pro", "Upgrade plan", "PHP versions", "Monitoring", "After the switch", "Check a zip", "Fix brief", "Reviews" and "Client report" tabs to Tools > Airworthy.
+Airworthy Pro needs the free Airworthy plugin (https://airworthywp.com/), installed and active. It adds "Pro", "Upgrade plan", "PHP versions", "Monitoring", "After the switch", "Check a zip", "Fix brief", "Reviews", "Network" (multisite) and "Client report" tabs to Tools > Airworthy.
 
 = Privacy =
 
@@ -43,6 +44,9 @@ Email hello@airworthywp.com with your site's PHP version and what you're seeing.
 3. You'll land on the Pro tab, with three steps to get started.
 
 == Changelog ==
+
+= 0.8.0 =
+* New: Network overview, on multisite only. A new "Network" tab in Network Admin shows every site's readiness for the PHP version you checked (the share of its plugins and theme with no Blocker and nothing unchecked), what needs attention on each, and a "Fix these first" list of the plugins and themes on the most sites. Download it as a CSV. It reads your last scan and each site's active plugins and theme, and scans nothing again.
 
 = 0.7.0 =
 * New: Reviews. A new "Reviews" tab lists the plugins and themes in your last scan that have problems or unchecked files. For each, record what you decided (we are fixing it, waiting for the developer, accepted) with a note, and tick whether the client report shows it. A review is for the version you looked at: after an update it is marked out of date so it is looked at again. Reviews are a record on your site; they never change what Airworthy finds.

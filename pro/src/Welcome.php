@@ -166,6 +166,13 @@ final class Welcome {
 				'link_text' => __( 'Check a zip', 'airworthy-pro' ),
 			),
 			array(
+				'title'     => __( 'Network overview (multisite)', 'airworthy-pro' ),
+				'text'      => __( 'On a network: which sites are ready for the new PHP version, and which plugin to fix first because it is on the most sites. With a CSV for your records.', 'airworthy-pro' ),
+				'status'    => 'included',
+				'link'      => is_multisite() ? Network::url() : '',
+				'link_text' => is_multisite() ? __( 'Open the overview', 'airworthy-pro' ) : '',
+			),
+			array(
 				'title'     => __( 'Reviews with notes', 'airworthy-pro' ),
 				'text'      => __( 'Record what you decided about each plugin or theme with a problem: fixing it, waiting for the developer, or accepted. Add a note, and choose whether the client report shows it.', 'airworthy-pro' ),
 				'status'    => 'included',

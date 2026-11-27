@@ -3,7 +3,7 @@
  * Plugin Name:       Airworthy Pro
  * Plugin URI:        https://airworthywp.com/
  * Description:       An upgrade plan that ticks itself off, every PHP version at once, and branded client reports. Needs the free Airworthy plugin.
- * Version:           0.7.0
+ * Version:           0.8.0
  * Requires at least: 6.9
  * Requires PHP:      7.2
  * Requires Plugins:  airworthy
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AIRWORTHY_PRO_VERSION', '0.7.0' );
+define( 'AIRWORTHY_PRO_VERSION', '0.8.0' );
 define( 'AIRWORTHY_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AIRWORTHY_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -47,6 +47,7 @@ require_once AIRWORTHY_PRO_DIR . 'src/WatchTab.php';
 require_once AIRWORTHY_PRO_DIR . 'src/ZipTab.php';
 require_once AIRWORTHY_PRO_DIR . 'src/Brief.php';
 require_once AIRWORTHY_PRO_DIR . 'src/Reviews.php';
+require_once AIRWORTHY_PRO_DIR . 'src/Network.php';
 
 // While an after-the-switch watch runs, start recording as early as possible.
 AirworthyPro\Watch::boot();
@@ -150,6 +151,7 @@ add_action(
 		AirworthyPro\ZipTab::register();
 		AirworthyPro\Brief::register();
 		AirworthyPro\Reviews::register();
+		AirworthyPro\Network::register(); // Multisite only.
 	},
 	20
 );
