@@ -3,7 +3,7 @@
  * Plugin Name:       Airworthy Pro
  * Plugin URI:        https://airworthywp.com/
  * Description:       An upgrade plan that ticks itself off, every PHP version at once, and branded client reports. Needs the free Airworthy plugin.
- * Version:           0.3.1
+ * Version:           0.4.0
  * Requires at least: 6.9
  * Requires PHP:      7.2
  * Requires Plugins:  airworthy
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AIRWORTHY_PRO_VERSION', '0.3.1' );
+define( 'AIRWORTHY_PRO_VERSION', '0.4.0' );
 define( 'AIRWORTHY_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AIRWORTHY_PRO_URL', plugin_dir_url( __FILE__ ) );
 
@@ -37,6 +37,10 @@ require_once AIRWORTHY_PRO_DIR . 'src/Welcome.php';
 require_once AIRWORTHY_PRO_DIR . 'src/Versions.php';
 require_once AIRWORTHY_PRO_DIR . 'src/Plan.php';
 require_once AIRWORTHY_PRO_DIR . 'src/Support.php';
+require_once AIRWORTHY_PRO_DIR . 'src/History.php';
+require_once AIRWORTHY_PRO_DIR . 'src/Alerts.php';
+require_once AIRWORTHY_PRO_DIR . 'src/Monitor.php';
+require_once AIRWORTHY_PRO_DIR . 'src/MonitorTab.php';
 
 if ( ! function_exists( 'airworthy_pro_fs' ) ) {
 	/**
@@ -89,6 +93,7 @@ if ( ! function_exists( 'airworthy_pro_fs' ) ) {
 }
 
 register_activation_hook( __FILE__, array( 'AirworthyPro\\Welcome', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'AirworthyPro\\Monitor', 'deactivate' ) );
 
 add_action(
 	'plugins_loaded',
@@ -113,6 +118,8 @@ add_action(
 		AirworthyPro\Versions::register();
 		AirworthyPro\Plan::register();
 		AirworthyPro\Support::register();
+		AirworthyPro\Monitor::register();
+		AirworthyPro\MonitorTab::register();
 	},
 	20
 );

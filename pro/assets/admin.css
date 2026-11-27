@@ -468,3 +468,75 @@
 .airworthy-pro-support-privacy li {
 	margin-bottom: 4px;
 }
+
+/* Monitoring tab. */
+.airworthy-pro-pill {
+	display: inline-block;
+	margin-left: 8px;
+	padding: 2px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	vertical-align: middle;
+}
+
+.airworthy-pro-pill.is-on {
+	background: #e6f4ea;
+	color: #1e6b34;
+}
+
+.airworthy-pro-pill.is-off {
+	background: #f0f0f1;
+	color: #50575e;
+}
+
+.airworthy-pro-facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 20px;
+	margin: 12px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.airworthy-pro-facts li.is-warn {
+	flex-basis: 100%;
+	color: #8a4b00;
+}
+
+.airworthy-pro-inline {
+	display: inline-block;
+	margin: 0 8px 8px 0;
+}
+
+.airworthy-pro-history-list {
+	margin: 12px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.airworthy-pro-history-list > li {
+	margin: 0 0 12px;
+	padding: 12px 16px;
+	border: 1px solid #e2e4e7;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.airworthy-pro-history-list p {
+	margin: 0 0 6px;
+}
+
+.airworthy-pro-history-counts span {
+	margin-right: 16px;
+}
+
+.airworthy-pro-change summary {
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.airworthy-pro-change ul {
+	margin: 6px 0 6px 18px;
+	list-style: disc;
+}

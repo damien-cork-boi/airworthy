@@ -2,21 +2,21 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Airworthy Pro 0.3.1\n"
+"Project-Id-Version: Airworthy Pro 0.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/airworthy-pro\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-26T23:50:37+00:00\n"
+"POT-Creation-Date: 2026-11-27T08:49:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: airworthy-pro\n"
 
 #. Plugin Name of the plugin
 #: airworthy-pro.php
-#: src/Welcome.php:244
+#: src/Welcome.php:246
 msgid "Airworthy Pro"
 msgstr ""
 
@@ -40,13 +40,196 @@ msgstr ""
 msgid "https://digitalkind.ie/"
 msgstr ""
 
-#: airworthy-pro.php:101
+#: airworthy-pro.php:106
 msgid "Airworthy Pro needs the free Airworthy plugin. Install and activate it to use client reports."
+msgstr ""
+
+#. translators: 1: number, 2: PHP version, 3: site name.
+#: src/Alerts.php:65
+#, php-format
+msgid "Airworthy: %1$d new Blocker for PHP %2$s on %3$s"
+msgid_plural "Airworthy: %1$d new Blockers for PHP %2$s on %3$s"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: PHP version, 2: site name.
+#: src/Alerts.php:68
+#, php-format
+msgid "Airworthy: new warnings for PHP %1$s on %2$s"
+msgstr ""
+
+#: src/Alerts.php:72
+msgid "A plugin or theme was just updated, and Airworthy checked the site again."
+msgstr ""
+
+#: src/Alerts.php:73
+msgid "This is your scheduled check."
+msgstr ""
+
+#: src/Alerts.php:79
+#: src/MonitorTab.php:264
+msgid "New Blockers"
+msgstr ""
+
+#: src/Alerts.php:79
+msgid "These would break on the PHP version you are heading for. Update them, or replace them, before you upgrade."
+msgstr ""
+
+#: src/Alerts.php:80
+#: src/MonitorTab.php:265
+msgid "Got worse"
+msgstr ""
+
+#: src/Alerts.php:81
+msgid "Fixed since the last check"
+msgstr ""
+
+#: src/Alerts.php:82
+#: src/MonitorTab.php:267
+msgid "Improved"
+msgstr ""
+
+#: src/Alerts.php:93
+msgid "Open the results"
+msgstr ""
+
+#: src/Alerts.php:94
+msgid "Open the results:"
+msgstr ""
+
+#: src/Alerts.php:96
+msgid "Something changed on your site"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Alerts.php:106
+#, php-format
+msgid "Airworthy: the scheduled check could not finish on %s"
+msgstr ""
+
+#: src/Alerts.php:107
+msgid "The scan stopped before it finished, so nothing new was checked this time. Airworthy will try again at the next scheduled check. You can also start a scan by hand."
+msgstr ""
+
+#: src/Alerts.php:108
+#: src/Alerts.php:135
+#: src/Alerts.php:151
+msgid "Open Airworthy"
+msgstr ""
+
+#: src/Alerts.php:109
+msgid "A check could not finish"
+msgstr ""
+
+#. translators: 1: PHP version, 2: site name.
+#: src/Alerts.php:125
+#, php-format
+msgid "Airworthy: PHP %1$s no longer gets security fixes (%2$s)"
+msgstr ""
+
+#. translators: 1: PHP version, 2: date.
+#: src/Alerts.php:127
+#, php-format
+msgid "PHP %1$s stopped getting security fixes on %2$s. Your site runs it today."
+msgstr ""
+
+#. translators: 1: PHP version, 2: number of days, 3: site name.
+#: src/Alerts.php:130
+#, php-format
+msgid "Airworthy: PHP %1$s gets security fixes for %2$d more day (%3$s)"
+msgid_plural "Airworthy: PHP %1$s gets security fixes for %2$d more days (%3$s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: PHP version, 2: date.
+#: src/Alerts.php:132
+#, php-format
+msgid "PHP %1$s stops getting security fixes on %2$s."
+msgstr ""
+
+#: src/Alerts.php:134
+msgid "Plan the move now: run a check against a newer PHP version, fix what it finds, then ask your host to switch. Airworthy's upgrade plan lists the steps."
+msgstr ""
+
+#: src/Alerts.php:136
+msgid "PHP is nearing the end of support"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Alerts.php:148
+#, php-format
+msgid "Airworthy: the PHP on %s is missing the latest security fixes"
+msgstr ""
+
+#: src/Alerts.php:150
+msgid "Ask your host to apply the latest PHP security update. A minor update within the same PHP version is routine and does not change how your plugins work."
+msgstr ""
+
+#: src/Alerts.php:152
+msgid "A PHP security update is waiting"
+msgstr ""
+
+#. translators: %s: site name.
+#: src/Alerts.php:162
+#, php-format
+msgid "Airworthy: test email from %s"
+msgstr ""
+
+#: src/Alerts.php:163
+msgid "This is a test. If you can read it, Airworthy's monitoring emails will reach this address."
+msgstr ""
+
+#: src/Alerts.php:164
+msgid "Monitoring settings"
+msgstr ""
+
+#: src/Alerts.php:165
+msgid "Test email"
+msgstr ""
+
+#. translators: 1: site address, 2: settings link.
+#: src/Alerts.php:184
+#, php-format
+msgid "You get this because monitoring is on for %1$s. Change or stop it here: %2$s"
+msgstr ""
+
+#. translators: 1: PHP version, 2: the counts, for example "2 Blockers · 3 Warnings".
+#: src/Alerts.php:245
+#, php-format
+msgid "Checked against PHP %1$s: %2$s"
+msgstr ""
+
+#. translators: %d: number of further plugins or themes.
+#: src/Alerts.php:270
+#, php-format
+msgid "and %d more"
+msgstr ""
+
+#: src/Alerts.php:296
+msgid "(unnamed)"
+msgstr ""
+
+#. translators: 1: plugin name and version, 2: verdict.
+#: src/Alerts.php:302
+#, php-format
+msgid "%1$s is new: %2$s"
+msgstr ""
+
+#. translators: 1: plugin name, 2: old version, 3: new version, 4: old verdict, 5: new verdict.
+#: src/Alerts.php:306
+#, php-format
+msgid "%1$s %2$s to %3$s: %4$s to %5$s"
+msgstr ""
+
+#. translators: 1: plugin name and version, 2: old verdict, 3: new verdict.
+#: src/Alerts.php:309
+#, php-format
+msgid "%1$s: %2$s to %3$s"
 msgstr ""
 
 #: src/Branding.php:40
 #: src/Welcome.php:67
-#: src/Welcome.php:244
+#: src/Welcome.php:246
 msgid "Pro"
 msgstr ""
 
@@ -69,7 +252,7 @@ msgid "A report of the latest scan for your client, in plain words, with your lo
 msgstr ""
 
 #: src/Branding.php:160
-#: src/Welcome.php:198
+#: src/Welcome.php:200
 msgid "Open the report"
 msgstr ""
 
@@ -132,6 +315,7 @@ msgid "Save branding"
 msgstr ""
 
 #: src/Branding.php:220
+#: src/MonitorTab.php:362
 #: src/Plan.php:144
 #: src/Plan.php:194
 #: src/Report.php:202
@@ -170,6 +354,237 @@ msgstr ""
 #: src/Licence.php:128
 #, php-format
 msgid "Renews on %s. If you don't renew, Airworthy Pro keeps working; updates, support and monitoring alerts stop."
+msgstr ""
+
+#: src/MonitorTab.php:49
+#: src/MonitorTab.php:108
+msgid "Monitoring"
+msgstr ""
+
+#: src/MonitorTab.php:109
+msgid "On"
+msgstr ""
+
+#: src/MonitorTab.php:109
+msgid "Off"
+msgstr ""
+
+#: src/MonitorTab.php:111
+msgid "Airworthy checks your plugins and themes again on a schedule, and after any plugin or theme update, and emails you when something new would break. It only emails when something got worse."
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/MonitorTab.php:116
+#, php-format
+msgid "Checks against PHP %s"
+msgstr ""
+
+#: src/MonitorTab.php:122
+msgid "A check is running now."
+msgstr ""
+
+#. translators: %s: date.
+#: src/MonitorTab.php:125
+#, php-format
+msgid "Next check: %s"
+msgstr ""
+
+#. translators: %s: date.
+#: src/MonitorTab.php:133
+#, php-format
+msgid "Last check started: %s"
+msgstr ""
+
+#: src/MonitorTab.php:136
+msgid "WP-Cron is switched off on this site (DISABLE_WP_CRON). Checks only run if your host runs wp-cron.php on a schedule."
+msgstr ""
+
+#: src/MonitorTab.php:144
+msgid "Settings"
+msgstr ""
+
+#: src/MonitorTab.php:147
+msgid "Check this site automatically"
+msgstr ""
+
+#: src/MonitorTab.php:151
+msgid "How often"
+msgstr ""
+
+#: src/MonitorTab.php:153
+msgid "Every day"
+msgstr ""
+
+#: src/MonitorTab.php:154
+msgid "Every week"
+msgstr ""
+
+#: src/MonitorTab.php:155
+msgid "Every month"
+msgstr ""
+
+#: src/MonitorTab.php:157
+msgid "Airworthy also checks right after a plugin or theme is updated, whatever you pick here."
+msgstr ""
+
+#: src/MonitorTab.php:161
+msgid "Check against"
+msgstr ""
+
+#. translators: %s: PHP version.
+#: src/MonitorTab.php:164
+#, php-format
+msgid "The suggested version (PHP %s)"
+msgstr ""
+
+#: src/MonitorTab.php:173
+msgid "Who gets the emails"
+msgstr ""
+
+#: src/MonitorTab.php:175
+msgid "Up to five addresses, separated by commas. Leave it empty to use the site's admin email (shown here)."
+msgstr ""
+
+#: src/MonitorTab.php:179
+msgid "Email me when"
+msgstr ""
+
+#: src/MonitorTab.php:180
+msgid "a plugin or theme newly becomes a Blocker"
+msgstr ""
+
+#: src/MonitorTab.php:181
+msgid "something gets new Warnings (off by default: warnings are rarely urgent)"
+msgstr ""
+
+#: src/MonitorTab.php:182
+msgid "my PHP version is close to the end of security fixes, or is missing the latest security update"
+msgstr ""
+
+#: src/MonitorTab.php:183
+msgid "a scheduled check could not finish"
+msgstr ""
+
+#: src/MonitorTab.php:186
+msgid "Save settings"
+msgstr ""
+
+#: src/MonitorTab.php:190
+msgid "Try it"
+msgstr ""
+
+#: src/MonitorTab.php:194
+msgid "Send a test email"
+msgstr ""
+
+#: src/MonitorTab.php:199
+msgid "Check now"
+msgstr ""
+
+#: src/MonitorTab.php:201
+msgid "A check you start here is saved in the history but does not send an email."
+msgstr ""
+
+#: src/MonitorTab.php:215
+msgid "History"
+msgstr ""
+
+#: src/MonitorTab.php:217
+msgid "Nothing here yet. Run a scan on the Scan tab, or press Check now, and the first snapshot appears. A new line is added each time the results change."
+msgstr ""
+
+#. translators: %d: number of snapshots kept.
+#: src/MonitorTab.php:220
+#, php-format
+msgid "The last %d times the results changed, newest first."
+msgstr ""
+
+#: src/MonitorTab.php:232
+msgid "Latest"
+msgstr ""
+
+#: src/MonitorTab.php:235
+msgid "Blockers"
+msgstr ""
+
+#: src/MonitorTab.php:236
+#: src/Report.php:122
+#: src/Versions.php:335
+msgid "Warnings"
+msgstr ""
+
+#: src/MonitorTab.php:237
+#: src/Report.php:119
+#: src/Versions.php:332
+msgid "Unknown"
+msgstr ""
+
+#: src/MonitorTab.php:238
+#: src/Report.php:123
+#: src/Versions.php:336
+msgid "Ready"
+msgstr ""
+
+#: src/MonitorTab.php:256
+msgid "The first snapshot: nothing to compare it with."
+msgstr ""
+
+#: src/MonitorTab.php:260
+msgid "Checked against a different PHP version than the one before, so the two are not compared."
+msgstr ""
+
+#: src/MonitorTab.php:266
+msgid "Fixed"
+msgstr ""
+
+#: src/MonitorTab.php:268
+msgid "Added"
+msgstr ""
+
+#: src/MonitorTab.php:269
+msgid "Removed"
+msgstr ""
+
+#: src/MonitorTab.php:284
+msgid "Only version numbers changed."
+msgstr ""
+
+#: src/MonitorTab.php:297
+msgid "Scheduled check"
+msgstr ""
+
+#: src/MonitorTab.php:299
+msgid "After an update"
+msgstr ""
+
+#: src/MonitorTab.php:301
+msgid "Run by hand"
+msgstr ""
+
+#: src/MonitorTab.php:313
+msgid "Settings saved."
+msgstr ""
+
+#: src/MonitorTab.php:314
+msgid "Test email sent. Check the inbox (and spam) of the address above."
+msgstr ""
+
+#: src/MonitorTab.php:315
+msgid "WordPress could not send the test email. Check that your site can send email (a plugin such as an SMTP mailer helps on some hosts)."
+msgstr ""
+
+#: src/MonitorTab.php:316
+msgid "A check has started. It runs in the background; the result appears in the history below."
+msgstr ""
+
+#: src/MonitorTab.php:317
+msgid "A check could not be started. A scan may already be running."
+msgstr ""
+
+#. translators: %s: reason.
+#: src/MonitorTab.php:323
+#, php-format
+msgid "The last scheduled check could not start: %s"
 msgstr ""
 
 #: src/Plan.php:51
@@ -396,27 +811,12 @@ msgstr ""
 msgid "Blocker"
 msgstr ""
 
-#: src/Report.php:119
-#: src/Versions.php:332
-msgid "Unknown"
-msgstr ""
-
 #: src/Report.php:120
 msgid "Suppressed by author"
 msgstr ""
 
 #: src/Report.php:121
 msgid "Guarded legacy code"
-msgstr ""
-
-#: src/Report.php:122
-#: src/Versions.php:335
-msgid "Warnings"
-msgstr ""
-
-#: src/Report.php:123
-#: src/Versions.php:336
-msgid "Ready"
 msgstr ""
 
 #. translators: %s: list of plugin names.
@@ -753,207 +1153,215 @@ msgid "Monitoring and email alerts"
 msgstr ""
 
 #: src/Welcome.php:149
-msgid "Checks again after every update and every week, and emails you when something changes or your PHP version nears its end."
+msgid "Checks again after every update and on a schedule you choose, emails you when something new would break or your PHP version nears its end, and keeps a history of what changed."
 msgstr ""
 
-#: src/Welcome.php:153
+#: src/Welcome.php:152
+msgid "See the history"
+msgstr ""
+
+#: src/Welcome.php:152
+msgid "Turn on monitoring"
+msgstr ""
+
+#: src/Welcome.php:155
 msgid "Report history"
 msgstr ""
 
-#: src/Welcome.php:154
+#: src/Welcome.php:156
 msgid "Every client report kept with its date, ready to download again."
 msgstr ""
 
-#: src/Welcome.php:172
+#: src/Welcome.php:174
 msgid "Included"
 msgstr ""
 
-#: src/Welcome.php:173
+#: src/Welcome.php:175
 msgid "Coming next"
 msgstr ""
 
-#: src/Welcome.php:174
+#: src/Welcome.php:176
 msgid "Coming soon"
 msgstr ""
 
-#: src/Welcome.php:176
+#: src/Welcome.php:178
 msgid "Airworthy Pro support"
 msgstr ""
 
-#: src/Welcome.php:180
+#: src/Welcome.php:182
 msgid "Got it"
 msgstr ""
 
-#: src/Welcome.php:180
+#: src/Welcome.php:182
 msgid "(close the welcome)"
 msgstr ""
 
-#: src/Welcome.php:181
+#: src/Welcome.php:183
 msgid "Welcome to Airworthy Pro"
 msgstr ""
 
-#: src/Welcome.php:182
+#: src/Welcome.php:184
 msgid "You're all set. Here's how to get the most out of it."
 msgstr ""
 
-#: src/Welcome.php:185
+#: src/Welcome.php:187
 msgid "Add your branding"
 msgstr ""
 
-#: src/Welcome.php:186
+#: src/Welcome.php:188
 msgid "Your logo, name and colour go on every client report."
 msgstr ""
 
-#: src/Welcome.php:187
+#: src/Welcome.php:189
 msgid "Add branding"
 msgstr ""
 
-#: src/Welcome.php:190
+#: src/Welcome.php:192
 msgid "Run a scan"
 msgstr ""
 
-#: src/Welcome.php:191
+#: src/Welcome.php:193
 msgid "Check the site's plugins and theme against the PHP version you plan to move to."
 msgstr ""
 
-#: src/Welcome.php:192
+#: src/Welcome.php:194
 msgid "See the results"
 msgstr ""
 
-#: src/Welcome.php:192
+#: src/Welcome.php:194
 msgid "Start a scan"
 msgstr ""
 
-#: src/Welcome.php:195
+#: src/Welcome.php:197
 msgid "Send a client report"
 msgstr ""
 
-#: src/Welcome.php:196
+#: src/Welcome.php:198
 msgid "Open the report, save it as a PDF, and send it on."
 msgstr ""
 
-#: src/Welcome.php:200
+#: src/Welcome.php:202
 msgid "Available after your first scan."
 msgstr ""
 
-#: src/Welcome.php:210
+#: src/Welcome.php:212
 msgid "Your licence"
 msgstr ""
 
 #. translators: 1: plan name, 2: sites used, 3: sites allowed.
-#: src/Welcome.php:217
+#: src/Welcome.php:219
 #, php-format
 msgid "Plan: %1$s. Sites using this licence: %2$d of %3$s."
 msgstr ""
 
-#: src/Welcome.php:220
+#: src/Welcome.php:222
 msgid "unlimited"
 msgstr ""
 
-#: src/Welcome.php:224
+#: src/Welcome.php:226
 msgid "This is a local or staging address, so it doesn't use up a site."
 msgstr ""
 
-#: src/Welcome.php:229
+#: src/Welcome.php:231
 msgid "Activate your licence"
 msgstr ""
 
-#: src/Welcome.php:231
+#: src/Welcome.php:233
 msgid "Manage your licence"
 msgstr ""
 
-#: src/Welcome.php:245
+#: src/Welcome.php:247
 msgid "The free plugin tells you what will break. Pro helps you plan the upgrade, show your clients, and keep watch afterwards."
 msgstr ""
 
-#: src/Welcome.php:248
+#: src/Welcome.php:250
 msgid "Version"
 msgstr ""
 
-#: src/Welcome.php:250
+#: src/Welcome.php:252
 msgid "Licence"
 msgstr ""
 
-#: src/Welcome.php:251
+#: src/Welcome.php:253
 msgid "Early access"
 msgstr ""
 
-#: src/Welcome.php:270
+#: src/Welcome.php:272
 msgid "Priority support"
 msgstr ""
 
-#: src/Welcome.php:271
+#: src/Welcome.php:273
 msgid "Pro customers get help straight from the people who make Airworthy. Tell us what you're seeing, and attach the support info file: it has the versions, settings and recent scan results we need, so we can help without a round of questions."
 msgstr ""
 
-#: src/Welcome.php:273
+#: src/Welcome.php:275
 msgid "1. Get the support info file"
 msgstr ""
 
-#: src/Welcome.php:274
+#: src/Welcome.php:276
 msgid "Made on this site when you click. Nothing is sent anywhere: you download the file and attach it to your email. Preview it first to see exactly what's in it."
 msgstr ""
 
-#: src/Welcome.php:276
+#: src/Welcome.php:278
 msgid "Download support info"
 msgstr ""
 
-#: src/Welcome.php:277
+#: src/Welcome.php:279
 msgid "Preview"
 msgstr ""
 
-#: src/Welcome.php:277
+#: src/Welcome.php:279
 msgid "(opens in a new tab)"
 msgstr ""
 
-#: src/Welcome.php:281
+#: src/Welcome.php:283
 msgid "What's in it"
 msgstr ""
 
-#: src/Welcome.php:283
+#: src/Welcome.php:285
 msgid "Airworthy, WordPress, PHP and database versions"
 msgstr ""
 
-#: src/Welcome.php:284
+#: src/Welcome.php:286
 msgid "Server limits: memory, time, web server, caching"
 msgstr ""
 
-#: src/Welcome.php:285
+#: src/Welcome.php:287
 msgid "Airworthy's settings"
 msgstr ""
 
-#: src/Welcome.php:286
+#: src/Welcome.php:288
 msgid "Your theme and plugins: names, versions, active or not"
 msgstr ""
 
-#: src/Welcome.php:287
+#: src/Welcome.php:289
 msgid "The last five scans, files that couldn't be checked, and failed background jobs"
 msgstr ""
 
-#: src/Welcome.php:291
+#: src/Welcome.php:293
 msgid "What's never in it"
 msgstr ""
 
-#: src/Welcome.php:293
+#: src/Welcome.php:295
 msgid "Your site's address, usernames, email or IP addresses"
 msgstr ""
 
-#: src/Welcome.php:294
+#: src/Welcome.php:296
 msgid "Posts, orders, donations, members or any other customer data"
 msgstr ""
 
-#: src/Welcome.php:295
+#: src/Welcome.php:297
 msgid "Passwords, keys or the contents of wp-config.php"
 msgstr ""
 
-#: src/Welcome.php:296
+#: src/Welcome.php:298
 msgid "The contents of any file. File paths start from the site's folder."
 msgstr ""
 
-#: src/Welcome.php:301
+#: src/Welcome.php:303
 msgid "2. Email us"
 msgstr ""
 
-#: src/Welcome.php:302
+#: src/Welcome.php:304
 msgid "Email support"
 msgstr ""

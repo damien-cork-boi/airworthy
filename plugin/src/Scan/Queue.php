@@ -973,6 +973,12 @@ final class Queue {
 		);
 		Results::refresh_scan( $scan_id );
 		update_site_option( \Airworthy\Admin\Notice::OPTION, (int) $scan_id ); // "Scan finished" notice until the results are seen.
+		/**
+		 * Fires when a scan (or a re-check of some plugins in it) has finished and its results are in.
+		 *
+		 * @param int $scan_id Scan ID.
+		 */
+		do_action( 'airworthy_scan_finished', (int) $scan_id );
 	}
 
 	/**
@@ -997,6 +1003,14 @@ final class Queue {
 			$data['finished_at'] = self::now();
 		}
 		$wpdb->update( $t['scans'], $data, array( 'id' => $scan_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( ! $retry ) {
+			/**
+			 * Fires when a scan has failed for good (it won't be retried).
+			 *
+			 * @param int $scan_id Scan ID.
+			 */
+			do_action( 'airworthy_scan_failed', (int) $scan_id );
+		}
 		return $retry;
 	}
 

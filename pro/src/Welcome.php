@@ -145,9 +145,11 @@ final class Welcome {
 				'link_text' => __( 'See every version', 'airworthy-pro' ),
 			),
 			array(
-				'title'  => __( 'Monitoring and email alerts', 'airworthy-pro' ),
-				'text'   => __( 'Checks again after every update and every week, and emails you when something changes or your PHP version nears its end.', 'airworthy-pro' ),
-				'status' => 'soon',
+				'title'     => __( 'Monitoring and email alerts', 'airworthy-pro' ),
+				'text'      => __( 'Checks again after every update and on a schedule you choose, emails you when something new would break or your PHP version nears its end, and keeps a history of what changed.', 'airworthy-pro' ),
+				'status'    => 'included',
+				'link'      => MonitorTab::url(),
+				'link_text' => Monitor::enabled() ? __( 'See the history', 'airworthy-pro' ) : __( 'Turn on monitoring', 'airworthy-pro' ),
 			),
 			array(
 				'title'  => __( 'Report history', 'airworthy-pro' ),
