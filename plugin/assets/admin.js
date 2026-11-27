@@ -1325,6 +1325,10 @@
 		var happy  = 'complete' === scan.status && ( '' !== fixed || ( ! counts.blocker && ! counts.unknown ) );
 		var review = 'complete' === scan.status && config.review ? reviewCard( fixed ) : null;
 
+		// One dismissible mention of Airworthy Pro, only when there is something to fix and Pro
+		// isn't installed (config.proCard is null then).
+		var proCardEl = 'complete' === scan.status && config.proCard && ( counts.blocker || counts.warnings ) ? proCard() : null;
+
 		// Updates waiting for plugins with findings: often the quickest fix.
 		var withUpdates = components.filter(
 			function ( c ) {
@@ -1511,6 +1515,7 @@
 				),
 				headline,
 				firstSteps,
+				proCardEl,
 				happy ? review : null,
 				summary,
 				updatesNote,
@@ -2002,6 +2007,58 @@
 		}
 		state.fixed = { scan: scan.id, name: now.name };
 		return now.name;
+	}
+
+	/**
+	 * One card about Airworthy Pro under "What to do first", when the results have something to
+	 * fix. Never when Pro is installed. Not now hides it for 60 days, Don't show again for good
+	 * (saved per user). The check and its results stay free; this only says what Pro adds.
+	 */
+	function proCard() {
+		var card   = null;
+		var answer = function ( choice ) {
+			config.proCard = null; // Not again on this page.
+			if ( card && card.parentNode ) {
+				card.parentNode.removeChild( card );
+			}
+			apiFetch( { path: REST + '/pro-card', method: 'POST', data: { choice: choice } } ).catch( function () {} );
+			announce( __( 'Airworthy won\'t show this again for now.', 'airworthy' ) );
+		};
+		card       = el(
+			'section',
+			{ class: 'airworthy-card airworthy-review airworthy-pro-card', 'aria-labelledby': 'airworthy-pro-card-title' },
+			el( 'h3', { id: 'airworthy-pro-card-title' }, __( 'Want this as a plan you can follow?', 'airworthy' ) ),
+			el(
+				'p',
+				null,
+				__( 'Airworthy Pro turns these results into an ordered upgrade plan (update these, replace those, back up, switch) that ticks itself off as you rescan. It also shows every PHP version side by side, and makes branded reports you can send to a client. The check and these results stay free.', 'airworthy' )
+			),
+			el(
+				'p',
+				{ class: 'airworthy-review-actions' },
+				el(
+					'a',
+					{ class: 'button button-primary', href: config.proCard.url, target: '_blank', rel: 'noopener' },
+					__( 'See Airworthy Pro', 'airworthy' ),
+					el( 'span', { class: 'screen-reader-text' }, __( '(opens in a new tab)', 'airworthy' ) )
+				),
+				el(
+					'button',
+					{ type: 'button', class: 'button-link', onclick: function () {
+						answer( 'later' );
+					} },
+					__( 'Not now', 'airworthy' )
+				),
+				el(
+					'button',
+					{ type: 'button', class: 'button-link', onclick: function () {
+						answer( 'never' );
+					} },
+					__( 'Don\'t show again', 'airworthy' )
+				)
+			)
+		);
+		return card;
 	}
 
 	/**

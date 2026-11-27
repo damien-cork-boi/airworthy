@@ -152,6 +152,7 @@ $routes = array(
 	array( 'GET', '/estimate' ),
 	array( 'GET', "/scans/$scan_id/unchecked" ),
 	array( 'POST', '/review', array( 'choice' => 'later' ) ),
+	array( 'POST', '/pro-card', array( 'choice' => 'later' ) ),
 );
 
 $editor_id = username_exists( 'airworthy_test_editor' );
@@ -217,6 +218,30 @@ $check( 'Review: Don\'t ask again ends it', 200 === $status && ! $review::should
 list( $status ) = $call( 'POST', '/review', array( 'choice' => 'five-stars' ) );
 $check( 'Review: unknown answers are refused', 400 === $status, (string) $status );
 delete_user_meta( $admin_id, $review::META );
+
+// The Airworthy Pro card: shown once per user when Pro isn't installed; Not now waits 60 days,
+// Don't show again ends it; sites can hide it with a filter.
+$procard = \Airworthy\Admin\ProCard::class;
+delete_user_meta( $admin_id, $procard::META );
+// Where Airworthy Pro is active (the local test site) the card must stay hidden; CI has no Pro.
+$shown = ! $procard::pro_active();
+$check( 'Pro card: shown when the user has not answered, hidden when Airworthy Pro is active', $shown === $procard::should_show() && ( $shown ? is_array( $procard::config() ) : null === $procard::config() ) );
+$check( 'Pro card: the link carries a utm placement', false !== strpos( $procard::URL, 'utm_campaign=pro-card' ) && 0 === strpos( $procard::URL, 'https://airworthywp.com/' ) );
+list( $status ) = $call( 'POST', '/pro-card', array( 'choice' => 'later' ) );
+$later          = (int) get_user_meta( $admin_id, $procard::META, true );
+$check( 'Pro card: Not now waits about 60 days', 200 === $status && ! $procard::should_show() && abs( $later - ( time() + 60 * DAY_IN_SECONDS ) ) < 60, "$status $later" );
+update_user_meta( $admin_id, $procard::META, (string) ( time() - 1 ) );
+$check( 'Pro card: shown again once the 60 days are up (still hidden when Pro is active)', $shown === $procard::should_show() );
+list( $status ) = $call( 'POST', '/pro-card', array( 'choice' => 'never' ) );
+$check( 'Pro card: Don\'t show again ends it', 200 === $status && ! $procard::should_show() && null === $procard::config() );
+list( $status ) = $call( 'POST', '/pro-card', array( 'choice' => 'buy-now' ) );
+$check( 'Pro card: unknown answers are refused', 400 === $status, (string) $status );
+delete_user_meta( $admin_id, $procard::META );
+add_filter( 'airworthy_show_pro_card', '__return_false' );
+$check( 'Pro card: the airworthy_show_pro_card filter hides it', ! $procard::should_show() && null === $procard::config() );
+remove_filter( 'airworthy_show_pro_card', '__return_false' );
+$check( 'Pro card: back after the filter is removed (unless Pro is active)', $shown === $procard::should_show() );
+delete_user_meta( $admin_id, $procard::META );
 
 // The findings list and its filters, against counts taken straight from the table.
 $in_table = static function ( $where ) use ( $wpdb, $t, $scan_id, $comp_id ) {

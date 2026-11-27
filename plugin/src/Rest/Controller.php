@@ -235,6 +235,23 @@ final class Controller {
 				),
 			)
 		);
+		register_rest_route(
+			$ns,
+			'/pro-card',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( \Airworthy\Admin\ProCard::class, 'rest_answer' ),
+				'permission_callback' => $can,
+				'args'                => array(
+					'choice' => array(
+						'required'    => true,
+						'type'        => 'string',
+						'enum'        => \Airworthy\Admin\ProCard::CHOICES,
+						'description' => __( 'The user\'s answer to the Airworthy Pro card: later or never.', 'airworthy' ),
+					),
+				),
+			)
+		);
 	}
 
 	/**

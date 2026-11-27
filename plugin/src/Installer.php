@@ -199,6 +199,7 @@ final class Installer {
 			delete_site_option( $option );
 		}
 		\Airworthy\Admin\Review::forget_all(); // Each user's answer to the review request.
+		\Airworthy\Admin\ProCard::forget_all(); // Each user's answer to the Airworthy Pro card.
 
 		// Cached WordPress.org lookups. They're site transients, which live in the options table
 		// on a single site (as _site_transient_*) and in sitemeta on multisite. Plain transients
