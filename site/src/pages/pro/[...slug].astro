@@ -95,10 +95,19 @@ const faq = [
 const schema = {
 	'@context': 'https://schema.org',
 	'@type': 'Product',
-	name: title,
+	name: `${ SITE.name } Pro`,
 	description,
 	brand: { '@type': 'Brand', name: SITE.name },
 	manufacturer: { '@type': 'Organization', name: COMPANY.name, url: COMPANY.url },
+	// Google needs offers, a review or a rating on a Product (Search Console flagged this on 28 Nov 2026). Prices are before VAT.
+	offers: PRO.plans.map( ( p ) => ( {
+		'@type': 'Offer',
+		name: `${ p.name }: ${ 1 === p.sites ? '1 site' : `up to ${ p.sites } sites` }, yearly`,
+		price: p.eur.toFixed( 2 ),
+		priceCurrency: 'EUR',
+		availability: 'https://schema.org/InStock',
+		url: new URL( '/pro/#pricing', Astro.site ?? 'https://airworthywp.com' ).href,
+	} ) ),
 };
 ---
 <Base title={ title } description={ description } schema={ schema }>
